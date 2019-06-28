@@ -1,4 +1,4 @@
-from flask import render_template, Blueprint, flash
+from flask import render_template, Blueprint, flash, redirect, url_for
 from price_picker.common.next_page import next_page
 from price_picker.models import Manufacturer, Device
 from .forms import LoginForm
@@ -35,7 +35,7 @@ def login():
         if user is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
             flash('Du wurdest erfolgreich eingeloggt', 'success')
-            return next_page()
+            return redirect(url_for('.home'))
         flash('Falsches Passwort oder Nutzername', 'danger')
     return render_template('main/login.html', form=form)
 
@@ -45,4 +45,4 @@ def login():
 def logout():
     logout_user()
     flash('Du wurdest abgemeldet. Byyee!', 'success')
-    return next_page()
+    return redirect(url_for('.home'))
