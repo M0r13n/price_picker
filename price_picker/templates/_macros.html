@@ -38,15 +38,20 @@
 
 {% macro render_manufacturer(manufacturer) %}
     <div class="col-sm-4 py-2 text-center">
-        <a href="{{ url_for('main.select_device', manufacturer_id=manufacturer.id) }}" class="stretched-link"></a>
         <div class="card h-100">
+            <a href="{{ url_for('main.select_device', manufacturer_id=manufacturer.id) }}" class="stretched-link"></a>
             <div class="card-header">
                 <h4 class="my-0 font-weight-normal">{{ manufacturer.name }}</h4>
             </div>
             <div class="card-body">
                 {% include manufacturer.css_path %}
             </div>
+            {% if current_user.is_authenticated %}
+                <a class="btn btn-primary btn-block editBtn"
+                   href="{{ url_for('admin.edit_manufacturer',manufacturer_id=manufacturer.id) }}">edit</a>
+            {% endif %}
         </div>
+
     </div>
 {% endmacro %}
 

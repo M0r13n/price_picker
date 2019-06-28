@@ -6,3 +6,8 @@
     clear: both;
     padding-top: 20px;
 }
+
+.editBtn {
+    position: relative;
+    z-index: 2;
+}
