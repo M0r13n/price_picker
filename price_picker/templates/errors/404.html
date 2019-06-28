@@ -1,0 +1,12 @@
+{% extends "_base.html" %}
+{% block page_title %}- Seite nicht gefunden{% endblock %}
+{% block content %}
+
+<div class="jumbotron">
+  <div class="text-center">
+    <h1>404</h1>
+    <p>Oops. Die Seite scheint es nicht zu geben. Gehe <a href="{{ url_for('main.home')}}">zur Startseite</a>.</p>
+  </div>
+</div>
+
+{% endblock %}

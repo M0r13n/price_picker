@@ -1,0 +1,12 @@
+coverage
+flake8
+Flask
+Flask-Login
+Flask-Migrate
+Flask-SQLAlchemy
+Flask-WTF
+Flask_Testing
+Flask-Bootstrap
+psycopg2-binary
+python-dotenv
+itsdangerous

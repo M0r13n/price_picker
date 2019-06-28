@@ -1,0 +1,13 @@
+{% extends "_base.html" %}
+{% block page_title %}- Server Fehler{% endblock %}
+{% block content %}
+
+    <div class="jumbotron">
+        <div class="text-center">
+            <h1>500</h1>
+            <p>Oh Oh. Da ist etwas mächtig in die Hose gegangen. Unsere Admins kümmern sich darum!. Gehe <a
+                    href="{{ url_for('main.home') }}">zur Startseite</a>.</p>
+        </div>
+    </div>
+
+{% endblock %}
