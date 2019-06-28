@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, url_for, flash, request, render_template
 from flask_login import current_user
-from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm
+from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, DeleteForm, NewRepairForm
 from price_picker.models import Device, Manufacturer, Repair
 from price_picker import db
 from price_picker.common.next_page import next_page
@@ -24,45 +24,91 @@ def add_manufacturer():
         db.session.add(m)
         db.session.commit()
         flash(f"{m.name} erfolgreich hinzugefügt", "success")
+        return redirect(next_page())
+    return render_template('admin/add_manufacturer.html', form=form)
+
+
+@admin_blueprint.route('/manufacturer/<int:manufacturer_id>/delete', methods=['DELETE', 'POST'])
+def delete_manufacturer(manufacturer_id):
+    form = DeleteForm()
+    if form.validate_on_submit():
+        m = Manufacturer.query.get_or_404(manufacturer_id)
+        name = m.name
+        db.session.delete(m)
+        db.session.commit()
+        flash(f"{name} erfolgreich gelöscht", "success")
+        return redirect(url_for('main.home'))
+
+
+@admin_blueprint.route('/manufacturer/<int:manufacturer_id>/edit', methods=['GET', 'POST'])
+def edit_manufacturer(manufacturer_id):
+    m = Manufacturer.query.get_or_404(manufacturer_id)
+    form = EditManufacturerForm(obj=m)
+    if form.validate_on_submit():
+        form.populate_obj(m)
+        db.session.commit()
+        flash(f"{m.name} erfolgreich aktualisiert", "success")
         return redirect(url_for('main.home'))
     return render_template('admin/add_manufacturer.html', form=form)
 
 
-@admin_blueprint.route('/manufacturer/delete', methods=['DELETE', 'POST'])
-def delete_manufacturer():
-    pass
-
-
-@admin_blueprint.route('/manufacturer/edit', methods=['GET', 'POST'])
-def edit_manufacturer():
-    pass
-
-
 @admin_blueprint.route('/device/add', methods=['GET', 'POST'])
 def add_device():
-    pass
+    form = NewDeviceForm()
+    if form.validate_on_submit():
+        d = Device()
+        form.populate_obj(d)
+        db.session.add(d)
+        db.session.commit()
+        flash(f"{d.name} erfolgreich hinzugefügt", "success")
+        return redirect(url_for('main.select_device', manufacturer_id=d.manufacturer_id))
+    return render_template('admin/add_device.html', form=form)
 
 
-@admin_blueprint.route('/device/delete', methods=['DELETE', 'POST'])
-def delete_device():
-    pass
+@admin_blueprint.route('/device/<int:device_id>/delete', methods=['DELETE', 'POST'])
+def delete_device(device_id):
+    form = DeleteForm()
+    if form.validate_on_submit():
+        d = Device.query.get_or_404(device_id)
+        name, m_id = d.name, d.manufacturer_id
+        db.session.delete(d)
+        db.session.commit()
+        flash(f"{name} erfolgreich gelöscht", "success")
+        return redirect(url_for('main.select_device', manufacturer_id=m_id))
 
 
-@admin_blueprint.route('/device/edit', methods=['GET', 'POST'])
-def edit_device():
-    pass
-
-
-@admin_blueprint.route('/device/<int:device_id>/repair/list', methods=['GET', 'POST'])
-def list_repairs(device_id):
-    pass
+@admin_blueprint.route('/device/<int:device_id>/edit', methods=['GET', 'POST'])
+def edit_device(device_id):
+    d = Device.query.get_or_404(device_id)
+    form = EditDeviceForm(obj=d)
+    if form.validate_on_submit():
+        form.populate_obj(d)
+        db.session.commit()
+        flash(f"{d.name} erfolgreich aktualisiert", "success")
+        return redirect(url_for('main.select_device', manufacturer_id=d.manufacturer_id))
+    return render_template('admin/add_device.html', form=form)
 
 
 @admin_blueprint.route('/device/<int:device_id>/repair/add', methods=['GET', 'POST'])
 def add_repair(device_id):
-    pass
+    device = Device.query.get_or_404(device_id)
+    form = NewRepairForm()
+    if form.validate_on_submit():
+        r = Repair()
+        device.repairs.append(form.populate_obj(r))
+        db.session.commit()
+        flash(f"{r.name} erfolgreich zu {device.name} hinzugefügt", "success")
+        return redirect(url_for('main.select_repair', device_id=device_id))
+    return render_template('admin/add_repair.html', form=form, device=device)
 
 
-@admin_blueprint.route('/device/<int:device_id>/repair/delete', methods=['DELETE', 'POST'])
-def delete_repair(device_id):
-    pass
+@admin_blueprint.route('/repair/<int:repair_id>/delete', methods=['DELETE', 'POST'])
+def delete_repair(repair_id):
+    form = DeleteForm()
+    if form.validate_on_submit():
+        r = Repair.query.get_or_404(repair_id)
+        name = r.name
+        db.session.delete(r)
+        db.session.commit()
+        flash(f"{name} erfolgreich gelöscht", "success")
+        return redirect(url_for('main.home'))

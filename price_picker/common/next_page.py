@@ -8,6 +8,6 @@ def next_page(fallback_url='main.home'):
     else:
         try:
             next_ = url_for(next_)
-        except:
-            pass
-    return redirect(next_)
+        except Exception as e:
+            print(e)
+    return next_
