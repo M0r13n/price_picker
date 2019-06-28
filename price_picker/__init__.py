@@ -78,7 +78,9 @@ def init_flask_login(app):
 def register_blueprints(app):
     """ Register all Blueprints here """
     from price_picker.views.main.views import main_blueprint
+    from price_picker.views.admin.views import admin_blueprint
     app.register_blueprint(main_blueprint)
+    app.register_blueprint(admin_blueprint)
 
 
 def init_extensions(app):
