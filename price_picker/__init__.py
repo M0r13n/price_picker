@@ -67,7 +67,7 @@ def init_flask_login(app):
     """ Flask Login Setup """
 
     from price_picker.models import User
-    login_manager.login_view = "user.login"
+    login_manager.login_view = "main.login"
     login_manager.login_message_category = "danger"
 
     @login_manager.user_loader

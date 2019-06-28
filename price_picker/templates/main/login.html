@@ -1,0 +1,22 @@
+{% extends '_base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% from "_macros.html" import warn_message, render_field %}
+{% block content %}
+
+    <header class="content-header">
+        <h1>Login</h1>
+        <hr>
+    </header>
+    <br>
+    <form class="form" role="form" method="post" action="">
+        {{ form.hidden_tag() }}
+        {{ warn_message(form) }}
+        <div class="col-lg-4 col-sm-4">
+            {{ render_field(form.username) }}
+            {{ render_field(form.password) }}
+            {{ wtf.form_field(form.remember_me) }}
+            <button class="btn btn-success" type="submit">Anmelden</button>
+        </div>
+    </form>
+
+{% endblock %}
