@@ -10,6 +10,17 @@
             {% for device in devices %}
                 {{ render_device(device) }}
             {% endfor %}
+            {% if current_user.is_authenticated %}
+                <!-- Always include an add option if admin is logged in-->
+                <div class="col-sm-4 py-2 text-center">
+                    <a href="{{ url_for('admin.add_device', manufacturer_id=manufacturer_id) }}" class="stretched-link"></a>
+                    <div class="card bg-primary h-100">
+                        <div class="card-body text-white">
+                            <h3>Hinzufügen</h3>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
         <br>
         <a class="btn btn-secondary" href="{{ url_for('main.home') }}">&laquo; Zurück</a>

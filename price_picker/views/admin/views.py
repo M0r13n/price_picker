@@ -54,6 +54,7 @@ def edit_manufacturer(manufacturer_id):
 
 @admin_blueprint.route('/device/add', methods=['GET', 'POST'])
 def add_device():
+    m = request.args.get('manufacturer_id', None, int)
     form = NewDeviceForm()
     if form.validate_on_submit():
         d = Device()
@@ -62,6 +63,9 @@ def add_device():
         db.session.commit()
         flash(f"{d.name} erfolgreich hinzugefügt", "success")
         return redirect(url_for('main.select_device', manufacturer_id=d.manufacturer_id))
+    if m is not None:
+        m = Manufacturer.query.get_or_404(m)
+        form.manufacturer.data = m
     return render_template('admin/add_device.html', form=form)
 
 

@@ -57,6 +57,7 @@ def create_data():
     print("Adding Sample Data")
     Device.query.delete()
     Manufacturer.query.delete()
+    Repair.query.delete()
 
     apple = Manufacturer(name="Apple", css_img_name="_iphone_x.html")
     samsung = Manufacturer(name="Samsung", css_img_name="_s5.html")

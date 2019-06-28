@@ -1,4 +1,4 @@
-from flask import redirect, request, url_for
+from flask import request, url_for
 
 
 def next_page(fallback_url='main.home'):

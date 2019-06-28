@@ -55,7 +55,7 @@ class Device(db.Model):
     name = db.Column(db.String(64), unique=True, index=True)
     manufacturer_id = db.Column(db.Integer, db.ForeignKey('manufacturers.id'))
     manufacturer = relationship("Manufacturer", back_populates="devices")
-    css_img_name = db.Column(db.String(128), default=CSS_RENDER_PATHS['nexus'])
+    css_img_name = db.Column(db.String(128))
     repairs = relationship("Repair", secondary=repair_association_table, back_populates="devices")
 
     def __repr__(self):
@@ -63,7 +63,10 @@ class Device(db.Model):
 
     @property
     def css_path(self):
-        return f'device_mocks/{self.css_img_name}'
+        img_name = self.css_img_name
+        if img_name is None:
+            img_name = self.manufacturer.css_img_name or CSS_RENDER_PATHS['nexus']
+        return f'device_mocks/{img_name}'
 
     @classmethod
     def query_factory_all(cls):

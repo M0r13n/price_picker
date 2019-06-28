@@ -18,7 +18,7 @@ def home():
 @main_blueprint.route("/manufacturer/<int:manufacturer_id>")
 def select_device(manufacturer_id):
     devices = Device.query.filter(Device.manufacturer_id == manufacturer_id).all()
-    return render_template("main/select_device.html", devices=devices)
+    return render_template("main/select_device.html", devices=devices, manufacturer_id=manufacturer_id)
 
 
 @main_blueprint.route("/device/<int:device_id>")
