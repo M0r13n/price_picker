@@ -95,11 +95,24 @@ def add_repair(device_id):
     form = NewRepairForm()
     if form.validate_on_submit():
         r = Repair()
-        device.repairs.append(form.populate_obj(r))
+        form.populate_obj(r)
+        device.repairs.append(r)
         db.session.commit()
         flash(f"{r.name} erfolgreich zu {device.name} hinzugefügt", "success")
         return redirect(url_for('main.select_repair', device_id=device_id))
     return render_template('admin/add_repair.html', form=form, device=device)
+
+
+@admin_blueprint.route('/repair/<int:repair_id>/edit', methods=['GET', 'POST'])
+def edit_repair(repair_id):
+    r = Repair.query.get_or_404(repair_id)
+    form = NewRepairForm(obj=r)
+    if form.validate_on_submit():
+        form.populate_obj(r)
+        db.session.commit()
+        flash(f"{r.name} wurde aktualisiert", "success")
+        return redirect(url_for('main.select_repair', device_id=r.devices.first().id))
+    return render_template('admin/add_repair.html', form=form, device=r.devices.first())
 
 
 @admin_blueprint.route('/repair/<int:repair_id>/delete', methods=['DELETE', 'POST'])

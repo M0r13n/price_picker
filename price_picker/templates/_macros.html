@@ -51,7 +51,6 @@
                    href="{{ url_for('admin.edit_manufacturer',manufacturer_id=manufacturer.id) }}">edit</a>
             {% endif %}
         </div>
-
     </div>
 {% endmacro %}
 
@@ -65,6 +64,10 @@
             <div class="card-body">
                 {% include device.css_path %}
             </div>
+            {% if current_user.is_authenticated %}
+                <a class="btn btn-primary btn-block editBtn"
+                   href="{{ url_for('admin.edit_device',device_id=device.id) }}">edit</a>
+            {% endif %}
         </div>
     </div>
 {% endmacro %}
@@ -80,6 +83,10 @@
             <div class="card-body">
                 ab {{ repair.price }}&euro;
             </div>
+            {% if current_user.is_authenticated %}
+                <a class="btn btn-primary btn-block editBtn"
+                   href="{{ url_for('admin.edit_repair',repair_id=repair.id) }}">edit</a>
+            {% endif %}
         </div>
     </div>
 {% endmacro %}

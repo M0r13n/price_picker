@@ -56,7 +56,7 @@ class Device(db.Model):
     manufacturer_id = db.Column(db.Integer, db.ForeignKey('manufacturers.id'))
     manufacturer = relationship("Manufacturer", back_populates="devices")
     css_img_name = db.Column(db.String(128), default=CSS_RENDER_PATHS['nexus'])
-    repairs = relationship("Repair", secondary=repair_association_table)
+    repairs = relationship("Repair", secondary=repair_association_table, back_populates="devices")
 
     def __repr__(self):
         return f"<Device: {self.manufacturer.name} - {self.name}>"
@@ -79,3 +79,4 @@ class Repair(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
     price = db.Column(db.Integer)
+    devices = relationship("Device", secondary=repair_association_table, back_populates="repairs", lazy='dynamic')
