@@ -1,5 +1,9 @@
-from flask import Blueprint, redirect, url_for, flash, request
+from flask import Blueprint, redirect, url_for, flash, request, render_template
 from flask_login import current_user
+from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm
+from price_picker.models import Device, Manufacturer, Repair
+from price_picker import db
+from price_picker.common.next_page import next_page
 
 admin_blueprint = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -13,7 +17,15 @@ def require_login():
 
 @admin_blueprint.route('/manufacturer/add', methods=['GET', 'POST'])
 def add_manufacturer():
-    return ""
+    form = NewManufacturerForm()
+    if form.validate_on_submit():
+        m = Manufacturer()
+        form.populate_obj(m)
+        db.session.add(m)
+        db.session.commit()
+        flash(f"{m.name} erfolgreich hinzugefügt", "success")
+        return redirect(url_for('main.home'))
+    return render_template('admin/add_manufacturer.html', form=form)
 
 
 @admin_blueprint.route('/manufacturer/delete', methods=['DELETE', 'POST'])
