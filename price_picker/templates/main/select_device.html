@@ -1,0 +1,15 @@
+{% extends "_base.html" %}
+{% from "_macros.html" import render_device %}
+{% block page_title %}- Geräteauswahl{% endblock %}
+{% block content %}
+    <h1 class="text-center">Wähle dein Gerät</h1>
+    <br>
+
+    <div class="container">
+        <div class="row">
+            {% for device in devices %}
+                {{ render_device(device) }}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

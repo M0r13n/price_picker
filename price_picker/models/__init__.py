@@ -1,5 +1,5 @@
 from .user import User
-from .device import Device, Manufacturer
+from .device import Device, Manufacturer, Repair
 from .feedback import Feedback
 
 __all__ = [
@@ -7,4 +7,5 @@ __all__ = [
     'Device',
     'Manufacturer',
     'Feedback',
+    'Repair'
 ]

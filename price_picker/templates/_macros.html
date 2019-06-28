@@ -1,0 +1,80 @@
+<!-- Render field errors -->
+{% macro render_errors(field) %}
+    {% if field.errors|length > 0 %}
+        {% for error in field.errors %}
+            <div class="invalid-feedback">
+                {{ error }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endmacro %}
+
+<!-- Display a warning if an error occurs -->
+{% macro warn_message(form) %}
+    {% if form.errors.items()|length > 0 %}
+        <div class="alert alert-danger">
+            <b>Achtung:</b> Ungültige Daten!
+        </div>
+    {% endif %}
+{% endmacro %}
+
+<!-- Render a WTForm field and display occurring errors -->
+{% macro render_field(field) %}
+    {{ field.label }}
+    {{ field(class="form-control is-invalid" if field.errors else "form-control", **kwargs) | safe }}
+    {% if field.description %}
+        <small id="{{ field.label|string + "help" }}" class="form-text text-muted">{{ field.description }}</small>
+    {% endif %}
+    {{ render_errors(field) }}
+{% endmacro %}
+
+<!-- Render a WTForm field as an individual form-group -->
+{% macro render_formgroup(field) %}
+    <div class={{ "form-group required" if field.required else "form-group" }}>
+        {{ render_field(field, **kwargs) }}
+    </div>
+{% endmacro %}
+
+
+{% macro render_manufacturer(manufacturer) %}
+    <div class="col-sm-4 py-2 text-center">
+        <a href="{{ url_for('main.select_device', manufacturer_id=manufacturer.id) }}" class="stretched-link"></a>
+        <div class="card h-100">
+            <div class="card-header">
+                <h4 class="my-0 font-weight-normal">{{ manufacturer.name }}</h4>
+            </div>
+            <div class="card-body">
+                {% include manufacturer.css_path %}
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro render_device(device) %}
+    <div class="col-sm-4 py-2 text-center">
+        <a href="{{ url_for('main.select_repair', device_id=device.id) }}" class="stretched-link"></a>
+        <div class="card h-100">
+            <div class="card-header">
+                <h4 class="my-0 font-weight-normal">{{ device.name }}</h4>
+            </div>
+            <div class="card-body">
+                {% include device.css_path %}
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+
+{% macro render_repair(repair) %}
+    <div class="col-sm-4 py-2 text-center">
+        <a href="#" class="stretched-link"></a>
+        <div class="card h-100">
+            <div class="card-header">
+                <h4 class="my-0 font-weight-normal">{{ repair.name }}</h4>
+            </div>
+            <div class="card-body">
+                ab {{ repair.price }}&euro;
+            </div>
+        </div>
+    </div>
+{% endmacro %}
