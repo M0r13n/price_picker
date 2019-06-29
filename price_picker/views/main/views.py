@@ -1,5 +1,4 @@
 from flask import render_template, Blueprint, flash, redirect, url_for
-from price_picker.common.next_page import next_page
 from price_picker.models import Manufacturer, Device
 from .forms import LoginForm
 from price_picker.models import User
