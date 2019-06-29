@@ -56,8 +56,8 @@
 
 {% macro render_device(device) %}
     <div class="col-sm-4 py-2 text-center">
-        <a href="{{ url_for('main.select_repair', device_id=device.id) }}" class="stretched-link"></a>
         <div class="card h-100">
+            <a href="{{ url_for('main.select_repair', device_id=device.id) }}" class="stretched-link"></a>
             <div class="card-header">
                 <h4 class="my-0 font-weight-normal">{{ device.name }}</h4>
             </div>
@@ -75,8 +75,8 @@
 
 {% macro render_repair(repair) %}
     <div class="col-sm-4 py-2 text-center">
-        <a href="#" class="stretched-link"></a>
         <div class="card h-100">
+            <a href="#" class="stretched-link"></a>
             <div class="card-header">
                 <h4 class="my-0 font-weight-normal">{{ repair.name }}</h4>
             </div>
