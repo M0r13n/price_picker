@@ -44,7 +44,7 @@
                 <h4 class="my-0 font-weight-normal">{{ manufacturer.name }}</h4>
             </div>
             <div class="card-body">
-                {% include manufacturer.css_path %}
+                {% include manufacturer.picture_file %}
             </div>
             {% if current_user.is_authenticated %}
                 <a class="btn btn-primary btn-block editBtn"
@@ -62,7 +62,7 @@
                 <h4 class="my-0 font-weight-normal">{{ device.name }}</h4>
             </div>
             <div class="card-body">
-                {% include device.css_path %}
+                {% include device.picture_file %}
             </div>
             {% if current_user.is_authenticated %}
                 <a class="btn btn-primary btn-block editBtn"

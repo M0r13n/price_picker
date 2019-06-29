@@ -7,7 +7,7 @@ import coverage
 
 from flask.cli import FlaskGroup
 from price_picker import create_app, db
-from price_picker.models import User, Device, Manufacturer, Repair
+from price_picker.models import User, Device, Manufacturer, Repair, Picture
 import subprocess
 import sys
 
@@ -58,33 +58,54 @@ def create_data():
     Device.query.delete()
     Manufacturer.query.delete()
     Repair.query.delete()
+    Picture.query.delete()
+    User.query.delete()
 
-    apple = Manufacturer(name="Apple", css_img_name="_iphone_x.html")
-    samsung = Manufacturer(name="Samsung", css_img_name="_s5.html")
-    huawei = Manufacturer(name="Huawei")
-    htc = Manufacturer(name='HTC', css_img_name="_htc.html")
-    oneplus = Manufacturer(name='OnePlus', css_img_name="_note_8.html")
+    db.session.add(User(username="admin", password="admin"))
+    Picture.create_basic_pictures()
+
+    apple = Manufacturer(name="Apple", picture=Picture.query.filter_by(name='iphone_x').first())
+    samsung = Manufacturer(name="Samsung", picture=Picture.query.filter_by(name='s5').first())
+    huawei = Manufacturer(name="Huawei", picture=Picture.query.filter_by(name='note').first())
+    htc = Manufacturer(name='HTC', picture=Picture.query.filter_by(name='htc').first())
+    oneplus = Manufacturer(name='OnePlus')
     db.session.add(htc)
     db.session.add(samsung)
     db.session.add(huawei)
     db.session.add(oneplus)
 
-    ip4 = Device(name="iPhone 4", manufacturer=apple, css_img_name="_iphone_4s.html")
-    ip5 = Device(name="iPhone 5", manufacturer=apple, css_img_name="_iphone_5s.html")
-    ip5s = Device(name="iPhone 5s", manufacturer=apple, css_img_name="_iphone_5s.html")
-    ip5c = Device(name="iPhone 5c", manufacturer=apple, css_img_name="_iphone_5c.html")
-    ip6 = Device(name="iPhone 6", manufacturer=apple, css_img_name="_iphone_8.html")
-    ip6p = Device(name="iPhone 6 Plus", manufacturer=apple, css_img_name="_iphone_8_plus.html")
-    ip6s = Device(name="iPhone 6s", manufacturer=apple, css_img_name="_iphone_8.html")
-    ip6sp = Device(name="iPhone 6s Plus", manufacturer=apple, css_img_name="_iphone_8_plus.html")
-    ip7 = Device(name="iPhone 7", manufacturer=apple, css_img_name="_iphone_8.html")
-    ip7p = Device(name="iPhone 7 Plus", manufacturer=apple, css_img_name="_iphone_8_plus.html")
-    ip8 = Device(name="iPhone 8", manufacturer=apple, css_img_name="_iphone_8.html")
-    ip8p = Device(name="iPhone 8 Plus", manufacturer=apple, css_img_name="_iphone_8_plus.html")
-    ipx = Device(name="iPhone X", manufacturer=apple, css_img_name="_iphone_x.html")
-    ipxs = Device(name="iPhone Xs", manufacturer=apple, css_img_name="_iphone_x.html")
-    ipxsm = Device(name="iPhone Xs Max", manufacturer=apple, css_img_name="_iphone_x.html")
-    ipxr = Device(name="iPhone Xr", manufacturer=apple, css_img_name="_iphone_x.html")
+    ip4 = Device(name="iPhone 4", manufacturer=apple,
+                 picture=Picture.query.filter_by(name='iphone_4s').first())
+    ip5 = Device(name="iPhone 5", manufacturer=apple,
+                 picture=Picture.query.filter_by(name='iphone_5s').first())
+    ip5s = Device(name="iPhone 5s", manufacturer=apple,
+                  picture=Picture.query.filter_by(name='iphone_5s').first())
+    ip5c = Device(name="iPhone 5c", manufacturer=apple,
+                  picture=Picture.query.filter_by(name='iphone_5c').first())
+    ip6 = Device(name="iPhone 6", manufacturer=apple,
+                 picture=Picture.query.filter_by(name='iphone_8').first())
+    ip6p = Device(name="iPhone 6 Plus", manufacturer=apple,
+                  picture=Picture.query.filter_by(name='iphone_8_plus').first())
+    ip6s = Device(name="iPhone 6s", manufacturer=apple,
+                  picture=Picture.query.filter_by(name='iphone_8').first())
+    ip6sp = Device(name="iPhone 6s Plus", manufacturer=apple,
+                   picture=Picture.query.filter_by(name='iphone_8_plus').first())
+    ip7 = Device(name="iPhone 7", manufacturer=apple,
+                 picture=Picture.query.filter_by(name='iphone_8').first())
+    ip7p = Device(name="iPhone 7 Plus", manufacturer=apple,
+                  picture=Picture.query.filter_by(name='iphone_8_plus').first())
+    ip8 = Device(name="iPhone 8", manufacturer=apple,
+                 picture=Picture.query.filter_by(name='iphone_x').first())
+    ip8p = Device(name="iPhone 8 Plus", manufacturer=apple,
+                  picture=Picture.query.filter_by(name='iphone_x').first())
+    ipx = Device(name="iPhone X", manufacturer=apple,
+                 picture=Picture.query.filter_by(name='iphone_x').first())
+    ipxs = Device(name="iPhone Xs", manufacturer=apple,
+                  picture=Picture.query.filter_by(name='iphone_x').first())
+    ipxsm = Device(name="iPhone Xs Max", manufacturer=apple,
+                   picture=Picture.query.filter_by(name='iphone_x').first())
+    ipxr = Device(name="iPhone Xr", manufacturer=apple,
+                  picture=Picture.query.filter_by(name='iphone_x').first())
     db.session.add(ip4)
     db.session.add(ip5)
     db.session.add(ip7p)
@@ -109,6 +130,9 @@ def create_data():
     ipx.repairs.append(Repair(name="Kleinteil", price=150))
 
     db.session.commit()
+    if not Device._check_if_paths_are_valid():
+        raise ValueError('Some devices have undefined picture paths')
+    print('Successfully added sample data')
 
 
 @cli.command()

@@ -2,34 +2,83 @@ from price_picker import db
 
 from sqlalchemy.orm import relationship
 
-CSS_RENDER_PATHS = {
-    'htc': '_htc.html',
-    'ipad': '_ipad_mini.html',
-    'iphone_4s': '_iphone_4s.html',
-    'iphone_5s': '_iphone_5s.html',
-    'iphone_5c': '_iphone_5c.html',
-    'iphone_8': '_iphone_8.html',
-    'iphone_8_plus': '_iphone_8_plus.html',
-    'iphone_x': '_iphone_x.html',
-    'nexus': '_nexus_5.html',
-    'note': '_note_8.html',
-    's5': '_s5.html',
-}
+PICTURE_BASE_PATH = "device_mocks/"
+
+
+class Picture(db.Model):
+    """
+    All pictures are stored in a html subpage inside the device_mocks folder.
+    There is also a default one.
+    """
+    __tablename__ = 'pictures'
+    name = db.Column(db.String(64), unique=True, primary_key=True, nullable=False)
+    filename = db.Column(db.String(128), unique=True, nullable=False)
+    default = db.Column(db.Boolean, default=False, index=True)
+    manufacturers = db.relationship('Manufacturer', backref='picture')
+    devices = db.relationship('Device', backref='picture')
+
+    def __repr__(self):
+        return f"<Picture {self.name}@[{self.path}]"
+
+    @property
+    def dir(self):
+        return PICTURE_BASE_PATH
+
+    @property
+    def file(self):
+        return f"{self.dir}{self.filename}"
+
+    @classmethod
+    def default_picture(cls):
+        return cls.query.filter_by(default=True).first()
+
+    @staticmethod
+    def create_basic_pictures():
+        """
+        Insert default Pictures and set the default
+        :return:
+        """
+        basics = {
+            'htc': '_htc.html',
+            'ipad': '_ipad_mini.html',
+            'iphone_4s': '_iphone_4s.html',
+            'iphone_5s': '_iphone_5s.html',
+            'iphone_5c': '_iphone_5c.html',
+            'iphone_8': '_iphone_8.html',
+            'iphone_8_plus': '_iphone_8_plus.html',
+            'iphone_x': '_iphone_x.html',
+            'nexus': '_nexus_5.html',
+            'note': '_note_8.html',
+            's5': '_s5.html',
+        }
+        # set default picture
+        default = 'nexus'
+        for k, v in basics.items():
+            p = Picture.query.filter_by(name=k).first()
+            if p is None:
+                p = Picture(name=k, filename=v, default=k == default)
+            db.session.add(p)
+            db.session.commit()
 
 
 class Manufacturer(db.Model):
     __tablename__ = 'manufacturers'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, index=True)
-    devices = relationship("Device", back_populates="manufacturer")
-    css_img_name = db.Column(db.String(128), default=CSS_RENDER_PATHS['nexus'])
+    devices = relationship('Device', back_populates='manufacturer')
+    picture_id = db.Column(db.String, db.ForeignKey('pictures.name'))
+
+    def __init__(self, **kwargs):
+        super(Manufacturer, self).__init__(**kwargs)
+        if self.picture is None:
+            self.picture = Picture.default_picture()
 
     def __repr__(self):
         return f"<Manufacturer: {self.name}>"
 
     @property
-    def css_path(self):
-        return f'device_mocks/{self.css_img_name}'
+    def picture_file(self):
+        return self.picture.file
 
     @classmethod
     def query_factory_all(cls):
@@ -54,19 +103,25 @@ class Device(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, index=True)
     manufacturer_id = db.Column(db.Integer, db.ForeignKey('manufacturers.id'))
-    manufacturer = relationship("Manufacturer", back_populates="devices")
-    css_img_name = db.Column(db.String(128))
-    repairs = relationship("Repair", secondary=repair_association_table, back_populates="devices")
+    manufacturer = relationship('Manufacturer', back_populates='devices')
+    repairs = relationship('Repair', secondary=repair_association_table, back_populates='devices')
+    picture_id = db.Column(db.String, db.ForeignKey('pictures.name'))
 
     def __repr__(self):
         return f"<Device: {self.manufacturer.name} - {self.name}>"
 
     @property
-    def css_path(self):
-        img_name = self.css_img_name
-        if img_name is None:
-            img_name = self.manufacturer.css_img_name or CSS_RENDER_PATHS['nexus']
-        return f'device_mocks/{img_name}'
+    def picture_file(self):
+        """
+        Get the picture file or if none is provided use the manufacturers default
+        and if no picture is defined at all it uses the default picture.
+        :return: template path of associated html render
+        """
+        if self.picture is None:
+            if self.manufacturer.picture is None:
+                return Picture.default_picture().file
+            return self.manufacturer.picture_file
+        return self.picture.file
 
     @classmethod
     def query_factory_all(cls):
@@ -74,6 +129,17 @@ class Device(db.Model):
         Query Factory for use in sqlalchemy.wtforms
         """
         return cls.query.order_by(cls.name)
+
+    @classmethod
+    def _check_if_paths_are_valid(cls):
+        """
+        private function to ensure every device points to a html render
+        :return: True if everything is valid else False
+        """
+        for d in cls.query.all():
+            if d.picture is None or d.picture_file is None:
+                return False
+        return True
 
 
 class Repair(db.Model):
