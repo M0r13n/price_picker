@@ -18,7 +18,14 @@ class Picture(db.Model):
     devices = db.relationship('Device', backref='picture')
 
     def __repr__(self):
-        return f"<Picture {self.name}@[{self.path}]"
+        return f"<Picture {self.name}@[{self.file}]"
+
+    @classmethod
+    def query_factory_all(cls):
+        """
+        Query Factory for use in sqlalchemy.wtforms
+        """
+        return cls.query.order_by(cls.name)
 
     @property
     def dir(self):
@@ -72,12 +79,15 @@ class Manufacturer(db.Model):
         super(Manufacturer, self).__init__(**kwargs)
         if self.picture is None:
             self.picture = Picture.default_picture()
+            print(self.picture)
 
     def __repr__(self):
         return f"<Manufacturer: {self.name}>"
 
     @property
     def picture_file(self):
+        if self.picture is None:
+            return Picture.default_picture().file
         return self.picture.file
 
     @classmethod
@@ -118,8 +128,6 @@ class Device(db.Model):
         :return: template path of associated html render
         """
         if self.picture is None:
-            if self.manufacturer.picture is None:
-                return Picture.default_picture().file
             return self.manufacturer.picture_file
         return self.picture.file
 

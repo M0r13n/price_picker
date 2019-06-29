@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField
 from wtforms.validators import DataRequired, Length
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from price_picker.models import Manufacturer
+from price_picker.models import Manufacturer, Picture
 from .validators import UniqueDeviceName, UniqueManufacturerName
 
 
@@ -25,6 +25,15 @@ class NewDeviceForm(FlaskForm):
         validators=[DataRequired(message="Erforderlich")]
     )
 
+    picture = QuerySelectField(
+        label="Bild",
+        query_factory=Picture.query_factory_all,
+        get_pk=lambda i: i.name,
+        get_label=lambda i: i.name,
+        allow_blank=True, blank_text='Bild wählen'
+
+    )
+
 
 class EditDeviceForm(NewDeviceForm):
     name = StringField(
@@ -33,6 +42,15 @@ class EditDeviceForm(NewDeviceForm):
             DataRequired(message="Gib einen Namen an"),
             Length(min=1, max=64, message='Der Name muss zwischen 1 und 64 Zeichen lang sein')
         ],
+    )
+
+    picture = QuerySelectField(
+        label="Bild",
+        query_factory=Picture.query_factory_all,
+        get_pk=lambda i: i.name,
+        get_label=lambda i: i.name,
+        allow_blank=True, blank_text='Bild wählen'
+
     )
 
 
@@ -46,6 +64,15 @@ class NewManufacturerForm(FlaskForm):
         ],
     )
 
+    picture = QuerySelectField(
+        label="Bild",
+        query_factory=Picture.query_factory_all,
+        get_pk=lambda i: i.name,
+        get_label=lambda i: i.name,
+        allow_blank=True, blank_text='Bild wählen'
+
+    )
+
 
 class EditManufacturerForm(NewManufacturerForm):
     name = StringField(
@@ -54,6 +81,15 @@ class EditManufacturerForm(NewManufacturerForm):
             DataRequired(message="Gib einen Namen an"),
             Length(min=1, max=64, message='Der Name muss zwischen 1 und 64 Zeichen lang sein')
         ],
+    )
+
+    picture = QuerySelectField(
+        label="Bild",
+        query_factory=Picture.query_factory_all,
+        get_pk=lambda i: i.name,
+        get_label=lambda i: i.name,
+        allow_blank=True, blank_text='Bild wählen'
+
     )
 
 
