@@ -12,7 +12,6 @@
             {% endfor %}
             <!-- Always include an arbitrary choice-->
             <div class="col-sm-4 py-2 text-center">
-                <a href="#" class="stretched-link"></a>
                 <div class="card h-100">
                     <div class="card-header">
                         <h4 class="my-0 font-weight-normal">Sonstige</h4>
@@ -24,8 +23,8 @@
             </div>
             {% if current_user.is_authenticated %}
                 <!-- Always include an add option if admin is logged in-->
-                <div class="col-sm-4 py-2 text-center">
-                    <a href="{{ url_for('admin.add_repair', device_id=device.id) }}" class="stretched-link"></a>
+                <div class="col-sm-4 py-2 text-center"
+                     onclick="location.href='{{ url_for("admin.add_repair", device_id=device.id) }}'">
                     <div class="card bg-primary h-100">
                         <div class="card-body text-white align-items-center d-flex justify-content-center">
                             <h1>Neu</h1>
