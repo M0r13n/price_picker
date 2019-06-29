@@ -27,15 +27,16 @@
                 <div class="col-sm-4 py-2 text-center">
                     <a href="{{ url_for('admin.add_repair', device_id=device.id) }}" class="stretched-link"></a>
                     <div class="card bg-primary h-100">
-                        <div class="card-body text-white">
-                            <h3>Hinzufügen</h3>
+                        <div class="card-body text-white align-items-center d-flex justify-content-center">
+                            <h1>Neu</h1>
                         </div>
                     </div>
                 </div>
             {% endif %}
         </div>
         <br>
-        <a class="btn btn-secondary" href="{{ url_for('main.select_device', manufacturer_id=device.manufacturer.id) }}">&laquo; Zurück</a>
+        <a class="btn btn-secondary" href="{{ url_for('main.select_device', manufacturer_id=device.manufacturer.id) }}">&laquo;
+            Zurück</a>
     </div>
 {% endblock %}
 

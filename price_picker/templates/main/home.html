@@ -10,6 +10,19 @@
             {% for manufacturer in manufacturers %}
                 {{ render_manufacturer(manufacturer) }}
             {% endfor %}
+
+            {% if current_user.is_authenticated %}
+                <!-- Always include an add option if admin is logged in-->
+                <div class="col-sm-4 py-2 text-center">
+                    <a href="{{ url_for('admin.add_manufacturer') }}"
+                       class="stretched-link"></a>
+                    <div class="card bg-primary h-100">
+                        <div class="card-body text-white align-items-center d-flex justify-content-center">
+                            <h1>Neu</h1>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
