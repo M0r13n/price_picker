@@ -1,5 +1,6 @@
 {% extends "_base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
+{% from "_macros.html" import warn_message, render_formgroup %}
 {% block page_title %}- Abschluss{% endblock %}
 {% block content %}
     <h1 class="text-center">Zusammenfassung</h1>
@@ -20,9 +21,8 @@
                         <span><strong>Schaden</strong></span><br>
                         <span>{% for repair in repairs %} {{ repair.name }} {% if loop.index!=loop.length %}, {% endif %}{% endfor %}</span>
                     </div>
-
                 </div>
-            <br>
+                <br>
             </div>
             <div class="col-sm-6 col-lg-4">
                 <h3 class="text-muted">Preis</h3>
@@ -43,6 +43,13 @@
                         <small>Alle Preise verstehen sich inklusive der Umsatzsteuer von derzeit 19&percnt;</small>
                     </span>
                 </div>
+            </div>
+            <br>
+        </div>
+        <div class="col-sm-6 col-lg-8">
+            <br>
+            <div class="text-center">
+                <button class=" btn btn-success">Bestellung aufgeben</button>
             </div>
         </div>
     </div>
