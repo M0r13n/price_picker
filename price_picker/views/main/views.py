@@ -28,14 +28,14 @@ def select_repair(device_id):
     return render_template('main/select_repair.html', device=device, form=form)
 
 
-@main_blueprint.route("/summary/<int:device_id>", methods=['POST'])
+@main_blueprint.route("/summary/<int:device_id>", methods=['GET','POST'])
 def summary(device_id):
     device = Device.query.get_or_404(device_id)
     form = SelectRepairForm()
     form.repairs.choices = [(r.id, r.name) for r in device.repairs]
     if form.validate_on_submit():
         repairs = db.session.query(Repair).filter(Repair.id.in_(form.repairs.data)).all()
-        return render_template('main/summary.html', repairs=repairs)
+        return render_template('main/summary.html', repairs=repairs, device=device, total=sum([r.price for r in repairs]))
 
     # if anything went wrong redirect back to selection
     return redirect(url_for('.select_repair', device_id=device_id))

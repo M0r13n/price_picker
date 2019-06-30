@@ -7,10 +7,42 @@
     <div class="container">
         <div class="row">
             <div class="col-sm-6 col-lg-8">
-                One of three columns
+                <h3 class="text-muted">Ihre Auswahl</h3>
+                <hr>
+
+                <div class="row">
+                    <div class="col-6 text-left">
+                        <span><strong>Modell</strong></span><br>
+                        <span>iPhone 5</span>
+
+                    </div>
+                    <div class="col-6 text-right">
+                        <span><strong>Schaden</strong></span><br>
+                        <span>{% for repair in repairs %} {{ repair.name }} {% if loop.index!=loop.length %}, {% endif %}{% endfor %}</span>
+                    </div>
+
+                </div>
+            <br>
             </div>
             <div class="col-sm-6 col-lg-4">
-                One of three columns
+                <h3 class="text-muted">Preis</h3>
+                <hr>
+                <div class="row">
+                    {% for repair in repairs %}
+                        <div class="col-8 text-center"><span>{{ repair.name }}</span></div>
+                        <div class="col-4 text-right"><span>{{ repair.price }}&euro;</span></div>
+                    {% endfor %}
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-8 text-center"><span><strong>Gesamtpreis</strong></span></div>
+                    <div class="col-4 text-right"><span><strong>{{ total }}&euro;</strong></span></div>
+                </div>
+                <div class=" col-10 offset-2 text-right">
+                    <span class="text-muted">
+                        <small>Alle Preise verstehen sich inklusive der Umsatzsteuer von derzeit 19&percnt;</small>
+                    </span>
+                </div>
             </div>
         </div>
     </div>
