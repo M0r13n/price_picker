@@ -1,6 +1,6 @@
-from flask import render_template, Blueprint, flash, redirect, url_for
+from flask import render_template, Blueprint, flash, redirect, url_for, session
 from price_picker.models import Manufacturer, Device, User, Repair
-from .forms import LoginForm, SelectRepairForm
+from .forms import LoginForm, SelectRepairForm, ContactForm
 from price_picker import db
 from flask_login import login_user, logout_user, login_required
 
@@ -32,14 +32,31 @@ def select_repair(device_id):
 def summary(device_id):
     device = Device.query.get_or_404(device_id)
     form = SelectRepairForm()
-
     form.repairs.choices = [(r.id, r.name) for r in device.repairs]
-
     if form.validate_on_submit():
         repairs = db.session.query(Repair).filter(Repair.id.in_(form.repairs.data)).all()
+        session['repair_ids'] = form.repairs.data
         return render_template('main/summary.html', repairs=repairs, device=device, total=sum([r.price for r in repairs]))
-
     return render_template('main/summary.html', device=device, total=0)
+
+
+@main_blueprint.route("/complete/<int:device_id>", methods=['GET', 'POST'])
+def complete(device_id):
+    form = ContactForm()
+    if form.validate_on_submit():
+        if 'repair_ids' not in session.keys() or not isinstance(session['repair_ids'], list):
+            flash('Da ist etwas schief gelaufen. Es tut uns Leid. Wähle deine Reparatur erneut.', 'danger')
+            return redirect(url_for('main.select_repair', device_id=device_id))
+        repairs = db.session.query(Repair).filter(Repair.id.in_(session['repair_ids'])).all()
+        print(repairs)
+        flash('Wir haben ihre Anfrage erhalten!', 'success')
+        return redirect(url_for('main.thank_you'))
+    return render_template('main/complete.html', form=form, device_id=device_id)
+
+
+@main_blueprint.route('/thanks')
+def thank_you():
+    return render_template('main/thank_you.html')
 
 
 @main_blueprint.route("/login", methods=["GET", "POST"])

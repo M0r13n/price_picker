@@ -1,0 +1,26 @@
+{% extends '_base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% from "_macros.html" import warn_message, render_formgroup %}
+{% block content %}
+
+    <header class="content-header">
+        <h1>Ihre Daten</h1>
+        <hr>
+    </header>
+    <br>
+    <form class="form" role="form" method="post" action="">
+        {{ form.hidden_tag() }}
+        {{ warn_message(form) }}
+        <div class="col-lg-8 col-sm-8">
+            {{ render_formgroup(form.first_name) }}
+            {{ render_formgroup(form.last_name) }}
+            {{ render_formgroup(form.email) }}
+            {{ render_formgroup(form.phone, placeholder="+49") }}
+            <h4 class="text-muted">Gerätedaten</h4>
+            {{ render_formgroup(form.color) }}
+            {{ render_formgroup(form.imei) }}
+            {{ form.confirm(class="btn btn-block btn-success") }}
+        </div>
+    </form>
+
+{% endblock %}

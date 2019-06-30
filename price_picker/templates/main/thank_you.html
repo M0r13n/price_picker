@@ -1,0 +1,14 @@
+{% extends "_base.html" %}
+{% block content %}
+    <div class="jumbotron">
+        <div class="text-center">
+            <h1>Vielen Dank!</h1>
+            <p>Wir haben deine Anfrage erhalten und werden diese schnellst möglich bearbeiten.</p>
+            <button class="btn btn-primary"
+                    onclick="location.href='{{ url_for(request.args.get('next') or 'main.home') }}'">
+                Weiter
+            </button>
+        </div>
+    </div>
+
+{% endblock %}
