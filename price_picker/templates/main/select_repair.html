@@ -35,8 +35,9 @@
             {% endif %}
         </div>
         <br>
-        <form class="form" role="form" method="post" action="{{ url_for('.summary') }}" id="repairSubmitForm">
+        <form class="form" role="form" method="post" action="{{ url_for('.summary', device_id=device.id) }}" id="repairSubmitForm">
             <div class="text-center">
+                {{ form.hidden_tag() }}
                 {{ form.repairs(hidden=True) }}
                 <button class="btn btn-success" type="submit" id="repairSubmitBtn">Reparatur anfragen</button>
             </div>

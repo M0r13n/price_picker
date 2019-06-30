@@ -1,7 +1,7 @@
 from flask import render_template, Blueprint, flash, redirect, url_for
-from price_picker.models import Manufacturer, Device
+from price_picker.models import Manufacturer, Device, User, Repair
 from .forms import LoginForm, SelectRepairForm
-from price_picker.models import User
+from price_picker import db
 from flask_login import login_user, logout_user, login_required
 
 main_blueprint = Blueprint("main", __name__)
@@ -28,11 +28,17 @@ def select_repair(device_id):
     return render_template('main/select_repair.html', device=device, form=form)
 
 
-@main_blueprint.route("/summary", methods=['POST'])
-def summary():
+@main_blueprint.route("/summary/<int:device_id>", methods=['POST'])
+def summary(device_id):
+    device = Device.query.get_or_404(device_id)
     form = SelectRepairForm()
-    print(form.repairs.data)
-    return redirect(url_for('.select_repair', device_id=13))
+    form.repairs.choices = [(r.id, r.name) for r in device.repairs]
+    if form.validate_on_submit():
+        repairs = db.session.query(Repair).filter(Repair.id.in_(form.repairs.data)).all()
+        return render_template('main/summary.html', repairs=repairs)
+
+    # if anything went wrong redirect back to selection
+    return redirect(url_for('.select_repair', device_id=device_id))
 
 
 @main_blueprint.route("/login", methods=["GET", "POST"])
