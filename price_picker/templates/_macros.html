@@ -74,7 +74,7 @@
 
 {% macro render_repair(repair) %}
     <div class="col-sm-4 py-2 text-center">
-        <div class="card h-100">
+        <div class="card selectable h-100" data-id="{{ repair.id }}">
             <div class="card-header">
                 <h4 class="my-0 font-weight-normal">{{ repair.name }}</h4>
             </div>
