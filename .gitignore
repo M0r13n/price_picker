@@ -92,4 +92,3 @@ ENV/
 # Pycharm
 .idea
 .DS_Store
-*.map
