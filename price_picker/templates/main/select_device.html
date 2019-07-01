@@ -1,9 +1,9 @@
 {% extends "_base.html" %}
 {% from "_macros.html" import render_device with context %}
+{% from "_macros.html" import render_stepper %}
 {% block page_title %}- Geräteauswahl{% endblock %}
 {% block content %}
-    <h1 class="text-center">Wähle dein Gerät</h1>
-    <br>
+    {{ render_stepper(1) }}
 
     <div class="container">
         <div class="row">

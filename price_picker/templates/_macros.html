@@ -88,3 +88,36 @@
         </div>
     </div>
 {% endmacro %}
+
+
+{% macro render_stepper(step=1) %}
+
+    <!--Slightly modified and simplified from https://codepen.io/thdeux/pen/zBGNrM-->
+    <div class="md-stepper-horizontal orange">
+        <div class="md-step active">
+            <div class="md-step-circle"><span>1</span></div>
+            <div class="md-step-title">Gerät wählen</div>
+            <div class="md-step-bar-left"></div>
+            <div class="md-step-bar-right"></div>
+        </div>
+        <div class="md-step {{ 'active' if step-1>0 }}">
+            <div class="md-step-circle"><span>2</span></div>
+            <div class="md-step-title">Defekt(e) wählen</div>
+            <div class="md-step-bar-left"></div>
+            <div class="md-step-bar-right"></div>
+        </div>
+        <div class="md-step {{ 'active' if step-2>0 }}">
+            <div class="md-step-circle"><span>3</span></div>
+            <div class="md-step-title">Auftrag prüfen</div>
+            <div class="md-step-bar-left"></div>
+            <div class="md-step-bar-right"></div>
+        </div>
+        <div class="md-step {{ 'active' if step-3>0 }}">
+            <div class="md-step-circle"><span>4</span></div>
+            <div class="md-step-title">Auftrag abschließen</div>
+            <div class="md-step-bar-left"></div>
+            <div class="md-step-bar-right"></div>
+        </div>
+    </div>
+
+{% endmacro %}

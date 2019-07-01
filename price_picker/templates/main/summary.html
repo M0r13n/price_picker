@@ -1,10 +1,11 @@
 {% extends "_base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% from "_macros.html" import warn_message, render_formgroup %}
+{% from "_macros.html" import render_stepper %}
 {% block page_title %}- Abschluss{% endblock %}
 {% block content %}
-    <h1 class="text-center">Zusammenfassung</h1>
-    <br>
+    {{ render_stepper(3) }}
+
     <div class="container">
         <div class="row">
             <div class="col-sm-6 col-lg-8">

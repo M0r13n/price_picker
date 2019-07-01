@@ -1,10 +1,11 @@
 {% extends "_base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% from "_macros.html" import render_repair with context %}
+{% from "_macros.html" import render_stepper %}
+
 {% block page_title %}- Reparaturauswahl{% endblock %}
 {% block content %}
-    <h1 class="text-center">Wähle die gewünschte Reparatur</h1>
-    <br>
+    {{ render_stepper(2) }}
 
     <div class="container">
         <div class="row">
