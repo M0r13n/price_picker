@@ -3,8 +3,9 @@
 {% from "_macros.html" import render_stepper %}
 {% block page_title %}- Geräteauswahl{% endblock %}
 {% block content %}
-    {{ render_stepper(1) }}
-
+    <div class="col-sm-8 offset-sm-2">
+        {{ render_stepper(1) }}
+    </div>
     <div class="container">
         <div class="row">
             {% for device in devices %}
@@ -13,7 +14,8 @@
             {% if current_user.is_authenticated %}
                 <!-- Always include an add option if admin is logged in-->
                 <div class="col-sm-4 py-2 text-center">
-                    <a href="{{ url_for('admin.add_device', manufacturer_id=manufacturer_id) }}" class="stretched-link"></a>
+                    <a href="{{ url_for('admin.add_device', manufacturer_id=manufacturer_id) }}"
+                       class="stretched-link"></a>
                     <div class="card bg-primary h-100">
                         <div class="card-body text-white align-items-center d-flex justify-content-center">
                             <h1>Neu</h1>
