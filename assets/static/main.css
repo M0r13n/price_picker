@@ -26,10 +26,16 @@ body {
     background-color: #FFFFFF;
 }
 
+@media screen and (min-width: 800px) {
+    .md-stepper-horizontal {
+    margin-left: 32px;
+    }
+}
+
 .md-stepper-horizontal .md-step {
     display: table-cell;
     position: relative;
-    padding: 24px 0 ;
+    padding: 24px 0;
 }
 
 .md-stepper-horizontal .md-step:active {
