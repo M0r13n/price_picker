@@ -29,7 +29,7 @@ body {
 .md-stepper-horizontal .md-step {
     display: table-cell;
     position: relative;
-    padding: 24px;
+    padding: 24px 0 ;
 }
 
 .md-stepper-horizontal .md-step:active {

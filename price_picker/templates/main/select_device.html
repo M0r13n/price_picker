@@ -3,9 +3,8 @@
 {% from "_macros.html" import render_stepper %}
 {% block page_title %}- Geräteauswahl{% endblock %}
 {% block content %}
-    <div class="col-sm-8 offset-sm-2">
-        {{ render_stepper(1) }}
-    </div>
+    {{ render_stepper(1) }}
+
     <div class="container">
         <div class="row">
             {% for device in devices %}
