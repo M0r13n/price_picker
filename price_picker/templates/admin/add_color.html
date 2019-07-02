@@ -1,0 +1,21 @@
+{% extends '_base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% from "_macros.html" import render_formgroup ,warn_message %}
+{% block content %}
+    <header class="content-header">
+        <h1>Farbe hinzufügen/ anpassen</h1>
+        <hr>
+        <br>
+    </header>
+
+    <div class="col-lg-8 col-sm-8">
+        <form action="" method="POST" role="form" class="form">
+            {{ form.hidden_tag() }}
+            {{ warn_message(form) }}
+            {{ render_formgroup(form.name, placeholder="schwarz") }}
+            {{ render_formgroup(form.color_code, placeholder="#FFFFFF") }}
+            <button class="btn btn-success" type="submit">Hinzufügen</button>
+        </form>
+    </div>
+
+{% endblock %}

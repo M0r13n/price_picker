@@ -1,7 +1,7 @@
 from flask import Blueprint, redirect, url_for, flash, request, render_template
 from flask_login import current_user
-from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, DeleteForm, NewRepairForm
-from price_picker.models import Device, Manufacturer, Repair
+from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, DeleteForm, NewRepairForm, NewColorForm
+from price_picker.models import Device, Manufacturer, Repair, Color
 from price_picker import db
 from price_picker.common.next_page import next_page
 
@@ -13,6 +13,9 @@ def require_login():
     if not current_user.is_authenticated:
         flash('Dieser Bereich erfordert einen Login!', 'danger')
         return redirect(url_for('main.login', next=request.full_path))
+
+
+# MANUFACTURERS
 
 
 @admin_blueprint.route('/manufacturer/add', methods=['GET', 'POST'])
@@ -53,6 +56,9 @@ def edit_manufacturer(manufacturer_id):
         flash(f"{m.name} erfolgreich aktualisiert", "success")
         return redirect(url_for('main.home'))
     return render_template('admin/add_manufacturer.html', form=form)
+
+
+# DEVICES
 
 
 @admin_blueprint.route('/device/add', methods=['GET', 'POST'])
@@ -102,6 +108,9 @@ def edit_device(device_id):
     return render_template('admin/add_device.html', form=form)
 
 
+# REPAIRS
+
+
 @admin_blueprint.route('/device/<int:device_id>/repair/add', methods=['GET', 'POST'])
 def add_repair(device_id):
     device = Device.query.get_or_404(device_id)
@@ -138,3 +147,24 @@ def delete_repair(repair_id):
         db.session.commit()
         flash(f"{name} erfolgreich gelöscht", "success")
         return redirect(url_for('main.home'))
+
+
+# COLORS
+
+
+@admin_blueprint.route('/color/add', methods=['GET', 'POST'])
+def add_color():
+    form = NewColorForm()
+    if form.validate_on_submit():
+        c = Color()
+        form.populate_obj(c)
+        db.session.add(c)
+        db.session.commit()
+        flash(f"{c.name} erfolgreich hinzugefügt", "success")
+        return redirect(next_page())
+    return render_template('admin/add_color.html', form=form)
+
+
+@admin_blueprint.route('/color/<int:color_id>/delete', methods=['DELETE', 'POST'])
+def delete_color(color_id):
+    pass

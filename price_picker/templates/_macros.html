@@ -39,7 +39,12 @@
     <div class={{ "form-group required" if field.required else "form-group" }}>
         {{ field.label }}
         {{ field(class="form-check") }}
-
+        {% if field.description %}
+            <small id="{{ field.label|string + "help" }}" class="form-text text-muted">{{ field.description }}</small>
+        {% endif %}
+        <small><a href="{{ url_for('admin.add_color', next=request.full_path) }}">
+            Farbe nicht dabei?
+        </a></small>
     </div>
 {% endmacro %}
 

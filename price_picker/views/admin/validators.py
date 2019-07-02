@@ -1,5 +1,5 @@
 from wtforms.validators import ValidationError
-from price_picker.models import Device, Manufacturer
+from price_picker.models import Device, Manufacturer, Color
 
 
 class UniqueDeviceName(object):
@@ -23,4 +23,16 @@ class UniqueManufacturerName(object):
     def __call__(self, form, field):
         manufacturer = Manufacturer.query.filter_by(name=field.data).first()
         if manufacturer is not None:
+            raise ValidationError(self.message)
+
+
+class UniqueColorName(object):
+    def __init__(self, message=None):
+        if message is None:
+            message = 'Diese Farbe existiert bereits.'
+        self.message = message
+
+    def __call__(self, form, field):
+        c = Color.query.filter_by(name=field.data).first()
+        if c is not None:
             raise ValidationError(self.message)

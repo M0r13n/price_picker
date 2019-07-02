@@ -1,9 +1,9 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField
-from wtforms.validators import DataRequired, Length
-from wtforms.ext.sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
+from wtforms.validators import DataRequired, Length, Regexp
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from price_picker.models import Manufacturer, Picture, Color
-from .validators import UniqueDeviceName, UniqueManufacturerName
+from .validators import UniqueDeviceName, UniqueManufacturerName, UniqueColorName
 from price_picker.common.fields import MultiCheckboxField
 
 
@@ -80,7 +80,7 @@ class EditManufacturerForm(NewManufacturerForm):
         "Name",
         validators=[
             DataRequired(message="Gib einen Namen an"),
-            Length(min=1, max=64, message='Der Name muss zwischen 1 und 64 Zeichen lang sein')
+            Length(min=1, max=64, message="Der Name muss zwischen 1 und 64 Zeichen lang sein")
         ],
     )
 
@@ -104,7 +104,7 @@ class NewRepairForm(FlaskForm):
         "Name",
         validators=[
             DataRequired(message="Gib einen Namen an"),
-            Length(min=1, max=64, message='Der Name muss zwischen 1 und 64 Zeichen lang sein')
+            Length(min=1, max=64, message="Der Name muss zwischen 1 und 64 Zeichen lang sein")
         ],
     )
 
@@ -113,4 +113,25 @@ class NewRepairForm(FlaskForm):
         validators=[
             DataRequired(message="Gib einen Preis an")
         ],
+    )
+
+
+class NewColorForm(FlaskForm):
+    name = StringField(
+        "Farbe",
+        validators=[
+            DataRequired(message="Wie heißt die Farbe?"),
+            Length(min=1, max=128, message="Der Name muss zwischen 1 und 128 Zeichen lang sein"),
+            UniqueColorName()
+        ],
+    )
+
+    color_code = StringField(
+        "HTML Farb Code",
+        validators=[
+            DataRequired(message="Die Farbe braucht einen gültigen Code im HEX-Format"),
+            Length(min=7, max=7, message="Der Code muss genau 7 Zeichen inklusive # enthalten"),
+            Regexp('^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$', message="Der Code muss ein gültiges Format haben")
+        ],
+        description="Der Farb Code dient der Darstellung in der Nutzeransicht und muss im HEX-Format angegeben werden"
     )
