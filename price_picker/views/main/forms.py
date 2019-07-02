@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SelectMultipleField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SelectMultipleField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, Email
 
 
@@ -22,6 +22,13 @@ class LoginForm(FlaskForm):
 class SelectRepairForm(FlaskForm):
     repairs = SelectMultipleField(
         coerce=int,
+        choices=[]
+    )
+
+
+class SelectColorForm(FlaskForm):
+    colors = SelectField(
+        coerce=str,
         choices=[]
     )
 
@@ -75,5 +82,5 @@ class ContactForm(FlaskForm):
         description="Bitte achten Sie auf die Korrektheit der Email. Wir können uns sonst ggf. nicht bei Ihnen melden."
     )
     confirm = SubmitField(
-        "Bestellung abschließen"
+        "Zahlungspflichtig bestellen"
     )

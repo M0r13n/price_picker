@@ -18,6 +18,16 @@
     list-style-type: none;
 }
 
+/* Colored Circles*/
+.circle {
+    height: 75px;
+    width: 75px;
+     border:1px solid black;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+
 /* Stepper */
 
 .md-stepper-horizontal {

@@ -37,11 +37,14 @@
 
 {% macro render_select_multiple(field) %}
     <div class={{ "form-group required" if field.required else "form-group" }}>
-        {{ field.label }}
-        {{ field(class="form-check") }}
-        {% if field.description %}
-            <small id="{{ field.label|string + "help" }}" class="form-text text-muted">{{ field.description }}</small>
-        {% endif %}
+        {{ field.label(class="form-control is-invalid" if field.errors else "form-control", **kwargs) }}
+        {% for entry in field %}
+            <div class="form-check">
+                {{ entry(class="form-check-input") }}
+                {{ entry.label(class="form-check-label") }}
+            </div>
+        {% endfor %}
+        {{ render_errors(field) }}
         <small><a href="{{ url_for('admin.add_color', next=request.full_path) }}">
             Farbe nicht dabei?
         </a></small>
@@ -68,7 +71,7 @@
 
 {% macro render_device(device) %}
     <div class="col-sm-4 py-2 text-center">
-        <div class="card h-100" onclick="location.href=('{{ url_for("main.select_repair", device_id=device.id) }}')">
+        <div class="card h-100" onclick="location.href=('{{ url_for("main.choose_color", device_id=device.id) }}')">
             <div class="card-header">
                 <h4 class="my-0 font-weight-normal">{{ device.name }}</h4>
             </div>
@@ -97,6 +100,17 @@
                 <a class="btn btn-primary btn-block editBtn"
                    href="{{ url_for('admin.edit_repair',repair_id=repair.id) }}">edit</a>
             {% endif %}
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro render_color(color) %}
+    <div class="col-sm-4 py-2 text-center">
+        <div class="card selectable h-100" data-id="{{ color.name }}">
+            <div class="card-body">
+                <div class="card-title"><h4>{{ color.name }}</h4></div>
+                <span class="circle" style="background-color: {{ color.color_code }}"></span>
+            </div>
         </div>
     </div>
 {% endmacro %}

@@ -1,6 +1,6 @@
 from flask import render_template, Blueprint, flash, redirect, url_for, session
 from price_picker.models import Manufacturer, Device, User, Repair
-from .forms import LoginForm, SelectRepairForm, ContactForm
+from .forms import LoginForm, SelectRepairForm, ContactForm, SelectColorForm
 from price_picker import db
 from flask_login import login_user, logout_user, login_required
 
@@ -9,6 +9,13 @@ main_blueprint = Blueprint("main", __name__)
 
 @main_blueprint.route("/")
 def home():
+    """
+    1st Step.
+
+    Entry Point for choosing a repair.
+    The user selects the desired manufacturer, e.g. Apple.
+    Redirects to select_device.
+    """
     manufacturers = Manufacturer.query.order_by(Manufacturer.name).all()
     return render_template("main/home.html",
                            manufacturers=manufacturers)
@@ -16,12 +23,41 @@ def home():
 
 @main_blueprint.route("/manufacturer/<int:manufacturer_id>")
 def select_device(manufacturer_id):
+    """
+    2nd Step.
+
+    The user selects the desired device, e.g. iPhone X.
+    Redirects to select_color.
+    """
     devices = Device.query.filter(Device.manufacturer_id == manufacturer_id).all()
     return render_template("main/select_device.html", devices=devices, manufacturer_id=manufacturer_id)
 
 
+@main_blueprint.route("/device/<int:device_id>/color", methods=['GET', 'POST'])
+def choose_color(device_id):
+    """
+    3rd Step.
+
+    The user selects the desired color, e.g. black.
+    Redirects to select_repair.
+    """
+    device = Device.query.get_or_404(device_id)
+    form = SelectColorForm()
+    form.colors.choices = [(c.name, c.name) for c in device.colors]
+    if form.validate_on_submit():
+        session['color'] = form.colors.data
+        return redirect(url_for('main.select_repair', device_id=device_id))
+    return render_template('main/choose_color.html', device=device, form=form)
+
+
 @main_blueprint.route("/device/<int:device_id>")
 def select_repair(device_id):
+    """
+    4th Step.
+
+    The user selects the desired repair, e.g. display.
+    Redirects to summary.
+    """
     device = Device.query.get_or_404(device_id)
     form = SelectRepairForm()
     form.repairs.choices = [(r.id, r.name) for r in device.repairs]
@@ -30,18 +66,32 @@ def select_repair(device_id):
 
 @main_blueprint.route("/summary/<int:device_id>", methods=['GET', 'POST'])
 def summary(device_id):
+    """
+    5th Step.
+
+    The user confirms the summary which includes a list of selected repairs and an estimated price.
+    Redirects to final completion.
+    """
+    color = session['color']
     device = Device.query.get_or_404(device_id)
     form = SelectRepairForm()
     form.repairs.choices = [(r.id, r.name) for r in device.repairs]
     if form.validate_on_submit():
         repairs = db.session.query(Repair).filter(Repair.id.in_(form.repairs.data)).all()
         session['repair_ids'] = form.repairs.data
-        return render_template('main/summary.html', repairs=repairs, device=device, total=sum([r.price for r in repairs]))
+        return render_template('main/summary.html', repairs=repairs, device=device, total=sum([r.price for r in repairs]), color=color)
     return render_template('main/summary.html', device=device, total=0)
 
 
 @main_blueprint.route("/complete/<int:device_id>", methods=['GET', 'POST'])
 def complete(device_id):
+    """
+    6th Step.
+
+    The user enters it´s personal data.
+    After that the order is processed and both (the user and the shop-owner) will receive an confirmation mail.
+    Redirect to the 1st page and closes the circle.
+    """
     form = ContactForm()
     if form.validate_on_submit():
         if 'repair_ids' not in session.keys() or not isinstance(session['repair_ids'], list):

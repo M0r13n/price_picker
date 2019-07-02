@@ -1,0 +1,32 @@
+{% extends "_base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% from "_macros.html" import render_color with context %}
+{% from "_macros.html" import render_stepper %}
+
+{% block page_title %}- Reparaturauswahl{% endblock %}
+{% block content %}
+    {{ render_stepper(1) }}
+
+    <div class="container">
+        <div class="row">
+            {% for color in device.colors %}
+                {{ render_color(color) }}
+            {% endfor %}
+        </div>
+        <br>
+
+        <form class="form" role="form" method="post" action="#" id="colorForm">
+            <div class="text-center">
+                {{ form.hidden_tag() }}
+                {{ form.colors(hidden=True) }}
+                <button class="btn btn-success" type="submit" id="colorFormSubmitBtn">Defekt(e) wählen</button>
+            </div>
+        </form>
+        <a class="btn btn-secondary" href="{{ url_for('main.select_device', manufacturer_id=device.manufacturer.id) }}">&laquo;
+            Zurück</a>
+    </div>
+
+{% endblock %}
+{% block js %}
+    <script src="{{ url_for('static', filename='select_color.js') }}" type="text/javascript"></script>
+{% endblock %}

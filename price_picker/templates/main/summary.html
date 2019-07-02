@@ -15,7 +15,7 @@
                 <div class="row">
                     <div class="col-6 text-left">
                         <span><strong>Modell</strong></span><br>
-                        <span>{{ device.name }}</span>
+                        <span>{{ device.name }} {% if color %}({{ color }}){% endif %}</span>
 
                     </div>
                     <div class="col-6 text-right">
@@ -50,10 +50,12 @@
         <div class="col-sm-6 col-lg-8">
             <br>
             <div class="text-center">
-                <button class=" btn btn-success" onclick="location.href='{{ url_for("main.complete", device_id=device.id) }}'">Bestellung
-                    aufgeben
+                <button class=" btn btn-success" onclick="location.href='{{ url_for("main.complete", device_id=device.id) }}'">
+                    Zahlungspflichtig bestellen
                 </button>
             </div>
+            <br>
+            <a class="btn btn-secondary" href="{{ url_for('main.select_repair', device_id=device.id) }}">&laquo; Zurück</a>
         </div>
     </div>
 {% endblock %}

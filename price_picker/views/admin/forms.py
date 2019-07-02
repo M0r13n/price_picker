@@ -23,7 +23,11 @@ class NewDeviceForm(FlaskForm):
         get_pk=lambda i: i.id,
         get_label=lambda i: i.name,
         allow_blank=True, blank_text='Hersteller wählen',
-        validators=[DataRequired(message="Erforderlich")]
+        validators=[
+            DataRequired(
+                message="Erforderlich"
+            )
+        ]
     )
 
     picture = QuerySelectField(
@@ -40,7 +44,12 @@ class NewDeviceForm(FlaskForm):
         query_factory=Color.query_factory_all,
         get_pk=lambda i: i.name,
         get_label=lambda i: i.name,
-        description="Mehrfachauswahl möglich."
+        description="Mehrfachauswahl möglich.",
+        validators=[
+            DataRequired(
+                message="Es muss mindestens eine Farbe gewählt werden."
+            )
+        ]
 
     )
 
