@@ -77,7 +77,7 @@ def estimate_of_costs(device_id):
     Instead of placing an order, the user can also request an estimate of costs.
     This will be sent via mail to the customer.
     """
-    color = session['color']
+    color = session['color'] if 'color' in session.keys() else 'default'
     device = Device.query.get_or_404(device_id)
     repair_ids = session['repair_ids']
     repairs = db.session.query(Repair).filter(Repair.id.in_(repair_ids)).all()
@@ -97,7 +97,7 @@ def summary(device_id):
     The customer confirms the summary which includes a list of selected repairs and an estimated price.
     Redirects to final completion.
     """
-    color = session['color']
+    color = session['color'] if 'color' in session.keys() else 'default'
     device = Device.query.get_or_404(device_id)
     repair_ids = session['repair_ids']
     repairs = db.session.query(Repair).filter(Repair.id.in_(repair_ids)).all()
