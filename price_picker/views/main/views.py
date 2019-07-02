@@ -13,7 +13,7 @@ def home():
     1st Step.
 
     Entry Point for choosing a repair.
-    The user selects the desired manufacturer, e.g. Apple.
+    The customer selects the desired manufacturer, e.g. Apple.
     Redirects to select_device.
     """
     manufacturers = Manufacturer.query.order_by(Manufacturer.name).all()
@@ -26,7 +26,7 @@ def select_device(manufacturer_id):
     """
     2nd Step.
 
-    The user selects the desired device, e.g. iPhone X.
+    The customer selects the desired device, e.g. iPhone X.
     Redirects to select_color.
     """
     devices = Device.query.filter(Device.manufacturer_id == manufacturer_id).all()
@@ -38,7 +38,7 @@ def choose_color(device_id):
     """
     3rd Step.
 
-    The user selects the desired color, e.g. black.
+    The customer selects the desired color, e.g. black.
     Redirects to select_repair.
     """
     device = Device.query.get_or_404(device_id)
@@ -55,8 +55,8 @@ def select_repair(device_id):
     """
     4th Step.
 
-    The user selects the desired repair, e.g. display.
-    Redirects to summary or to estimate_of_costs depending on the users choice.
+    The customer selects the desired repair, e.g. display.
+    Redirects to summary or to estimate_of_costs depending on the customer choice.
     """
     device = Device.query.get_or_404(device_id)
     form = SelectRepairForm()
@@ -75,7 +75,7 @@ def estimate_of_costs(device_id):
     5th Step - Alternative.
 
     Instead of placing an order, the user can also request an estimate of costs.
-    This will be sent via mail to the user.
+    This will be sent via mail to the customer.
     """
     color = session['color']
     device = Device.query.get_or_404(device_id)
@@ -93,7 +93,7 @@ def summary(device_id):
     """
     5th Step - Default.
 
-    The user confirms the summary which includes a list of selected repairs and an estimated price.
+    The customer confirms the summary which includes a list of selected repairs and an estimated price.
     Redirects to final completion.
     """
     color = session['color']
@@ -112,8 +112,8 @@ def complete(device_id):
     """
     6th Step.
 
-    The user enters it´s personal data.
-    After that the order is processed and both (the user and the shop-owner) will receive an confirmation mail.
+    The customer enters it´s personal data.
+    After that the order is processed and both (the customer and the shop-owner) will receive an confirmation mail.
     Redirect to the 1st page and closes the circle.
     """
     form = ContactForm()
