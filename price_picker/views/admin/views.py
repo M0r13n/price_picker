@@ -60,7 +60,7 @@ def add_device():
     m = request.args.get('manufacturer_id', None, int)
     form = NewDeviceForm()
     if form.validate_on_submit():
-        d = Device(name=form.name.data, manufacturer=form.manufacturer.data, picture=form.picture.data)
+        d = Device(name=form.name.data, manufacturer=form.manufacturer.data, picture=form.picture.data, colors=form.colors.data)
         db.session.add(d)
         db.session.commit()
         flash(f"{d.name} erfolgreich hinzugefügt", "success")
@@ -94,9 +94,11 @@ def edit_device(device_id):
         d.name = form.name.data
         d.manufacturer = form.manufacturer.data
         d.picture = form.picture.data
+        d.colors = form.colors.data
         db.session.commit()
         flash(f"{d.name} erfolgreich aktualisiert", "success")
         return redirect(url_for('main.select_device', manufacturer_id=d.manufacturer_id))
+    form.colors.data = d.colors
     return render_template('admin/add_device.html', form=form)
 
 

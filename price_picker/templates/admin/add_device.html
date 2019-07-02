@@ -1,6 +1,6 @@
 {% extends '_base.html' %}
 {% import "bootstrap/wtf.html" as wtf %}
-{% from "_macros.html" import render_formgroup, warn_message %}
+{% from "_macros.html" import render_formgroup, render_select_multiple ,warn_message %}
 {% block content %}
     <header class="content-header">
         <h1>Gerät hinzufügen/ anpassen</h1>
@@ -15,6 +15,7 @@
             {{ render_formgroup(form.name, placeholder="iPhone X") }}
             {{ render_formgroup(form.manufacturer) }}
             {{ render_formgroup(form.picture) }}
+            {{ render_select_multiple(form.colors) }}
             <button class="btn btn-success" type="submit">Hinzufügen</button>
         </form>
     </div>

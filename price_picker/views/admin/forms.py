@@ -1,9 +1,10 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField
 from wtforms.validators import DataRequired, Length
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from price_picker.models import Manufacturer, Picture
+from wtforms.ext.sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
+from price_picker.models import Manufacturer, Picture, Color
 from .validators import UniqueDeviceName, UniqueManufacturerName
+from price_picker.common.fields import MultiCheckboxField
 
 
 class NewDeviceForm(FlaskForm):
@@ -34,6 +35,15 @@ class NewDeviceForm(FlaskForm):
 
     )
 
+    colors = MultiCheckboxField(
+        label="Farbe",
+        query_factory=Color.query_factory_all,
+        get_pk=lambda i: i.name,
+        get_label=lambda i: i.name,
+        description="Mehrfachauswahl möglich."
+
+    )
+
 
 class EditDeviceForm(NewDeviceForm):
     name = StringField(
@@ -42,15 +52,6 @@ class EditDeviceForm(NewDeviceForm):
             DataRequired(message="Gib einen Namen an"),
             Length(min=1, max=64, message='Der Name muss zwischen 1 und 64 Zeichen lang sein')
         ],
-    )
-
-    picture = QuerySelectField(
-        label="Bild",
-        query_factory=Picture.query_factory_all,
-        get_pk=lambda i: i.name,
-        get_label=lambda i: i.name,
-        allow_blank=True, blank_text='Bild wählen'
-
     )
 
 

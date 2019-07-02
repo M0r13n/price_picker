@@ -1,5 +1,5 @@
 from .user import User
-from .device import Device, Manufacturer, Repair, Picture
+from .device import Device, Manufacturer, Repair, Picture, Color
 from .feedback import Feedback
 
 __all__ = [
@@ -8,5 +8,6 @@ __all__ = [
     'Manufacturer',
     'Feedback',
     'Repair',
-    'Picture'
+    'Picture',
+    'Color'
 ]

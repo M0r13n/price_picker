@@ -7,7 +7,7 @@ import coverage
 
 from flask.cli import FlaskGroup
 from price_picker import create_app, db
-from price_picker.models import User, Device, Manufacturer, Repair, Picture
+from price_picker.models import User, Device, Manufacturer, Repair, Picture, Color
 import subprocess
 import sys
 
@@ -60,6 +60,15 @@ def create_data():
     Repair.query.delete()
     Picture.query.delete()
     User.query.delete()
+    Color.query.delete()
+
+    # some colors
+    black = Color(name="black", color_code="#000000")
+    white = Color(name="white", color_code="#FFFFFF")
+    gold = Color(name="gold", color_code="#D4AF37")
+    db.session.add(black)
+    db.session.add(white)
+    db.session.add(gold)
 
     db.session.add(User(username="admin", password="admin"))
     Picture.create_basic_pictures()
@@ -98,7 +107,7 @@ def create_data():
                  picture=Picture.query.filter_by(name='iphone_x').first())
     ip8p = Device(name="iPhone 8 Plus", manufacturer=apple,
                   picture=Picture.query.filter_by(name='iphone_x').first())
-    ipx = Device(name="iPhone X", manufacturer=apple,
+    ipx = Device(name="iPhone X", manufacturer=apple, colors=[black, white],
                  picture=Picture.query.filter_by(name='iphone_x').first())
     ipxs = Device(name="iPhone Xs", manufacturer=apple,
                   picture=Picture.query.filter_by(name='iphone_x').first())

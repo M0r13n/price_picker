@@ -103,6 +103,11 @@ repair_association_table = db.Table('repair_association',
                                     db.Column('repair_id', db.Integer, db.ForeignKey('repair.id', ondelete="cascade"))
                                     )
 
+color_association_table = db.Table('color_association',
+                                   db.Column('device_id', db.Integer, db.ForeignKey('devices.id', ondelete="cascade")),
+                                   db.Column('color_name', db.String, db.ForeignKey('color.name', ondelete="cascade"))
+                                   )
+
 
 class Device(db.Model):
     """
@@ -116,6 +121,7 @@ class Device(db.Model):
     manufacturer = relationship('Manufacturer', back_populates='devices')
     repairs = relationship('Repair', secondary=repair_association_table, back_populates='devices')
     picture_id = db.Column(db.String, db.ForeignKey('pictures.name'))
+    colors = relationship("Color", secondary=color_association_table)
 
     def __repr__(self):
         return f"<Device: {self.manufacturer.name} - {self.name}>"
@@ -157,3 +163,20 @@ class Repair(db.Model):
     name = db.Column(db.String(64), unique=True)
     price = db.Column(db.Integer)
     devices = relationship("Device", secondary=repair_association_table, back_populates="repairs", lazy='dynamic')
+
+
+class Color(db.Model):
+    """ Store colors and their associated color codes """
+    __tablename__ = 'color'
+    name = db.Column(db.String(128), primary_key=True)
+    color_code = db.Column(db.String(20))
+
+    @classmethod
+    def query_factory_all(cls):
+        """
+        Query Factory for use in sqlalchemy.wtforms
+        """
+        return cls.query.order_by(cls.name)
+
+    def __repr__(self):
+        return f"<{self.name} : {self.color_code}>"

@@ -35,6 +35,13 @@
     </div>
 {% endmacro %}
 
+{% macro render_select_multiple(field) %}
+    <div class={{ "form-group required" if field.required else "form-group" }}>
+        {{ field.label }}
+        {{ field(class="form-check") }}
+
+    </div>
+{% endmacro %}
 
 {% macro render_manufacturer(manufacturer) %}
     <div class="col-sm-4 py-2 text-center">
@@ -88,6 +95,7 @@
         </div>
     </div>
 {% endmacro %}
+
 
 
 {% macro render_stepper(step=1) %}
