@@ -1,4 +1,4 @@
-from flask import render_template, Blueprint, flash, redirect, url_for, session
+from flask import render_template, Blueprint, flash, redirect, url_for, session, request
 from price_picker.models import Manufacturer, Device, User, Repair
 from .forms import LoginForm, SelectRepairForm, ContactForm, SelectColorForm
 from price_picker import db
@@ -50,37 +50,61 @@ def choose_color(device_id):
     return render_template('main/choose_color.html', device=device, form=form)
 
 
-@main_blueprint.route("/device/<int:device_id>")
+@main_blueprint.route("/device/<int:device_id>", methods=['GET', 'POST'])
 def select_repair(device_id):
     """
     4th Step.
 
     The user selects the desired repair, e.g. display.
-    Redirects to summary.
+    Redirects to summary or to estimate_of_costs depending on the users choice.
     """
     device = Device.query.get_or_404(device_id)
     form = SelectRepairForm()
     form.repairs.choices = [(r.id, r.name) for r in device.repairs]
+    if form.validate_on_submit():
+        session['repair_ids'] = form.repairs.data
+        if request.form.get('estimate') is not None:
+            return redirect(url_for('.estimate_of_costs', device_id=device_id))
+        return redirect(url_for('.summary', device_id=device_id))
     return render_template('main/select_repair.html', device=device, form=form)
 
 
-@main_blueprint.route("/summary/<int:device_id>", methods=['GET', 'POST'])
+@main_blueprint.route("/costs/<int:device_id>", methods=['GET', 'POST'])
+def estimate_of_costs(device_id):
+    """
+    5th Step - Alternative.
+
+    Instead of placing an order, the user can also request an estimate of costs.
+    This will be sent via mail to the user.
+    """
+    color = session['color']
+    device = Device.query.get_or_404(device_id)
+    repair_ids = session['repair_ids']
+    repairs = db.session.query(Repair).filter(Repair.id.in_(repair_ids)).all()
+    form = ContactForm()
+    if form.validate_on_submit():
+        flash(f'Wir haben den Kostenvoranschlag an {form.email.data} versandt!', 'success')
+        return redirect(url_for('main.thank_you'))
+    return render_template('main/complete.html', form=form, device_id=device_id)
+
+
+@main_blueprint.route("/summary/<int:device_id>")
 def summary(device_id):
     """
-    5th Step.
+    5th Step - Default.
 
     The user confirms the summary which includes a list of selected repairs and an estimated price.
     Redirects to final completion.
     """
     color = session['color']
     device = Device.query.get_or_404(device_id)
-    form = SelectRepairForm()
-    form.repairs.choices = [(r.id, r.name) for r in device.repairs]
-    if form.validate_on_submit():
-        repairs = db.session.query(Repair).filter(Repair.id.in_(form.repairs.data)).all()
-        session['repair_ids'] = form.repairs.data
-        return render_template('main/summary.html', repairs=repairs, device=device, total=sum([r.price for r in repairs]), color=color)
-    return render_template('main/summary.html', device=device, total=0)
+    repair_ids = session['repair_ids']
+    repairs = db.session.query(Repair).filter(Repair.id.in_(repair_ids)).all()
+    return render_template('main/summary.html',
+                           repairs=repairs,
+                           device=device,
+                           total=sum([r.price for r in repairs]),
+                           color=color)
 
 
 @main_blueprint.route("/complete/<int:device_id>", methods=['GET', 'POST'])
