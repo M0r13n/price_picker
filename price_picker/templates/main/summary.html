@@ -4,7 +4,7 @@
 {% from "_macros.html" import render_stepper %}
 {% block page_title %}- Abschluss{% endblock %}
 {% block content %}
-    {{ render_stepper(3) }}
+    {{ render_stepper(4) }}
 
     <div class="container">
         <div class="row">
@@ -55,7 +55,7 @@
                 </button>
             </div>
             <br>
-            <a class="btn btn-secondary" href="{{ url_for('main.select_repair', device_id=device.id) }}">&laquo; Zurück</a>
         </div>
+        <a class="btn btn-secondary" href="{{ url_for('main.select_repair', device_id=device.id) }}">&laquo; Zurück</a>
     </div>
 {% endblock %}

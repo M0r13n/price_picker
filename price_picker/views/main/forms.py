@@ -63,15 +63,6 @@ class ContactForm(FlaskForm):
         description="Die IMEI dient der eindeutigen Identifizierung Ihres Geräts und ist bei Versicherungsschäden zwingend erforderlich."
     )
 
-    color = StringField(
-        "Farbe",
-        validators=[
-            DataRequired(message="Es wird ein Nachname benötigt"),
-            Length(min=3, max=30, message="Die Farbe sollte zwischen 3 und 30 Zeichen enthalten")
-        ],
-        description="Die Farbe ist zwingend erforderlich, damit wir das richtige Ersatzteil für Sie bestellen können."
-    )
-
     email = StringField(
         "Email Adresse",
         validators=[

@@ -82,6 +82,7 @@ def estimate_of_costs(device_id):
     repair_ids = session['repair_ids']
     repairs = db.session.query(Repair).filter(Repair.id.in_(repair_ids)).all()
     form = ContactForm()
+    form.confirm.label.text = "Kostenvoranschlag anfordern!"
     if form.validate_on_submit():
         flash(f'Wir haben den Kostenvoranschlag an {form.email.data} versandt!', 'success')
         return redirect(url_for('main.thank_you'))

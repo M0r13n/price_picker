@@ -5,7 +5,7 @@
 
 {% block page_title %}- Reparaturauswahl{% endblock %}
 {% block content %}
-    {{ render_stepper(2) }}
+    {{ render_stepper(3) }}
 
     <div class="container">
         <div class="row">
@@ -40,14 +40,15 @@
             <div class="text-center">
                 {{ form.hidden_tag() }}
                 {{ form.repairs(hidden=True) }}
-                <input class="btn btn-success" type="submit" name="estimate" value="Kostenvoranschlag anfordern">
-                <input class="btn btn-success" type="submit" name="order" value="Zahlungspflichtig bestellen">
+                <input class="btn btn-success btn-block col-md-4 offset-4" type="submit" name="estimate"
+                       value="Kostenvoranschlag anfordern">
+                <input class="btn btn-success btn-block col-md-4 offset-4" type="submit" name="order" value="Zahlungspflichtig bestellen">
             </div>
         </form>
+        <br>
         <a class="btn btn-secondary" href="{{ url_for('main.select_device', manufacturer_id=device.manufacturer.id) }}">&laquo;
             Zurück</a>
     </div>
-
 {% endblock %}
 {% block js %}
     <script src="{{ url_for('static', filename='select_repair.js') }}?v=1.0.1" type="text/javascript"></script>

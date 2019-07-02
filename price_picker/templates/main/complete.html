@@ -3,7 +3,7 @@
 {% from "_macros.html" import warn_message, render_formgroup %}
 {% from "_macros.html" import render_stepper %}
 {% block content %}
-    {{ render_stepper(4) }}
+    {{ render_stepper(5) }}
     <div class="col-lg-8 col-sm-8 offset-lg-2">
         <h2 class="text-center">Persönliche Daten</h2>
         <hr>
@@ -15,7 +15,6 @@
             {{ render_formgroup(form.email) }}
             {{ render_formgroup(form.phone, placeholder="+49") }}
             <h4 class="text-muted">Gerätedaten</h4>
-            {{ render_formgroup(form.color) }}
             {{ render_formgroup(form.imei) }}
             {{ form.confirm(class="btn btn-block btn-success") }}
         </form>

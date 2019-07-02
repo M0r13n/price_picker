@@ -83,37 +83,37 @@ def create_data():
     db.session.add(huawei)
     db.session.add(oneplus)
 
-    ip4 = Device(name="iPhone 4", manufacturer=apple,
+    ip4 = Device(name="iPhone 4", manufacturer=apple, colors=[black, white],
                  picture=Picture.query.filter_by(name='iphone_4s').first())
-    ip5 = Device(name="iPhone 5", manufacturer=apple,
+    ip5 = Device(name="iPhone 5", manufacturer=apple, colors=[black, white],
                  picture=Picture.query.filter_by(name='iphone_5s').first())
-    ip5s = Device(name="iPhone 5s", manufacturer=apple,
+    ip5s = Device(name="iPhone 5s", manufacturer=apple, colors=[black, white],
                   picture=Picture.query.filter_by(name='iphone_5s').first())
-    ip5c = Device(name="iPhone 5c", manufacturer=apple,
+    ip5c = Device(name="iPhone 5c", manufacturer=apple, colors=[black, white],
                   picture=Picture.query.filter_by(name='iphone_5c').first())
-    ip6 = Device(name="iPhone 6", manufacturer=apple,
+    ip6 = Device(name="iPhone 6", manufacturer=apple, colors=[black, white],
                  picture=Picture.query.filter_by(name='iphone_8').first())
-    ip6p = Device(name="iPhone 6 Plus", manufacturer=apple,
+    ip6p = Device(name="iPhone 6 Plus", manufacturer=apple, colors=[black, white],
                   picture=Picture.query.filter_by(name='iphone_8_plus').first())
-    ip6s = Device(name="iPhone 6s", manufacturer=apple,
+    ip6s = Device(name="iPhone 6s", manufacturer=apple, colors=[black, white],
                   picture=Picture.query.filter_by(name='iphone_8').first())
-    ip6sp = Device(name="iPhone 6s Plus", manufacturer=apple,
+    ip6sp = Device(name="iPhone 6s Plus", manufacturer=apple, colors=[black, white],
                    picture=Picture.query.filter_by(name='iphone_8_plus').first())
-    ip7 = Device(name="iPhone 7", manufacturer=apple,
+    ip7 = Device(name="iPhone 7", manufacturer=apple, colors=[black, white],
                  picture=Picture.query.filter_by(name='iphone_8').first())
-    ip7p = Device(name="iPhone 7 Plus", manufacturer=apple,
+    ip7p = Device(name="iPhone 7 Plus", manufacturer=apple, colors=[black, white],
                   picture=Picture.query.filter_by(name='iphone_8_plus').first())
-    ip8 = Device(name="iPhone 8", manufacturer=apple,
+    ip8 = Device(name="iPhone 8", manufacturer=apple, colors=[black, white],
                  picture=Picture.query.filter_by(name='iphone_x').first())
-    ip8p = Device(name="iPhone 8 Plus", manufacturer=apple,
+    ip8p = Device(name="iPhone 8 Plus", manufacturer=apple, colors=[black, white],
                   picture=Picture.query.filter_by(name='iphone_x').first())
     ipx = Device(name="iPhone X", manufacturer=apple, colors=[black, white],
                  picture=Picture.query.filter_by(name='iphone_x').first())
-    ipxs = Device(name="iPhone Xs", manufacturer=apple,
+    ipxs = Device(name="iPhone Xs", manufacturer=apple, colors=[black, white],
                   picture=Picture.query.filter_by(name='iphone_x').first())
-    ipxsm = Device(name="iPhone Xs Max", manufacturer=apple,
+    ipxsm = Device(name="iPhone Xs Max", manufacturer=apple, colors=[black, white],
                    picture=Picture.query.filter_by(name='iphone_x').first())
-    ipxr = Device(name="iPhone Xr", manufacturer=apple,
+    ipxr = Device(name="iPhone Xr", manufacturer=apple, colors=[black, white],
                   picture=Picture.query.filter_by(name='iphone_x').first())
     db.session.add(ip4)
     db.session.add(ip5)
