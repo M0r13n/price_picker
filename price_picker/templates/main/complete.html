@@ -1,9 +1,8 @@
-{% extends '_base.html' %}
+{% extends 'main/_base.html' %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% from "_macros.html" import warn_message, render_formgroup %}
-{% from "_macros.html" import render_stepper %}
-{% block content %}
-    {{ render_stepper(5) }}
+
+{% block sub_page %}
     <div class="col-lg-8 col-sm-8 offset-lg-2">
         <h2 class="text-center">Persönliche Daten</h2>
         <hr>
@@ -19,5 +18,4 @@
             {{ form.confirm(class="btn btn-block btn-success") }}
         </form>
     </div>
-
 {% endblock %}

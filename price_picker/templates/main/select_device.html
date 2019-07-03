@@ -1,10 +1,7 @@
-{% extends "_base.html" %}
+{% extends "main/_base.html" %}
 {% from "_macros.html" import render_device with context %}
-{% from "_macros.html" import render_stepper %}
-{% block page_title %}- Geräteauswahl{% endblock %}
-{% block content %}
-    {{ render_stepper(1) }}
 
+{% block sub_page %}
     <div class="container">
         <div class="row">
             {% for device in devices %}

@@ -1,0 +1,8 @@
+{% extends "_base.html" %}
+{% from "_macros.html" import render_stepper %}
+{% block title %} - {{ sub_title }}{% endblock %}
+{% if not step_count %}{% set step_count = 1 %}{% endif %}
+{% block content %}
+    {{ render_stepper(step_count) }}
+    {% block sub_page %}{% endblock %}
+{% endblock %}

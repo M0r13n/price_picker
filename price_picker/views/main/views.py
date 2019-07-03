@@ -30,7 +30,11 @@ def select_device(manufacturer_id):
     Redirects to select_color.
     """
     devices = Device.query.filter(Device.manufacturer_id == manufacturer_id).all()
-    return render_template("main/select_device.html", devices=devices, manufacturer_id=manufacturer_id)
+    return render_template("main/select_device.html",
+                           devices=devices,
+                           manufacturer_id=manufacturer_id,
+                           sub_title="Geräteauswahl",
+                           step_count=1)
 
 
 @main_blueprint.route("/device/<int:device_id>/color", methods=['GET', 'POST'])
@@ -47,7 +51,11 @@ def choose_color(device_id):
     if form.validate_on_submit():
         session['color'] = form.colors.data
         return redirect(url_for('main.select_repair', device_id=device_id))
-    return render_template('main/choose_color.html', device=device, form=form)
+    return render_template('main/choose_color.html',
+                           device=device,
+                           form=form,
+                           sub_title="Farbauswahl",
+                           step_count=2)
 
 
 @main_blueprint.route("/device/<int:device_id>", methods=['GET', 'POST'])
@@ -66,7 +74,11 @@ def select_repair(device_id):
         if request.form.get('estimate') is not None:
             return redirect(url_for('.estimate_of_costs', device_id=device_id))
         return redirect(url_for('.summary', device_id=device_id))
-    return render_template('main/select_repair.html', device=device, form=form)
+    return render_template('main/select_repair.html',
+                           device=device,
+                           form=form,
+                           sub_title="Defektauswahl",
+                           step_count=3)
 
 
 @main_blueprint.route("/costs/<int:device_id>", methods=['GET', 'POST'])
@@ -86,7 +98,11 @@ def estimate_of_costs(device_id):
     if form.validate_on_submit():
         flash(f'Wir haben den Kostenvoranschlag an {form.email.data} versandt!', 'success')
         return redirect(url_for('main.thank_you'))
-    return render_template('main/complete.html', form=form, device_id=device_id)
+    return render_template('main/complete.html',
+                           form=form,
+                           device_id=device_id,
+                           step_count=5,
+                           sub_title="Kostenvoranschlag")
 
 
 @main_blueprint.route("/summary/<int:device_id>")
@@ -105,7 +121,9 @@ def summary(device_id):
                            repairs=repairs,
                            device=device,
                            total=sum([r.price for r in repairs]),
-                           color=color)
+                           color=color,
+                           step_count=4,
+                           sub_title="Auftragsübersicht")
 
 
 @main_blueprint.route("/complete/<int:device_id>", methods=['GET', 'POST'])
@@ -126,7 +144,11 @@ def complete(device_id):
         print(repairs)
         flash('Wir haben ihre Anfrage erhalten!', 'success')
         return redirect(url_for('main.thank_you'))
-    return render_template('main/complete.html', form=form, device_id=device_id)
+    return render_template('main/complete.html',
+                           form=form,
+                           device_id=device_id,
+                           step_count=5,
+                           sub_title="Abschluss")
 
 
 @main_blueprint.route('/thanks')

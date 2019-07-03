@@ -1,17 +1,14 @@
-{% extends "_base.html" %}
+{% extends "main/_base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% from "_macros.html" import render_repair with context %}
-{% from "_macros.html" import render_stepper %}
 
-{% block page_title %}- Reparaturauswahl{% endblock %}
-{% block content %}
-    {{ render_stepper(3) }}
-
+{% block sub_page %}
     <div class="container">
         <div class="row">
             {% for repair in device.repairs %}
                 {{ render_repair(repair) }}
             {% endfor %}
+
             <!-- Always include an arbitrary choice-->
             <div class="col-sm-4 py-2 text-center">
                 <div class="card h-100">
@@ -23,8 +20,9 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Always include an add option if admin is logged in-->
             {% if current_user.is_authenticated %}
-                <!-- Always include an add option if admin is logged in-->
                 <div class="col-sm-4 py-2 text-center"
                      onclick="location.href='{{ url_for("admin.add_repair", device_id=device.id) }}'">
                     <div class="card bg-primary h-100">
@@ -36,13 +34,16 @@
             {% endif %}
         </div>
         <br>
+
+        <!-- Store selected repairs inside a hidden form -->
         <form class="form" role="form" method="post" id="repairSubmitForm">
             <div class="text-center">
                 {{ form.hidden_tag() }}
                 {{ form.repairs(hidden=True) }}
                 <input class="btn btn-success btn-block col-md-4 offset-md-4" type="submit" name="estimate"
                        value="Kostenvoranschlag anfordern">
-                <input class="btn btn-success btn-block col-md-4 offset-md-4" type="submit" name="order" value="Zahlungspflichtig bestellen">
+                <input class="btn btn-success btn-block col-md-4 offset-md-4" type="submit" name="order"
+                       value="Zahlungspflichtig bestellen">
             </div>
         </form>
         <br>
@@ -50,6 +51,7 @@
             Zurück</a>
     </div>
 {% endblock %}
+
 {% block js %}
     <script src="{{ url_for('static', filename='select_repair.js') }}?v=1.0.1" type="text/javascript"></script>
 {% endblock %}

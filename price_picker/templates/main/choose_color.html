@@ -1,12 +1,8 @@
-{% extends "_base.html" %}
+{% extends "main/_base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% from "_macros.html" import render_color with context %}
-{% from "_macros.html" import render_stepper %}
 
-{% block page_title %}- Reparaturauswahl{% endblock %}
-{% block content %}
-    {{ render_stepper(2) }}
-
+{% block sub_page %}
     <div class="container">
         <div class="row justify-content-md-center">
             {% for color in device.colors %}
@@ -14,6 +10,7 @@
             {% endfor %}
         </div>
         <br>
+        <!-- Use a hidden form, to be able to select a color and submit it via button click -->
         <form class="form" role="form" method="post" action="#" id="colorForm">
             <div class="text-center">
                 {{ form.hidden_tag() }}
@@ -24,6 +21,7 @@
             Zurück</a>
     </div>
 {% endblock %}
+
 {% block js %}
     <script src="{{ url_for('static', filename='select_color.js') }}?v=1.0.1" type="text/javascript"></script>
 {% endblock %}
