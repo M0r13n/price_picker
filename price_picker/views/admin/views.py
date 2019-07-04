@@ -2,7 +2,7 @@ from flask import Blueprint, redirect, url_for, flash, request, render_template,
 from flask_login import current_user
 from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, DeleteForm, NewRepairForm, NewColorForm, \
     ContactSettingsForm, MailSettingsForm
-from price_picker.models import Device, Manufacturer, Repair, Color, Preferences
+from price_picker.models import Device, Manufacturer, Repair, Color, Preferences, Enquiry
 from price_picker import db
 from price_picker.common.next_page import next_page
 
@@ -176,8 +176,21 @@ def delete_color(color_id):
 
 @admin_blueprint.route('/settings/dashboard', methods=['GET', 'POST'])
 def dashboard():
+    page = request.args.get('page', 1, int)
+    query = Enquiry.query.order_by(Enquiry.timestamp.desc())
+    pagination = query.paginate(page, per_page=10, error_out=False)
     return render_template('admin/panel/dashboard.html',
-                           sub_title="Dashboard")
+                           sub_title="Dashboard",
+                           pagination=pagination)
+
+
+@admin_blueprint.route('/enquiry/<int:enquiry_id>/complete', methods=['POST'])
+def complete_enquiry(enquiry_id):
+    enquiry = Enquiry.query.get_or_404(enquiry_id)
+    enquiry.done = True
+    db.session.commit()
+    flash("Anfrage erfolgreich abgeschlossen.", 'success')
+    return '', 200
 
 
 @admin_blueprint.route('/settings/contactform', methods=['GET', 'POST'])
@@ -213,13 +226,6 @@ def mail_settings():
 
     form = MailSettingsForm(obj=p)
     if form.validate_on_submit():
-        p.mail_username = form.mail_username.data
-        p.mail_server = form.mail_server.data
-        p.mail_port = form.mail_port.data
-        p.mail_server_activated = form.mail_server_activated.data
-        p.mail_default_sender = form.mail_default_sender.data
-        p.encrypt_mail_password(form.mail_password.data)
-        db.session.commit()
         current_app.logger.warning('Successfully updated mail preferences.')
         flash('Einstellungen erfolgreich angepasst', 'success')
         return redirect(url_for('.mail_settings'))

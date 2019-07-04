@@ -1,4 +1,5 @@
 {% extends "admin/panel/_base.html" %}
+{% from "_macros.html" import pagination_widget %}
 {% set active_page='dashboard' %}
 {% block sub_page %}
     <h2>Anfragen</h2>
@@ -7,29 +8,41 @@
             <thead>
             <tr>
                 <th>Datum</th>
+                <th>Typ</th>
                 <th>Kunde</th>
-                <th>Anschrift</th>
                 <th>Email</th>
                 <th>Telefon</th>
                 <th>Gerät</th>
+                <th>Imei</th>
                 <th>Reparatur(en)</th>
-                <th>Preis</th>
-                <th>Bearbeitet</th>
+                <th>Abschließen</th>
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td>12.01.2019</td>
-                <td>Helmut Müller</td>
-                <td>Sophienhof, 17, 24256 Fargau-Pratjau</td>
-                <td>leon.morten@ggg.io</td>
-                <td>1255656997</td>
-                <td>iPhone Xs (black)</td>
-                <td>Display, Akku, Backcover</td>
-                <td>928</td>
-                <td>Nein</td>
-            </tr>
+            {% for enquiry in pagination.items %}
+                <tr>
+                    <td>{{ enquiry.timestamp.strftime('%d.%m.%Y') }}</td>
+                    <td>{{ enquiry.name }}</td>
+                    <td>{{ enquiry.customer_first_name }} {{ enquiry.customer_last_name }}</td>
+                    <td>{{ enquiry.customer_email }}</td>
+                    <td>{{ enquiry.customer_phone }}</td>
+                    <td>{{ enquiry.device.name }}({{ enquiry.color }})</td>
+                    <td>{{ enquiry.imei }}</td>
+                    <td>{% for r in enquiry.repairs %}{{ r.name }}{% if not loop.last %},{% endif %}{% endfor %}</td>
+                    <td class="text-right">{% if not enquiry.done %}
+                        <button class="btn btn-success confirmBtn" id="{{ enquiry.id }}">&#10003;</button>{% endif %}</td>
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
     </div>
+    <div class="text-center">
+        {% if pagination %}
+            {{ pagination_widget(pagination, '.dashboard') }}
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{{ url_for('static', filename='dashboard.js') }}?v=1.0.1" type="text/javascript"></script>
 {% endblock %}

@@ -1,6 +1,6 @@
 from flask import render_template, Blueprint, flash, redirect, url_for, session, request, current_app
-from price_picker.models import Manufacturer, Device, User, Repair, Preferences
-from .forms import LoginForm, SelectRepairForm, ContactForm, SelectColorForm, contact_form_factory
+from price_picker.models import Manufacturer, Device, User, Repair, Preferences, Enquiry
+from .forms import LoginForm, SelectRepairForm, SelectColorForm, contact_form_factory
 from price_picker import db
 from price_picker.common.decorators import step, sub_title
 from flask_login import login_user, logout_user, login_required
@@ -95,16 +95,32 @@ def estimate_of_costs(device_id, **kwargs):
     Instead of placing an order, the user can also request an estimate of costs.
     This will be sent via mail to the customer.
     """
-    color = session['color'] if 'color' in session.keys() else 'default'
     device = Device.query.get_or_404(device_id)
-    repair_ids = session['repair_ids']
-    repairs = db.session.query(Repair).filter(Repair.id.in_(repair_ids)).all()
-
     form = contact_form_factory(current_app.config)
     form.confirm.label.text = "Kostenvoranschlag anfordern!"
+
     if form.validate_on_submit():
-        flash(f'Wir haben den Kostenvoranschlag an {form.email.data} versandt!', 'success')
+        if 'repair_ids' not in session.keys() or not isinstance(session['repair_ids'], list):
+            flash('Da ist etwas schief gelaufen. Es tut uns Leid. Wähle deine Reparatur erneut.', 'danger')
+            return redirect(url_for('main.select_repair', device_id=device_id))
+
+        color = session['color'] if 'color' in session.keys() else 'default'
+        repair_ids = session['repair_ids']
+        repairs = db.session.query(Repair).filter(Repair.id.in_(repair_ids)).all()
+        e = Enquiry(color=color,
+                    device=device,
+                    repairs=repairs,
+                    customer_email=form.email.data,
+                    customer_first_name=form.first_name.data,
+                    customer_last_name=form.last_name.data,
+                    customer_phone=form.phone.data,
+                    imei=form.imei.data,
+                    name="Kostenvoranschlag")
+        db.session.add(e)
+        db.session.commit()
+        flash(f'Wir haben ihre Anfrage erhalten!', 'success')
         return redirect(url_for('main.thank_you'))
+
     return render_template('main/complete.html',
                            form=form,
                            device_id=device_id,
@@ -144,14 +160,27 @@ def complete(device_id, **kwargs):
     After that the order is processed and both (the customer and the shop-owner) will receive an confirmation mail.
     Redirect to the 1st page and closes the circle.
     """
+    device = Device.query.get_or_404(device_id)
     form = contact_form_factory(current_app.config)
     if form.validate_on_submit():
         if 'repair_ids' not in session.keys() or not isinstance(session['repair_ids'], list):
             flash('Da ist etwas schief gelaufen. Es tut uns Leid. Wähle deine Reparatur erneut.', 'danger')
             return redirect(url_for('main.select_repair', device_id=device_id))
+
         repairs = db.session.query(Repair).filter(Repair.id.in_(session['repair_ids'])).all()
-        print(repairs)
-        flash('Wir haben ihre Anfrage erhalten!', 'success')
+        color = session['color'] if 'color' in session.keys() else 'default'
+        e = Enquiry(color=color,
+                    device=device,
+                    repairs=repairs,
+                    customer_email=form.email.data,
+                    customer_first_name=form.first_name.data,
+                    customer_last_name=form.last_name.data,
+                    customer_phone=form.phone.data,
+                    imei=form.imei.data,
+                    name="Reparatur")
+        db.session.add(e)
+        db.session.commit()
+        flash('Wir haben Ihre Anfrage erhalten!', 'success')
         return redirect(url_for('main.thank_you'))
     return render_template('main/complete.html',
                            form=form,

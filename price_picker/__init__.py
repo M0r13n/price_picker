@@ -8,12 +8,14 @@ from price_picker.common.next_page import next_page
 from price_picker.common.url_for_other_page import url_for_other_page
 from config import configs
 from flask_bootstrap import Bootstrap
+from flask_wtf.csrf import CSRFProtect
 
 # instantiate the extensions
 login_manager = LoginManager()
 db = SQLAlchemy()
 migrate = Migrate()
 bootstrap = Bootstrap()
+csrf = CSRFProtect()
 
 
 def create_app(config=None, script_info=None):
@@ -90,6 +92,7 @@ def init_extensions(app):
     db.init_app(app)
     bootstrap.init_app(app)
     migrate.init_app(app, db)
+    csrf.init_app(app)
 
 
 def add_jinja_vars(app):
