@@ -37,15 +37,13 @@ class ContactForm(FlaskForm):
     first_name = StringField(
         "Vorname",
         validators=[
-            DataRequired(message="Es wird ein Vorname benötigt"),
-            Length(min=2, max=60, message='Der Name muss zwischen 2 und 60 Zeichen haben!')
+            Length(max=60, message='Max 60 Zeichen')
         ],
     )
     last_name = StringField(
         "Nachname",
         validators=[
-            DataRequired(message="Es wird ein Nachname benötigt"),
-            Length(min=2, max=60, message='Der Name muss zwischen 2 und 60 Zeichen haben!'),
+            Length(max=60, message='Max 60 Zeichen'),
         ],
     )
     phone = StringField(
@@ -62,16 +60,28 @@ class ContactForm(FlaskForm):
         ],
         description="Die IMEI dient der eindeutigen Identifizierung Ihres Geräts und ist bei Versicherungsschäden zwingend erforderlich."
     )
-
     email = StringField(
         "Email Adresse",
         validators=[
-            DataRequired(message="Es wird eine Mail benötigt"),
             Email(message='Gib eine gültige Mail Adresse an'),
-            Length(min=6, max=40, message='Die Mail sollte zwischen 6 und 40 Zeichen haben!'),
         ],
         description="Bitte achten Sie auf die Korrektheit der Email. Wir können uns sonst ggf. nicht bei Ihnen melden."
     )
     confirm = SubmitField(
         "Zahlungspflichtig bestellen"
     )
+
+
+def contact_form_factory(preferences):
+    form = ContactForm()
+    if 'FIRST_NAME_REQUIRED' in preferences.keys() and preferences['FIRST_NAME_REQUIRED']:
+        setattr(form.first_name, 'validators', [*form.imei.validators, DataRequired("Dieses Feld wird benötigt")])
+    if 'LAST_NAME_REQUIRED' in preferences.keys() and preferences['LAST_NAME_REQUIRED']:
+        setattr(form.last_name, 'validators', [*form.imei.validators, DataRequired("Dieses Feld wird benötigt")])
+    if 'MAIL_REQUIRED' in preferences.keys() and preferences['MAIL_REQUIRED']:
+        setattr(form.email, 'validators', [*form.imei.validators, DataRequired("Dieses Feld wird benötigt")])
+    if 'PHONE_REQUIRED' in preferences.keys() and preferences['PHONE_REQUIRED']:
+        setattr(form.phone, 'validators', [*form.imei.validators, DataRequired("Dieses Feld wird benötigt")])
+    if 'IMEI_REQUIRED' in preferences.keys() and preferences['IMEI_REQUIRED']:
+        setattr(form.imei, 'validators', [*form.imei.validators, DataRequired("Dieses Feld wird benötigt")])
+    return form

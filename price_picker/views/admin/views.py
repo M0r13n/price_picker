@@ -193,6 +193,7 @@ def contact_form_settings():
     if form.validate_on_submit():
         form.populate_obj(p)
         db.session.commit()
+        Preferences.load_settings()
         current_app.logger.warning('Successfully updated preferences.')
         flash('Einstellungen erfolgreich angepasst', 'success')
         return redirect(url_for('.contact_form_settings'))
