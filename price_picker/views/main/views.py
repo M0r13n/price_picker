@@ -1,5 +1,5 @@
 from flask import render_template, Blueprint, flash, redirect, url_for, session, request
-from price_picker.models import Manufacturer, Device, User, Repair
+from price_picker.models import Manufacturer, Device, User, Repair, Preferences
 from .forms import LoginForm, SelectRepairForm, ContactForm, SelectColorForm
 from price_picker import db
 from price_picker.common.decorators import step, sub_title
@@ -182,3 +182,9 @@ def logout():
     logout_user()
     flash('Du wurdest abgemeldet. Byyee!', 'success')
     return redirect(url_for('.home'))
+
+
+@main_blueprint.before_app_first_request
+def load_preferences():
+    """ Load preferences on first start-up"""
+    Preferences.load_settings()

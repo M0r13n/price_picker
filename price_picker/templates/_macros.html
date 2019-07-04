@@ -115,7 +115,12 @@
     </div>
 {% endmacro %}
 
-
+{% macro render_checkbox(field) %}
+    <div class="form-check">
+        {{ field(class="form-check-input", type="checkbox") }}
+        {{ field.label(class="form-check-label") }}
+    </div>
+{% endmacro %}
 
 {% macro render_stepper(step=1) %}
 

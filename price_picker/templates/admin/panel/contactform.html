@@ -1,0 +1,18 @@
+{% extends "admin/panel/_base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% from "_macros.html" import render_checkbox, warn_message %}
+{% set active_page='contactform' %}
+{% block sub_page %}
+    <h2>Kontaktformular Einstellungen</h2>
+    <form class="form" role="form" method="post" action="">
+        {{ form.hidden_tag() }}
+        {{ warn_message(form) }}
+        {{ render_checkbox(form.imei_required) }}
+        {{ render_checkbox(form.first_name_required) }}
+        {{ render_checkbox(form.last_name_required) }}
+        {{ render_checkbox(form.mail_required) }}
+        {{ render_checkbox(form.phone_required) }}
+        <br>
+        <button class="btn btn-success" type="submit">Speichern</button>
+    </form>
+{% endblock %}

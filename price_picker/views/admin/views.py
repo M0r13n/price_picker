@@ -1,7 +1,8 @@
 from flask import Blueprint, redirect, url_for, flash, request, render_template
 from flask_login import current_user
-from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, DeleteForm, NewRepairForm, NewColorForm
-from price_picker.models import Device, Manufacturer, Repair, Color
+from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, DeleteForm, NewRepairForm, NewColorForm, \
+    ContactSettingsForm
+from price_picker.models import Device, Manufacturer, Repair, Color, Preferences
 from price_picker import db
 from price_picker.common.next_page import next_page
 
@@ -168,3 +169,23 @@ def add_color():
 @admin_blueprint.route('/color/<int:color_id>/delete', methods=['DELETE', 'POST'])
 def delete_color(color_id):
     pass
+
+
+# SETTINGS
+
+
+@admin_blueprint.route('/settings/dashboard', methods=['GET', 'POST'])
+def dashboard():
+    return render_template('admin/panel/dashboard.html',
+                           sub_title="Dashboard")
+
+
+@admin_blueprint.route('/settings/contactform', methods=['GET', 'POST'])
+def contact_form_settings():
+    p = Preferences.query.first()
+    form = ContactSettingsForm(obj=p)
+    if form.validate_on_submit():
+        pass
+    return render_template('admin/panel/contactform.html',
+                           form=form,
+                           sub_title="Dashboard")

@@ -10,3 +10,4 @@ Flask-Bootstrap
 psycopg2-binary
 python-dotenv
 itsdangerous
+rncryptor

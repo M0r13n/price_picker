@@ -7,7 +7,7 @@ import coverage
 
 from flask.cli import FlaskGroup
 from price_picker import create_app, db
-from price_picker.models import User, Device, Manufacturer, Repair, Picture, Color
+from price_picker.models import User, Device, Manufacturer, Repair, Picture, Color, Preferences
 import subprocess
 import sys
 
@@ -61,6 +61,10 @@ def create_data():
     Picture.query.delete()
     User.query.delete()
     Color.query.delete()
+    Preferences.query.delete()
+
+    # default preferences
+    db.session.add(Preferences())
 
     # some colors
     black = Color(name="black", color_code="#000000")

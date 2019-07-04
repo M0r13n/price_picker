@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, IntegerField
+from wtforms import StringField, SubmitField, IntegerField, BooleanField
 from wtforms.validators import DataRequired, Length, Regexp
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from price_picker.models import Manufacturer, Picture, Color
@@ -143,4 +143,30 @@ class NewColorForm(FlaskForm):
             Regexp('^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$', message="Der Code muss ein gültiges Format haben")
         ],
         description="Der Farb Code dient der Darstellung in der Nutzeransicht und muss im HEX-Format angegeben werden"
+    )
+
+
+class ContactSettingsForm(FlaskForm):
+    """
+    Define which data should be necessary
+    """
+    imei_required = BooleanField(
+        "IMEI erforderlich",
+        default=False
+    )
+    first_name_required = BooleanField(
+        "Vorname erforderlich",
+        default=False
+    )
+    last_name_required = BooleanField(
+        "Nachname erforderlich",
+        default=False
+    )
+    mail_required = BooleanField(
+        "Mail erforderlich",
+        default=True
+    )
+    phone_required = BooleanField(
+        "Telefonnummer erforderlich",
+        default=False
     )

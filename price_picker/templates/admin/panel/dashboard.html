@@ -1,0 +1,35 @@
+{% extends "admin/panel/_base.html" %}
+{% set active_page='dashboard' %}
+{% block sub_page %}
+    <h2>Anfragen</h2>
+    <div class="table-responsive">
+        <table class="table table-striped table-sm">
+            <thead>
+            <tr>
+                <th>Datum</th>
+                <th>Kunde</th>
+                <th>Anschrift</th>
+                <th>Email</th>
+                <th>Telefon</th>
+                <th>Gerät</th>
+                <th>Reparatur(en)</th>
+                <th>Preis</th>
+                <th>Bearbeitet</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>12.01.2019</td>
+                <td>Helmut Müller</td>
+                <td>Sophienhof, 17, 24256 Fargau-Pratjau</td>
+                <td>leon.morten@ggg.io</td>
+                <td>1255656997</td>
+                <td>iPhone Xs (black)</td>
+                <td>Display, Akku, Backcover</td>
+                <td>928</td>
+                <td>Nein</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

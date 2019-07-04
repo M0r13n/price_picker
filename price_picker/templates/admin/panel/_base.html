@@ -1,0 +1,21 @@
+{% extends "_base.html" %}
+{% set active_page = active_page|default('dashboard') -%}
+{% block title %} - {{ sub_title }}{% endblock %}
+{% block content %}
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item {{ 'active' if active_page=='dashboard' }}">
+                    <a class="nav-link" href="{{ url_for('.dashboard') }}">Dashboard</a>
+                </li>
+                <li class="nav-item {{ 'active' if active_page=='contactform' }}">
+                    <a class="nav-link" href="{{ url_for('.contact_form_settings') }}">Kontaktformular</a>
+                </li>
+                <li class="nav-item {{ 'active' if active_page=='mail' }}">
+                    <a class="nav-link" href="{{ url_for('.contact_form_settings') }}">Mail</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    {% block sub_page %}{% endblock %}
+{% endblock %}
