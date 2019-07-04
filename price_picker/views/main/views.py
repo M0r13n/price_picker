@@ -1,4 +1,4 @@
-from flask import render_template, Blueprint, flash, redirect, url_for, session, request
+from flask import render_template, Blueprint, flash, redirect, url_for, session, request, current_app
 from price_picker.models import Manufacturer, Device, User, Repair, Preferences
 from .forms import LoginForm, SelectRepairForm, ContactForm, SelectColorForm
 from price_picker import db
@@ -188,3 +188,4 @@ def logout():
 def load_preferences():
     """ Load preferences on first start-up"""
     Preferences.load_settings()
+    current_app.logger.info('Successfully loaded user preferences')

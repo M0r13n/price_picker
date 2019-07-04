@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, url_for, flash, request, render_template
+from flask import Blueprint, redirect, url_for, flash, request, render_template, current_app
 from flask_login import current_user
 from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, DeleteForm, NewRepairForm, NewColorForm, \
     ContactSettingsForm
@@ -183,9 +183,19 @@ def dashboard():
 @admin_blueprint.route('/settings/contactform', methods=['GET', 'POST'])
 def contact_form_settings():
     p = Preferences.query.first()
+    if p is None:
+        p = Preferences()
+        db.session.add(p)
+        db.session.commit()
+        current_app.logger.warning('Missing preferences. Inserting default')
+
     form = ContactSettingsForm(obj=p)
     if form.validate_on_submit():
-        pass
+        form.populate_obj(p)
+        db.session.commit()
+        current_app.logger.warning('Successfully updated preferences.')
+        flash('Einstellungen erfolgreich angepasst', 'success')
+        return redirect(url_for('.contact_form_settings'))
     return render_template('admin/panel/contactform.html',
                            form=form,
                            sub_title="Dashboard")

@@ -1,6 +1,7 @@
 from price_picker import db
-from flask import current_app
+from flask import current_app, has_app_context
 import rncryptor
+import time
 
 
 class Preferences(db.Model):
@@ -31,20 +32,30 @@ class Preferences(db.Model):
         :param password: clear text password
         :return:
         """
+        if not has_app_context():
+            raise ValueError("Encryption working outside app context")
+        start = time.clock()
         secret_key = current_app.config['SECRET_KEY']
         cryptor = rncryptor.RNCryptor()
         encrypted_password = cryptor.encrypt(password, secret_key)
         self.mail_password_encrypted = encrypted_password
         db.session.commit()
+        end = time.clock()
+        current_app.logger.info(f'Password encryption took: {end - start} seconds')
 
     def decrypt_mail_password(self):
         """
         Decrypts the encrypted password with the app´s secret key.
         :return: decrypted password
         """
+        if not has_app_context():
+            raise ValueError("Decryption working outside app context")
+        start = time.clock()
         secret_key = current_app.config['SECRET_KEY']
         cryptor = rncryptor.RNCryptor()
         decrypted_password = cryptor.decrypt(self.mail_password_encrypted, secret_key)
+        end = time.clock()
+        current_app.logger.info(f'Password decryption took: {end - start} seconds')
         return decrypted_password
 
     @classmethod
@@ -64,5 +75,5 @@ class Preferences(db.Model):
         current_app.config['MAIL_SERVER'] = p.mail_server
         current_app.config['MAIL_PORT'] = p.mail_port
         current_app.config['MAIL_USERNAME'] = p.mail_username
-        current_app.config['MAIL_PASSWORD'] = p.imei_required
+        current_app.config['MAIL_PASSWORD'] = p.decrypt_mail_password()
         current_app.config['MAIL_DEFAULT_SENDER'] = p.mail_default_sender or p.mail_username
