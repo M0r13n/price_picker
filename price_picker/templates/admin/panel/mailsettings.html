@@ -1,0 +1,20 @@
+{% extends "admin/panel/_base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% from "_macros.html" import render_checkbox, render_formgroup, warn_message %}
+{% set active_page='mail' %}
+{% block sub_page %}
+    <h2>Mail Einstellungen</h2>
+    <form class="form" role="form" method="post" action="">
+        {{ form.hidden_tag() }}
+        {{ warn_message(form) }}
+        {{ render_checkbox(form.mail_server_activated) }}
+        {{ render_formgroup(form.mail_server) }}
+        {{ render_formgroup(form.mail_port) }}
+        {{ render_formgroup(form.mail_username) }}
+        {{ render_formgroup(form.mail_default_sender) }}
+        {{ render_formgroup(form.mail_password) }}
+
+        <br>
+        <button class="btn btn-success" type="submit">Speichern</button>
+    </form>
+{% endblock %}

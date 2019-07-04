@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, IntegerField, BooleanField
-from wtforms.validators import DataRequired, Length, Regexp
+from wtforms import StringField, SubmitField, IntegerField, BooleanField, PasswordField
+from wtforms.validators import DataRequired, Length, Regexp, NumberRange
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from price_picker.models import Manufacturer, Picture, Color
 from .validators import UniqueDeviceName, UniqueManufacturerName, UniqueColorName
@@ -169,4 +169,36 @@ class ContactSettingsForm(FlaskForm):
     phone_required = BooleanField(
         "Telefonnummer erforderlich",
         default=False
+    )
+
+
+class MailSettingsForm(FlaskForm):
+    mail_server_activated = BooleanField(
+        "Mail Server aktiviert",
+        default=False
+    )
+    mail_server = StringField(
+        "Mail Server",
+        validators=[Length(max=128, message="Maximal 128 Zeichen")],
+        description="Der Server für ausgehende Mails, z.B. smtp.googlemail.com"
+    )
+    mail_port = IntegerField(
+        "Mail Port",
+        validators=[NumberRange(max=55555, message="Maximal 55555")],
+        description="Der Port für den Mail Server, z.B. 587"
+    )
+    mail_username = StringField(
+        "Nutzername",
+        validators=[Length(max=128, message="Maximal 128 Zeichen")],
+        description="Der Nutzername für den Mail Account. In der Regel die Mail-Adresse"
+    )
+    mail_password = PasswordField(
+        "Mail Passwort",
+        validators=[Length(max=128, message="Maximal 128 Zeichen")],
+        description="Das Passwort wird verschlüsselt in der Datenbank gespeichert."
+    )
+    mail_default_sender = StringField(
+        "Mail Absender",
+        validators=[Length(max=128, message="Maximal 128 Zeichen")],
+        description="Die Absende Adresse. Diese entspricht in der Regel der Mail Adresse."
     )
