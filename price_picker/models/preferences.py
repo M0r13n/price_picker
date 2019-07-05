@@ -3,6 +3,12 @@ from flask import current_app, has_app_context
 import rncryptor
 
 
+class Encryption:
+    NONE = 0
+    TLS = 1
+    SSL = 2
+
+
 class Preferences(db.Model):
     """ Store User Preferences here"""
     __tablename__ = 'preferences'
@@ -16,7 +22,7 @@ class Preferences(db.Model):
     # Mail Settings
     mail_port = db.Column(db.Integer, default=587)
     mail_server = db.Column(db.String(128))
-    mail_use_tls = db.Column(db.Boolean, default=True)
+    mail_encryption = db.Column(db.Integer, default=1)
     mail_username = db.Column(db.String(128))
     mail_default_sender = db.Column(db.String(128))
     mail_password_encrypted = db.Column(db.LargeBinary)
@@ -78,8 +84,9 @@ class Preferences(db.Model):
             'MAIL_USERNAME': self.mail_username,
             'MAIL_PASSWORD': self.decrypt_mail_password(),
             'MAIL_SERVER': self.mail_server,
-            'MAIL_USE_TLS': self.mail_use_tls,
-            'MAIL_DEFAULT_SENDER': self.mail_default_sender,
+            'MAIL_USE_TLS': self.mail_encryption == Encryption.TLS,
+            'MAIL_USE_SSL': self.mail_encryption == Encryption.SSL,
+            'MAIL_DEFAULT_SENDER': self.mail_default_sender or self.mail_username,
             'MAIL_PORT': self.mail_port
         }
         return config

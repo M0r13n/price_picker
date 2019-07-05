@@ -1,4 +1,4 @@
-from price_picker import celery, mail
+from price_picker import celery, Mail
 from flask_mail import Message
 from flask import current_app, render_template
 from price_picker.models import Preferences, Enquiry
@@ -12,11 +12,10 @@ def async_test_email():
         current_app.logger.warning('No Preferences could be found. Abort.')
         return
     msg = Message("Hello",
-                  sender=p.mail_default_sender,
+                  sender=p.mail_config['MAIL_DEFAULT_SENDER'],
                   recipients=[p.mail_config['MAIL_USERNAME']])
     current_app.config.update(p.mail_config)
-    mail.app = current_app
-    mail.state = mail.init_app(current_app)
+    mail = Mail(current_app)
     with current_app.app_context():
         mail.send(msg)
 
@@ -30,15 +29,14 @@ def async_send_confirmation_mail(email=None, enquiry_id=None):
     if email is None:
         current_app.logger.warning('Email is None. Abort.')
         return
+
     current_app.config.update(p.mail_config)
-    mail.app = current_app
-    mail.state = mail.init_app(current_app)
+    mail = Mail(current_app)
+
     template = 'email/confirmation'
-    current_app.logger.debug(f"Server: {mail.state.server} : {mail.state.port} / User: {mail.state.username} "
-                      f"/ TLS:{mail.state.use_tls}  / SSL:{mail.state.use_ssl} ")
     with current_app.app_context():
         msg = Message("Bestätigung Kundenanfrage",
-                      sender=p.mail_default_sender,
+                      sender=p.mail_config['MAIL_DEFAULT_SENDER'],
                       recipients=[email])
         msg.body = render_template(template + '.txt')
         mail.send(msg)
@@ -47,6 +45,7 @@ def async_send_confirmation_mail(email=None, enquiry_id=None):
             msg = Message("Neue Kundenanfrage über den Price-Picker",
                           sender=p.mail_default_sender,
                           recipients=[p.order_copy_mail_address])
+
             template = 'email/new_enquiry'
             msg.body = render_template(template + '.txt', enquiry=enquiry)
             mail.send(msg)

@@ -7,7 +7,7 @@
     <form class="form" role="form" method="post" action="">
         {{ form.hidden_tag() }}
         {{ warn_message(form) }}
-        {{ render_checkbox(form.mail_use_tls) }}
+        {{ render_formgroup(form.mail_encryption) }}
         {{ render_formgroup(form.order_copy_mail_address) }}
         {{ render_formgroup(form.mail_server) }}
         {{ render_formgroup(form.mail_port) }}

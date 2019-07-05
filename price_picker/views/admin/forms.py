@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, IntegerField, BooleanField, PasswordField
+from wtforms import StringField, SubmitField, IntegerField, BooleanField, PasswordField, SelectField
 from wtforms.validators import DataRequired, Length, Regexp, NumberRange, Email, Optional
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from price_picker.models import Manufacturer, Picture, Color
+from price_picker.models import Manufacturer, Picture, Color, Encryption
 from .validators import UniqueDeviceName, UniqueManufacturerName, UniqueColorName
 from price_picker.common.fields import MultiCheckboxField
 
@@ -173,8 +173,10 @@ class ContactSettingsForm(FlaskForm):
 
 
 class MailSettingsForm(FlaskForm):
-    mail_use_tls = BooleanField(
+    mail_encryption = SelectField(
         "Transportverschlüsselung",
+        choices=[(Encryption.NONE, 'Keine'), (Encryption.TLS, 'TLS'), (Encryption.SSL, 'SSL')],
+        coerce=int,
         default=False,
         description="Wenn aktiviert werden die Mails TLS-verschlüsselt übertragen. Beachten Sie die Vorgaben ihres Providers."
     )

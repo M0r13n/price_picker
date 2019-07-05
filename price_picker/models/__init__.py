@@ -1,7 +1,7 @@
 from .user import User
 from .device import Device, Manufacturer, Repair, Picture, Color
 from .feedback import Feedback
-from .preferences import Preferences
+from .preferences import Preferences, Encryption
 from .enquiry import Enquiry
 
 __all__ = [
@@ -13,5 +13,6 @@ __all__ = [
     'Picture',
     'Color',
     'Preferences',
-    'Enquiry'
+    'Enquiry',
+    'Encryption'
 ]

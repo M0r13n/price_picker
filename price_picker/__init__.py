@@ -10,7 +10,6 @@ from config import configs
 from flask_bootstrap import Bootstrap
 from flask_wtf.csrf import CSRFProtect
 from celery import Celery
-from flask_mail import Mail
 
 # instantiate the extensions
 login_manager = LoginManager()
@@ -19,7 +18,6 @@ migrate = Migrate()
 bootstrap = Bootstrap()
 csrf = CSRFProtect()
 celery = Celery()
-mail = Mail()
 
 
 def create_app(config=None, script_info=None):
@@ -98,7 +96,6 @@ def init_extensions(app):
     bootstrap.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
-    mail.init_app(app)
 
 
 def add_jinja_vars(app):
