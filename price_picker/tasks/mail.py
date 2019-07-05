@@ -12,7 +12,7 @@ def async_test_email():
         current_app.logger.warning('No Preferences could be found. Abort.')
         return
     msg = Message("Hello",
-                  sender="Test vom Price-Picker!",
+                  sender=p.mail_default_sender,
                   recipients=[p.mail_config['MAIL_USERNAME']])
     current_app.config.update(p.mail_config)
     mail.app = current_app
