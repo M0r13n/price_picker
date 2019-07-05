@@ -9,6 +9,8 @@ from price_picker.common.url_for_other_page import url_for_other_page
 from config import configs
 from flask_bootstrap import Bootstrap
 from flask_wtf.csrf import CSRFProtect
+from celery import Celery
+from flask_mail import Mail
 
 # instantiate the extensions
 login_manager = LoginManager()
@@ -16,6 +18,8 @@ db = SQLAlchemy()
 migrate = Migrate()
 bootstrap = Bootstrap()
 csrf = CSRFProtect()
+celery = Celery()
+mail = Mail()
 
 
 def create_app(config=None, script_info=None):
@@ -35,6 +39,7 @@ def create_app(config=None, script_info=None):
     init_flask_login(app)
     register_error_handlers(app)
     add_jinja_vars(app)
+    init_celery(app)
 
     # shell context for flask cli
     @app.shell_context_processor
@@ -93,7 +98,25 @@ def init_extensions(app):
     bootstrap.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
+    mail.init_app(app)
 
 
 def add_jinja_vars(app):
     app.jinja_env.globals['url_for_other_page'] = url_for_other_page
+
+
+def init_celery(app=None):
+    app = app or create_app()
+    celery.conf.broker_url = app.config['CELERY_BROKER_URL']
+    celery.conf.result_backend = app.config['CELERY_RESULT_BACKEND']
+    celery.conf.update(app.config)
+
+    class ContextTask(celery.Task):
+        """Make celery tasks work with Flask app context"""
+
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery.Task = ContextTask
+    return celery

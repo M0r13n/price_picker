@@ -4,6 +4,7 @@ from .forms import LoginForm, SelectRepairForm, SelectColorForm, contact_form_fa
 from price_picker import db
 from price_picker.common.decorators import step, sub_title
 from flask_login import login_user, logout_user, login_required
+from price_picker.tasks.mail import async_send_confirmation_mail
 
 main_blueprint = Blueprint("main", __name__)
 
@@ -118,6 +119,7 @@ def estimate_of_costs(device_id, **kwargs):
                     name="Kostenvoranschlag")
         db.session.add(e)
         db.session.commit()
+        async_send_confirmation_mail.delay(email=form.email.data)
         flash(f'Wir haben ihre Anfrage erhalten!', 'success')
         return redirect(url_for('main.thank_you'))
 
@@ -180,6 +182,7 @@ def complete(device_id, **kwargs):
                     name="Reparatur")
         db.session.add(e)
         db.session.commit()
+        async_send_confirmation_mail.delay(email=form.email.data)
         flash('Wir haben Ihre Anfrage erhalten!', 'success')
         return redirect(url_for('main.thank_you'))
     return render_template('main/complete.html',

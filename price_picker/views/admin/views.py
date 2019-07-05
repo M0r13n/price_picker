@@ -5,6 +5,7 @@ from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManuf
 from price_picker.models import Device, Manufacturer, Repair, Color, Preferences, Enquiry
 from price_picker import db
 from price_picker.common.next_page import next_page
+from price_picker.tasks.mail import async_test_email
 
 admin_blueprint = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -226,9 +227,21 @@ def mail_settings():
 
     form = MailSettingsForm(obj=p)
     if form.validate_on_submit():
+        p.mail_port = form.mail_port.data
+        p.mail_server = form.mail_server.data
+        p.mail_default_sender = form.mail_default_sender.data
+        p.mail_username = form.mail_username.data
+        p.encrypt_mail_password(form.mail_password.data)
         current_app.logger.warning('Successfully updated mail preferences.')
         flash('Einstellungen erfolgreich angepasst', 'success')
         return redirect(url_for('.mail_settings'))
     return render_template('admin/panel/mailsettings.html',
                            form=form,
                            sub_title="Mail Einstellungen")
+
+
+@admin_blueprint.route('/mail/test', methods=['GET'])
+def send_test_mail():
+    current_app.logger.info("Sending Test Mail.")
+    async_test_email.delay()
+    return "", 200
