@@ -1,0 +1,18 @@
+Sie haben eine neue Anfrage über den Price-Picker erhalten.
+
+
+Kundendaten:
+----------------------------
+Vorname:            {{enquiry.customer_first_name}}
+Nachname:           {{enquiry.customer_last_name}}
+Email:              {{enquiry.customer_email}}
+Telefonnummer:      {{enquiry.customer_phone}}
+
+
+Auftragsdaten:
+----------------------------
+Auftragsart:        {{enquiry.name}}
+Gerät:              {{enquiry.device.name}}
+Farbe:              {{enquiry.color}}
+IMEI:               {{enquiry.imei}}
+Defekte:            {% for r in enquiry.repairs %}{{ r.name }}{% if not loop.last %},{% endif %}{% endfor %}

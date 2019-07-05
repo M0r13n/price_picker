@@ -20,6 +20,7 @@ class Preferences(db.Model):
     mail_username = db.Column(db.String(128))
     mail_default_sender = db.Column(db.String(128))
     mail_password_encrypted = db.Column(db.LargeBinary)
+    order_copy_mail_address = db.Column(db.String(128))
 
     @property
     def mail_password(self):

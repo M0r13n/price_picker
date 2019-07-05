@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, BooleanField, PasswordField
-from wtforms.validators import DataRequired, Length, Regexp, NumberRange
+from wtforms.validators import DataRequired, Length, Regexp, NumberRange, Email, Optional
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from price_picker.models import Manufacturer, Picture, Color
 from .validators import UniqueDeviceName, UniqueManufacturerName, UniqueColorName
@@ -173,9 +173,10 @@ class ContactSettingsForm(FlaskForm):
 
 
 class MailSettingsForm(FlaskForm):
-    mail_server_activated = BooleanField(
-        "Mail Server aktiviert",
-        default=False
+    mail_use_tls = BooleanField(
+        "Transportverschlüsselung",
+        default=False,
+        description="Wenn aktiviert werden die Mails TLS-verschlüsselt übertragen. Beachten Sie die Vorgaben ihres Providers."
     )
     mail_server = StringField(
         "Mail Server",
@@ -201,4 +202,9 @@ class MailSettingsForm(FlaskForm):
         "Mail Absender",
         validators=[Length(max=128, message="Maximal 128 Zeichen")],
         description="Die Absende Adresse. Diese entspricht in der Regel der Mail Adresse."
+    )
+    order_copy_mail_address = StringField(
+        "Bestellkopie senden",
+        validators=[Optional(), Email(message="Keine gültige Mail")],
+        description="An die hier angegebene Mail wird eine Kopie der Kundenanfragen gesendet."
     )

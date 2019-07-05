@@ -119,7 +119,7 @@ def estimate_of_costs(device_id, **kwargs):
                     name="Kostenvoranschlag")
         db.session.add(e)
         db.session.commit()
-        async_send_confirmation_mail.delay(email=form.email.data)
+        async_send_confirmation_mail.delay(email=form.email.data, enquiry_id=e.id)
         flash(f'Wir haben ihre Anfrage erhalten!', 'success')
         return redirect(url_for('main.thank_you'))
 
@@ -182,7 +182,7 @@ def complete(device_id, **kwargs):
                     name="Reparatur")
         db.session.add(e)
         db.session.commit()
-        async_send_confirmation_mail.delay(email=form.email.data)
+        async_send_confirmation_mail.delay(email=form.email.data, enquiry_id=e.id)
         flash('Wir haben Ihre Anfrage erhalten!', 'success')
         return redirect(url_for('main.thank_you'))
     return render_template('main/complete.html',

@@ -230,8 +230,12 @@ def mail_settings():
         p.mail_port = form.mail_port.data
         p.mail_server = form.mail_server.data
         p.mail_default_sender = form.mail_default_sender.data
+        p.mail_use_tls = form.mail_use_tls.data
         p.mail_username = form.mail_username.data
-        p.encrypt_mail_password(form.mail_password.data)
+        p.order_copy_mail_address = form.order_copy_mail_address.data
+        if form.mail_password.data and len(form.mail_password.data) > 0:
+            p.encrypt_mail_password(form.mail_password.data)
+        db.session.commit()
         current_app.logger.warning('Successfully updated mail preferences.')
         flash('Einstellungen erfolgreich angepasst', 'success')
         return redirect(url_for('.mail_settings'))
