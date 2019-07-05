@@ -1,5 +1,5 @@
-from price_picker import celery, Mail
-from flask_mail import Message
+from price_picker import celery
+from flask_mail import Message, Mail
 from flask import current_app, render_template
 from price_picker.models import Preferences, Enquiry
 
