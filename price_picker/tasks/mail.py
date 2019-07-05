@@ -34,6 +34,8 @@ def async_send_confirmation_mail(email=None, enquiry_id=None):
     mail.app = current_app
     mail.state = mail.init_app(current_app)
     template = 'email/confirmation'
+    current_app.logger.debug(f"Server: {mail.state.server} : {mail.state.port} / User: {mail.state.username} "
+                      f"/ TLS:{mail.state.use_tls}  / SSL:{mail.state.use_ssl} ")
     with current_app.app_context():
         msg = Message("Bestätigung Kundenanfrage",
                       sender=p.mail_default_sender,
