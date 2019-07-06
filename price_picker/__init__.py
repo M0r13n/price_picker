@@ -1,5 +1,4 @@
 import os
-
 from flask import Flask, render_template
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
@@ -10,6 +9,8 @@ from config import configs
 from flask_bootstrap import Bootstrap
 from flask_wtf.csrf import CSRFProtect
 from celery import Celery
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 # instantiate the extensions
 login_manager = LoginManager()
@@ -38,6 +39,7 @@ def create_app(config=None, script_info=None):
     register_error_handlers(app)
     add_jinja_vars(app)
     init_celery(app)
+    init_sentry(app)
 
     # shell context for flask cli
     @app.shell_context_processor
@@ -100,6 +102,14 @@ def init_extensions(app):
 
 def add_jinja_vars(app):
     app.jinja_env.globals['url_for_other_page'] = url_for_other_page
+
+
+def init_sentry(app):
+    if 'DSN' in app.config.keys():
+        sentry_sdk.init(
+            dsn=app.config['DSN'],
+            integrations=[FlaskIntegration()]
+        )
 
 
 def init_celery(app=None):

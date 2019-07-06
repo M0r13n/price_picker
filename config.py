@@ -22,6 +22,7 @@ class BaseConfig(object):
     CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
     CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
     SHOW_HEADER = os.getenv("SHOW_HEADER", True)
+    DSN = os.getenv("DSN")
 
 
 class DevelopmentConfig(BaseConfig):

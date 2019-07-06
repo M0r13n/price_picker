@@ -215,7 +215,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash('Du wurdest abgemeldet. Byyee!', 'success')
+    flash('Abmeldung erfolgreich!', 'success')
     return redirect(url_for('.home'))
 
 
