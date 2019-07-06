@@ -5,7 +5,7 @@
 {% block sub_page %}
     <div class="container">
         <div class="row">
-            {% for repair in device.repairs %}
+            {% for repair in repairs %}
                 {{ render_repair(repair) }}
             {% endfor %}
 

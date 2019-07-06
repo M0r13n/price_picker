@@ -42,8 +42,8 @@ def create_app(config=None, script_info=None):
     # shell context for flask cli
     @app.shell_context_processor
     def ctx():
-        from price_picker.models import User
-        return {"app": app, "db": db, 'User': User}
+        from price_picker.models import User, Device, Repair, Manufacturer
+        return {"app": app, "db": db, 'User': User, 'Repair': Repair, 'Manufacturer': Manufacturer, 'Device': Device}
 
     return app
 

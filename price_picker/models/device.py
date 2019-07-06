@@ -119,7 +119,7 @@ class Device(db.Model):
     name = db.Column(db.String(64), unique=True, index=True)
     manufacturer_id = db.Column(db.Integer, db.ForeignKey('manufacturers.id'))
     manufacturer = relationship('Manufacturer', back_populates='devices')
-    repairs = relationship('Repair', secondary=repair_association_table, back_populates='devices')
+    repairs = relationship('Repair', secondary=repair_association_table, back_populates='devices', lazy='dynamic')
     picture_id = db.Column(db.String, db.ForeignKey('pictures.name'))
     colors = relationship("Color", secondary=color_association_table)
 
@@ -161,8 +161,11 @@ class Repair(db.Model):
     __tablename__ = 'repair'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
-    price = db.Column(db.Integer)
+    price = db.Column(db.Integer, default=0)
     devices = relationship("Device", secondary=repair_association_table, back_populates="repairs", lazy='dynamic')
+
+    def __repr__(self):
+        return f"<{self.name} : {self.price}"
 
 
 class Color(db.Model):

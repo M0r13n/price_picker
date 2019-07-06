@@ -112,7 +112,6 @@ def edit_device(device_id):
 
 # REPAIRS
 
-
 @admin_blueprint.route('/device/<int:device_id>/repair/add', methods=['GET', 'POST'])
 def add_repair(device_id):
     device = Device.query.get_or_404(device_id)

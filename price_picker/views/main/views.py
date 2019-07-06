@@ -31,9 +31,9 @@ def select_device(manufacturer_id, **kwargs):
     2nd Step.
 
     The customer selects the desired device, e.g. iPhone X.
-    Redirects to select_color.
+    Redirects to select_color.s
     """
-    devices = Device.query.filter(Device.manufacturer_id == manufacturer_id).all()
+    devices = Device.query.filter(Device.manufacturer_id == manufacturer_id).order_by(Device.name).all()
     return render_template("main/select_device.html",
                            devices=devices,
                            manufacturer_id=manufacturer_id,
@@ -73,8 +73,9 @@ def select_repair(device_id, **kwargs):
     Redirects to summary or to estimate_of_costs depending on the customer choice.
     """
     device = Device.query.get_or_404(device_id)
+    repairs = device.repairs.order_by(Repair.name)
     form = SelectRepairForm()
-    form.repairs.choices = [(r.id, r.name) for r in device.repairs]
+    form.repairs.choices = [(r.id, r.name) for r in repairs]
     if form.validate_on_submit():
         session['repair_ids'] = form.repairs.data
         if request.form.get('estimate') is not None:
@@ -83,6 +84,7 @@ def select_repair(device_id, **kwargs):
     return render_template('main/select_repair.html',
                            device=device,
                            form=form,
+                           repairs=repairs,
                            **kwargs)
 
 
