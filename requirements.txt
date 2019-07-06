@@ -14,3 +14,4 @@ itsdangerous
 rncryptor
 redis
 celery
+sentry-sdk[flask]
