@@ -1,5 +1,6 @@
 from wtforms.validators import ValidationError
 from price_picker.models import Device, Manufacturer, Color
+from flask_login import current_user
 
 
 class UniqueDeviceName(object):
@@ -35,4 +36,15 @@ class UniqueColorName(object):
     def __call__(self, form, field):
         c = Color.query.filter_by(name=field.data).first()
         if c is not None:
+            raise ValidationError(self.message)
+
+
+class MatchesOldPassword(object):
+    def __init__(self, message=None):
+        if message is None:
+            message = 'Das Passwort ist nicht korrekt.'
+        self.message = message
+
+    def __call__(self, form, field):
+        if not current_user.verify_password(field.data):
             raise ValidationError(self.message)

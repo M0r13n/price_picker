@@ -1,7 +1,7 @@
 from flask import Blueprint, redirect, url_for, flash, request, render_template, current_app
-from flask_login import current_user
+from flask_login import current_user, logout_user
 from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, DeleteForm, NewRepairForm, NewColorForm, \
-    ContactSettingsForm, MailSettingsForm
+    ContactSettingsForm, MailSettingsForm, ChangePasswordForm
 from price_picker.models import Device, Manufacturer, Repair, Color, Preferences, Enquiry
 from price_picker import db
 from price_picker.common.next_page import next_page
@@ -242,6 +242,20 @@ def mail_settings():
     return render_template('admin/panel/mailsettings.html',
                            form=form,
                            sub_title="Mail Einstellungen")
+
+
+@admin_blueprint.route('/settings/password', methods=['GET', 'POST'])
+def change_password():
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        current_user.password = form.password.data
+        db.session.commit()
+        flash('Passwort erfolgreich geändert.', 'success')
+        logout_user()
+        return redirect(url_for('main.home'))
+    return render_template('admin/panel/password.html',
+                           form=form,
+                           sub_title="Passwort ändern")
 
 
 @admin_blueprint.route('/mail/test', methods=['GET'])

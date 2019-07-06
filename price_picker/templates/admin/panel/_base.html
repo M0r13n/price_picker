@@ -14,6 +14,9 @@
                 <li class="nav-item {{ 'active' if active_page=='mail' }}">
                     <a class="nav-link" href="{{ url_for('.mail_settings') }}">Mail</a>
                 </li>
+                <li class="nav-item {{ 'active' if active_page=='password' }}">
+                    <a class="nav-link" href="{{ url_for('.change_password') }}">Passwort</a>
+                </li>
             </ul>
         </div>
     </nav>

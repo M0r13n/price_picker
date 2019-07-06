@@ -1,9 +1,9 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, BooleanField, PasswordField, SelectField
-from wtforms.validators import DataRequired, Length, Regexp, NumberRange, Email, Optional
+from wtforms.validators import DataRequired, Length, Regexp, NumberRange, Email, Optional, EqualTo
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from price_picker.models import Manufacturer, Picture, Color, Encryption
-from .validators import UniqueDeviceName, UniqueManufacturerName, UniqueColorName
+from .validators import UniqueDeviceName, UniqueManufacturerName, UniqueColorName, MatchesOldPassword
 from price_picker.common.fields import MultiCheckboxField
 
 
@@ -209,4 +209,27 @@ class MailSettingsForm(FlaskForm):
         "Bestellkopie senden",
         validators=[Optional(), Email(message="Keine gültige Mail")],
         description="An die hier angegebene Mail wird eine Kopie der Kundenanfragen gesendet."
+    )
+
+
+class ChangePasswordForm(FlaskForm):
+    old_password = PasswordField(
+        "Altes Passwort",
+        validators=[
+            DataRequired(message="Altes Passwort erforderlich."),
+            MatchesOldPassword()
+        ]
+    )
+    password = PasswordField(
+        "Neues Passwort",
+        validators=[
+            DataRequired(message="Neues Passwort erforderlich."),
+            Length(min=6, message="Mehr als 6 Zeichen erforderlich.")]
+    )
+    confirm = PasswordField(
+        "Passwort bestätigen",
+        validators=[
+            DataRequired(message="Neues Passwort erforderlich."),
+            EqualTo("password", message="Passwörter stimmen nicht überein."),
+        ],
     )
