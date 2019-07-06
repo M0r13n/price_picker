@@ -160,7 +160,7 @@ class Repair(db.Model):
     """ Repair e.g. display """
     __tablename__ = 'repair'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), unique=True)
+    name = db.Column(db.String(64))
     price = db.Column(db.Integer)
     devices = relationship("Device", secondary=repair_association_table, back_populates="repairs", lazy='dynamic')
 
