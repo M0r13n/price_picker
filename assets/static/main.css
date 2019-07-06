@@ -18,6 +18,10 @@
     list-style-type: none;
 }
 
+.headerMargin{
+    margin-bottom: 10px;
+}
+
 /* Colored Circles*/
 .circle {
     height: 75px;
