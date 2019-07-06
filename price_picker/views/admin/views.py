@@ -1,7 +1,7 @@
 from flask import Blueprint, redirect, url_for, flash, request, render_template, current_app
 from flask_login import current_user, logout_user
 from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, DeleteForm, NewRepairForm, NewColorForm, \
-    ContactSettingsForm, MailSettingsForm, ChangePasswordForm
+    ContactSettingsForm, MailSettingsForm, ChangePasswordForm, CsvUploadForm
 from price_picker.models import Device, Manufacturer, Repair, Color, Preferences, Enquiry
 from price_picker import db
 from price_picker.common.next_page import next_page
@@ -255,6 +255,19 @@ def change_password():
     return render_template('admin/panel/password.html',
                            form=form,
                            sub_title="Passwort ändern")
+
+
+@admin_blueprint.route('/settings/import', methods=['GET', 'POST'])
+def import_csv():
+    form = CsvUploadForm()
+    if form.validate_on_submit():
+        from price_picker.common.csv_import import RepairCsvImporter
+        importer = RepairCsvImporter(form.csv.data)
+        print(importer.import_csv())
+
+    return render_template('admin/panel/import.html',
+                           form=form,
+                           sub_title="Reparaturdaten importieren")
 
 
 @admin_blueprint.route('/mail/test', methods=['GET'])

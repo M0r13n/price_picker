@@ -24,7 +24,7 @@ def create_sample_data():
     Picture.create_basic_pictures()
 
     # Insert default colors
-    black = Color(name="black", color_code="#000000")
+    black = Color(name="black", color_code="#000000", default=True)
     white = Color(name="white", color_code="#FFFFFF")
     gold = Color(name="gold", color_code="#D4AF37")
     db.session.add(black)

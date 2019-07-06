@@ -1,0 +1,16 @@
+{% extends "admin/panel/_base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% from "_macros.html" import  warn_message %}
+{% set active_page='import' %}
+{% block sub_page %}
+    <h2>{{ sub_title }}</h2>
+    <form class="form" role="form" enctype="multipart/form-data" method="post" action="">
+        {{ form.hidden_tag() }}
+        {{ warn_message(form) }}
+        {{ form.csv() }}
+        <br>
+        <br>
+        <button class="btn btn-success col-4" type="submit">Hochladen</button>
+    </form>
+
+{% endblock %}

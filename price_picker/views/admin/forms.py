@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, IntegerField, BooleanField, PasswordField, SelectField
+from wtforms import StringField, SubmitField, IntegerField, BooleanField, PasswordField, SelectField, FileField
 from wtforms.validators import DataRequired, Length, Regexp, NumberRange, Email, Optional, EqualTo
+from flask_wtf.file import FileRequired, FileAllowed
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from price_picker.models import Manufacturer, Picture, Color, Encryption
 from .validators import UniqueDeviceName, UniqueManufacturerName, UniqueColorName, MatchesOldPassword
@@ -232,4 +233,14 @@ class ChangePasswordForm(FlaskForm):
             DataRequired(message="Neues Passwort erforderlich."),
             EqualTo("password", message="Passwörter stimmen nicht überein."),
         ],
+    )
+
+
+class CsvUploadForm(FlaskForm):
+    csv = FileField(
+        "CSV Upload",
+        validators=[
+            FileRequired(message="Keine Datei angegeben."),
+            FileAllowed(['csv'], 'Nur .csv Datein werden unterstützt.')
+        ]
     )

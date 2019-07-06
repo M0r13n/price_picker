@@ -123,6 +123,13 @@ class Device(db.Model):
     picture_id = db.Column(db.String, db.ForeignKey('pictures.name'))
     colors = relationship("Color", secondary=color_association_table)
 
+    def __init__(self, **kwargs):
+        super(Device, self).__init__(**kwargs)
+        if len(self.colors) == 0:
+            default_color = Color.query.filter_by(default=True).first()
+            if default_color is not None:
+                self.colors.append(default_color)
+
     def __repr__(self):
         return f"<Device: {self.manufacturer.name} - {self.name}>"
 
@@ -173,6 +180,7 @@ class Color(db.Model):
     __tablename__ = 'color'
     name = db.Column(db.String(128), primary_key=True)
     color_code = db.Column(db.String(20))
+    default = db.Column(db.Boolean, default=False, index=True)
 
     @classmethod
     def query_factory_all(cls):
