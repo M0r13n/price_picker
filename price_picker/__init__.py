@@ -106,6 +106,7 @@ def add_jinja_vars(app):
 
 def init_sentry(app):
     if 'DSN' in app.config.keys():
+
         sentry_sdk.init(
             dsn=app.config['DSN'],
             integrations=[FlaskIntegration()]
