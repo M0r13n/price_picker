@@ -2,7 +2,6 @@ from flask import render_template, Blueprint, flash, redirect, url_for, session,
 from price_picker.models import Manufacturer, Device, User, Repair, Preferences, Enquiry
 from .forms import LoginForm, SelectRepairForm, SelectColorForm, contact_form_factory
 from price_picker import db
-from price_picker.common.decorators import step, sub_title
 from flask_login import login_user, logout_user, login_required
 from price_picker.tasks.mail import async_send_confirmation_mail
 
@@ -24,9 +23,7 @@ def home():
 
 
 @main_blueprint.route("/manufacturer/<int:manufacturer_id>")
-@step(1)
-@sub_title("Geräteauswahl")
-def select_device(manufacturer_id, **kwargs):
+def select_device(manufacturer_id):
     """
     2nd Step.
 
@@ -36,14 +33,11 @@ def select_device(manufacturer_id, **kwargs):
     devices = Device.query.filter(Device.manufacturer_id == manufacturer_id).order_by(Device.name).all()
     return render_template("main/select_device.html",
                            devices=devices,
-                           manufacturer_id=manufacturer_id,
-                           **kwargs)
+                           manufacturer_id=manufacturer_id)
 
 
 @main_blueprint.route("/device/<int:device_id>/color", methods=['GET', 'POST'])
-@step(2)
-@sub_title("Farbauswahl")
-def choose_color(device_id, **kwargs):
+def choose_color(device_id):
     """
     3rd Step.
 
@@ -58,14 +52,11 @@ def choose_color(device_id, **kwargs):
         return redirect(url_for('main.select_repair', device_id=device_id))
     return render_template('main/choose_color.html',
                            device=device,
-                           form=form,
-                           **kwargs)
+                           form=form)
 
 
 @main_blueprint.route("/device/<int:device_id>", methods=['GET', 'POST'])
-@step(3)
-@sub_title("Defektauswahl")
-def select_repair(device_id, **kwargs):
+def select_repair(device_id):
     """
     4th Step.
 
@@ -84,14 +75,11 @@ def select_repair(device_id, **kwargs):
     return render_template('main/select_repair.html',
                            device=device,
                            form=form,
-                           repairs=repairs,
-                           **kwargs)
+                           repairs=repairs)
 
 
 @main_blueprint.route("/costs/<int:device_id>", methods=['GET', 'POST'])
-@step(5)
-@sub_title("Kostenvoranschlag")
-def estimate_of_costs(device_id, **kwargs):
+def estimate_of_costs(device_id):
     """
     5th Step - Alternative.
 
@@ -127,14 +115,11 @@ def estimate_of_costs(device_id, **kwargs):
 
     return render_template('main/complete.html',
                            form=form,
-                           device_id=device_id,
-                           **kwargs)
+                           device_id=device_id)
 
 
 @main_blueprint.route("/summary/<int:device_id>")
-@step(4)
-@sub_title("Auftragsübersicht")
-def summary(device_id, **kwargs):
+def summary(device_id):
     """
     5th Step - Default.
 
@@ -149,14 +134,11 @@ def summary(device_id, **kwargs):
                            repairs=repairs,
                            device=device,
                            total=sum([r.price for r in repairs]),
-                           color=color,
-                           **kwargs)
+                           color=color)
 
 
 @main_blueprint.route("/complete/<int:device_id>", methods=['GET', 'POST'])
-@step(5)
-@sub_title("Abschluss")
-def complete(device_id, **kwargs):
+def complete(device_id):
     """
     6th Step.
 
@@ -189,8 +171,7 @@ def complete(device_id, **kwargs):
         return redirect(url_for('main.thank_you'))
     return render_template('main/complete.html',
                            form=form,
-                           device_id=device_id,
-                           **kwargs)
+                           device_id=device_id)
 
 
 @main_blueprint.route('/thanks')

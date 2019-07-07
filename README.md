@@ -7,7 +7,6 @@ A demo can be found [here](http://pricepicker.scalingo.io).
 
 # What todo next:
 - Add TESTS
-- Refactor Repair edit form
 - Add CRUD Mixin
 - Add Sortable Mixin
 - Add a Cache

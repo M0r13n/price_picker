@@ -1,7 +1,8 @@
 {% extends "main/_base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% from "_macros.html" import render_color with context %}
-
+{% set step_count = 2 %}
+{% set sub_title = "Farbauswahl" %}
 {% block sub_page %}
     <div class="container">
         <div class="row justify-content-md-center">

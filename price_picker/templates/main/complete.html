@@ -1,7 +1,8 @@
 {% extends 'main/_base.html' %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% from "_macros.html" import warn_message, render_formgroup %}
-
+{% set step_count = 5 %}
+{% set sub_title = "Auftragsdaten" %}
 {% block sub_page %}
     <div class="col-lg-8 col-sm-8 offset-lg-2">
         <h2 class="text-center">Persönliche Daten</h2>
