@@ -14,8 +14,9 @@
             {{ warn_message(form) }}
             {{ render_formgroup(form.name, placeholder="Apple") }}
             {{ render_formgroup(form.picture) }}
-            <button class="btn btn-success" type="submit">Erstellen</button>
+            <button class="btn btn-success btn-block" type="submit">Erstellen</button>
         </form>
     </div>
-
+    <br>
+    <a class="btn btn-secondary" href="{{ url_for('main.home') }}">&laquo; Zurück</a>
 {% endblock %}

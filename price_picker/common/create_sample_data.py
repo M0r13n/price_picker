@@ -1,4 +1,4 @@
-from price_picker.models import User, Device, Manufacturer, Repair, Picture, Color, Preferences
+from price_picker.models import User, Device, Manufacturer, Repair, Picture, Color, Preferences, Enquiry
 from price_picker import db
 
 
@@ -6,6 +6,7 @@ def create_sample_data():
     """Creates sample data."""
     print("Adding Sample Data")
     # Delete all data
+    Enquiry.query.delete()
     Device.query.delete()
     Manufacturer.query.delete()
     Repair.query.delete()

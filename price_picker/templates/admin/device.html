@@ -16,7 +16,10 @@
             {{ render_formgroup(form.manufacturer) }}
             {{ render_formgroup(form.picture) }}
             {{ render_select_multiple(form.colors) }}
-            <button class="btn btn-success" type="submit">Hinzufügen</button>
+            <button class="btn btn-success btn-block" type="submit">Hinzufügen</button>
         </form>
+        <br>
+        <a class="btn btn-secondary" href="{{ url_for('main.select_device', manufacturer_id=manufacturer_id) }}">&laquo; Zurück</a>
     </div>
+
 {% endblock %}

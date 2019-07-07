@@ -34,15 +34,12 @@ def add_manufacturer():
 
 @admin_blueprint.route('/manufacturer/<int:manufacturer_id>/delete', methods=['POST'])
 def delete_manufacturer(manufacturer_id):
-    form = DeleteForm()
-    if form.validate_on_submit():
-        m = Manufacturer.query.get_or_404(manufacturer_id)
-        name = m.name
-        db.session.delete(m)
-        db.session.commit()
-        flash(f"{name} erfolgreich gelöscht", "success")
-        return redirect(url_for('main.home'))
-    abort(403)
+    m = Manufacturer.query.get_or_404(manufacturer_id)
+    name = m.name
+    db.session.delete(m)
+    db.session.commit()
+    flash(f"{name} erfolgreich gelöscht", "success")
+    return jsonify(status='ok'), 201
 
 
 @admin_blueprint.route('/manufacturer/<int:manufacturer_id>/edit', methods=['GET', 'POST'])
@@ -80,16 +77,14 @@ def add_device():
     return render_template('admin/device.html', form=form)
 
 
-@admin_blueprint.route('/device/<int:device_id>/delete', methods=['DELETE', 'POST'])
+@admin_blueprint.route('/device/<int:device_id>/delete', methods=['POST'])
 def delete_device(device_id):
-    form = DeleteForm()
-    if form.validate_on_submit():
-        d = Device.query.get_or_404(device_id)
-        name, m_id = d.name, d.manufacturer_id
-        db.session.delete(d)
-        db.session.commit()
-        flash(f"{name} erfolgreich gelöscht", "success")
-        return redirect(url_for('main.select_device', manufacturer_id=m_id))
+    d = Device.query.get_or_404(device_id)
+    name, m_id = d.name, d.manufacturer_id
+    db.session.delete(d)
+    db.session.commit()
+    flash(f"{name} erfolgreich gelöscht", "success")
+    return jsonify(status='ok'), 201
 
 
 @admin_blueprint.route('/device/<int:device_id>/edit', methods=['GET', 'POST'])
@@ -108,7 +103,7 @@ def edit_device(device_id):
         flash(f"{d.name} erfolgreich aktualisiert", "success")
         return redirect(url_for('main.select_device', manufacturer_id=d.manufacturer_id))
     form.colors.data = d.colors
-    return render_template('admin/device.html', form=form)
+    return render_template('admin/device.html', form=form, manufacturer_id=d.manufacturer_id)
 
 
 # REPAIRS
@@ -134,16 +129,14 @@ def edit_repair(repair_id):
     return render_template('admin/repair.html', form=form, repair_id=repair_id)
 
 
-@admin_blueprint.route('/repair/<int:repair_id>/delete', methods=['DELETE', 'POST'])
+@admin_blueprint.route('/repair/<int:repair_id>/delete', methods=['POST'])
 def delete_repair(repair_id):
-    form = DeleteForm()
-    if form.validate_on_submit():
-        r = Repair.query.get_or_404(repair_id)
-        name = r.name
-        db.session.delete(r)
-        db.session.commit()
-        flash(f"{name} erfolgreich gelöscht", "success")
-        return redirect(url_for('main.home'))
+    r = Repair.query.get_or_404(repair_id)
+    name = r.name
+    db.session.delete(r)
+    db.session.commit()
+    flash(f"{name} erfolgreich gelöscht", "success")
+    return jsonify(status='ok'), 201
 
 
 # COLORS
@@ -162,7 +155,7 @@ def add_color():
     return render_template('admin/color.html', form=form)
 
 
-@admin_blueprint.route('/color/<int:color_id>/delete', methods=['DELETE', 'POST'])
+@admin_blueprint.route('/color/<int:color_id>/delete', methods=['POST'])
 def delete_color(color_id):
     pass
 

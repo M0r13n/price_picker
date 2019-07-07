@@ -16,7 +16,8 @@ A demo can be found [here](http://pricepicker.scalingo.io).
 - Move steps and titles to frontend [done]
 - handle "sonstige" [done]
 - enable/disable buttons depending on selection [done]
-- make manufacturers, devices and repairs deleteable
+- make manufacturers, devices and repairs deleteable [done]
+- backbuttons in every submenu [done]
 
 # Ideas for improvements:
 - Add Search bar without disturbing the look and feel

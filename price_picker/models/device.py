@@ -72,7 +72,7 @@ class Manufacturer(db.Model):
     __tablename__ = 'manufacturers'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, index=True)
-    devices = relationship('Device', back_populates='manufacturer')
+    devices = relationship('Device', back_populates='manufacturer', cascade="all, delete-orphan")
     picture_id = db.Column(db.String, db.ForeignKey('pictures.name'))
 
     def __init__(self, **kwargs):
