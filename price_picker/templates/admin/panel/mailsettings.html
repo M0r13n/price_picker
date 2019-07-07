@@ -22,5 +22,14 @@
 {% endblock %}
 
 {% block js %}
-    <script src="{{ url_for('static', filename='mailsettings.js') }}?v=1.0.1" type="text/javascript"></script>
+    <script>
+        $(document).ready(function () {
+            $('#mailTestBtn').click(function () {
+                $.ajax({
+                    url: '/admin/mail/test',
+                    type: 'GET'
+                })
+            });
+        });
+    </script>
 {% endblock %}
