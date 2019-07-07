@@ -19,6 +19,8 @@ class Preferences(db.Model, CRUDMixin):
     last_name_required = db.Column(db.Boolean, default=False)
     phone_required = db.Column(db.Boolean, default=False)
     mail_required = db.Column(db.Boolean, default=True)
+    phone_number = db.Column(db.String(128))
+    mail = db.Column(db.String(128))
 
     # Mail Settings
     mail_port = db.Column(db.Integer, default=587)
@@ -75,6 +77,8 @@ class Preferences(db.Model, CRUDMixin):
         current_app.config['LAST_NAME_REQUIRED'] = p.last_name_required
         current_app.config['PHONE_REQUIRED'] = p.phone_required
         current_app.config['MAIL_REQUIRED'] = p.mail_required
+        current_app.config['USER_MAIL'] = p.mail
+        current_app.config['USER_PHONE'] = p.phone_number
 
     @property
     def mail_config(self):

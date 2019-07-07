@@ -171,6 +171,16 @@ class ContactSettingsForm(FlaskForm):
         "Telefonnummer erforderlich",
         default=False
     )
+    phone_number = StringField(
+        "Service Telefonnummer",
+        validators=[Length(max=128, message="128 Zeichen maximal.")],
+        description="Diese Telefonnummer wird dem Kunden in Hilfetexten angezeigt."
+    )
+    mail = StringField(
+        "Service Email",
+        validators=[Length(max=128, message="128 Zeichen maximal."), Email(message="Eine gültige Email ist erforderlich.")],
+        description="Diese Email wird dem Kunden in Hilfetexten angezeigt."
+    )
 
 
 class MailSettingsForm(FlaskForm):

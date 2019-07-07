@@ -64,10 +64,21 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>Bitte kontaktieren Sie uns für sonstige Reparaturen telefonisch
-                        unter <a href="tel:+4943190700390">0431 90 700 39 0</a> oder per E-Mail an
-                        <a href="mailto:support@smartphoniker.de?Subject=Reparaturanfrage für ein {{ device.name }}" target="_top">support@smartphoniker.de</a>.
-                    </p>
+                    {% if config.USER_PHONE and config.USER_MAIL %}
+                        <p>Bitte kontaktieren Sie uns für sonstige Reparaturen telefonisch
+                            unter <b>{{ config.USER_PHONE }}</b> oder per E-Mail an
+                            <a href="mailto:{{ config.USER_MAIL }}?Subject=Reparaturanfrage für ein {{ device.name }}"
+                               target="_top">{{ config.USER_MAIL }}</a>.
+                        </p>
+                    {% elif config.USER_PHONE %}
+                        <p>Bitte kontaktieren Sie uns für sonstige Reparaturen telefonisch unter <b>{{ config.USER_PHONE }}</b>.</p>
+                    {% elif config.USER_MAIL %}
+                        <p>Bitte kontaktieren Sie uns für sonstige Reparaturen per Mail an <a
+                                href="mailto:{{ config.USER_MAIL }}?Subject=Reparaturanfrage für ein {{ device.name }}"
+                                target="_top">{{ config.USER_MAIL }}</a>.</p>
+                    {% else %}
+                        <p>Bitte kontaktieren Sie uns für sonstige Reparaturen persönlich.</p>
+                    {% endif %}
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
