@@ -6,9 +6,15 @@ A demo can be found [here](http://pricepicker.scalingo.io).
 
 
 # What todo next:
-- create admin menu (mail-settings + contact-form settings) [in progress]
-- enquiry views
-- store all enquires
-- make mail disable
-- integrate Redis and Celery
-- make validators of contact form dynamic
+- Add TESTS
+- Refactor Repair edit form
+- Add CRUD Mixin
+- Add Sortable Mixin
+- Add a Cache
+- Cache Settings Queries
+- Redo the mail sender
+
+# Ideas for improvements:
+- Add Search bar without disturbing the look and feel
+- Add additional images
+- Bundle static resources with webpack
