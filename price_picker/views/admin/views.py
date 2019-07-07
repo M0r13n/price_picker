@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, url_for, flash, request, render_template, current_app, jsonify
+from flask import Blueprint, redirect, url_for, flash, request, render_template, current_app, jsonify, abort
 from flask_login import current_user, logout_user
 from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, DeleteForm, NewRepairForm, NewColorForm, \
     ContactSettingsForm, MailSettingsForm, ChangePasswordForm, CsvUploadForm
@@ -32,7 +32,7 @@ def add_manufacturer():
     return render_template('admin/manufacturer.html', form=form)
 
 
-@admin_blueprint.route('/manufacturer/<int:manufacturer_id>/delete', methods=['DELETE', 'POST'])
+@admin_blueprint.route('/manufacturer/<int:manufacturer_id>/delete', methods=['POST'])
 def delete_manufacturer(manufacturer_id):
     form = DeleteForm()
     if form.validate_on_submit():
@@ -42,6 +42,7 @@ def delete_manufacturer(manufacturer_id):
         db.session.commit()
         flash(f"{name} erfolgreich gelöscht", "success")
         return redirect(url_for('main.home'))
+    abort(403)
 
 
 @admin_blueprint.route('/manufacturer/<int:manufacturer_id>/edit', methods=['GET', 'POST'])
