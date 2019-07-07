@@ -19,7 +19,9 @@
             <button class="btn btn-success btn-block" type="submit">Hinzufügen</button>
         </form>
         <br>
-        <a class="btn btn-secondary" href="{{ url_for('main.select_device', manufacturer_id=manufacturer_id) }}">&laquo; Zurück</a>
+        <a class="btn btn-secondary" href="
+                {% if manufacturer_id %}{{ url_for('main.select_device', manufacturer_id=manufacturer_id) }} {% else %} {{ url_for('main.home') }}{% endif %}">&laquo;
+            Zurück</a>
     </div>
 
 {% endblock %}

@@ -1,4 +1,5 @@
 from price_picker import db
+from price_picker.common.database import CRUDMixin
 from flask import current_app, has_app_context
 import rncryptor
 
@@ -9,7 +10,7 @@ class Encryption:
     SSL = 2
 
 
-class Preferences(db.Model):
+class Preferences(db.Model, CRUDMixin):
     """ Store User Preferences here"""
     __tablename__ = 'preferences'
     id = db.Column(db.Integer, primary_key=True)

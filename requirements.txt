@@ -8,6 +8,7 @@ Flask-WTF
 Flask_Testing
 Flask-Bootstrap
 Flask_Mail
+Flask-Talisman
 psycopg2-binary
 python-dotenv
 itsdangerous

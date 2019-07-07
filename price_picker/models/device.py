@@ -1,5 +1,5 @@
 from price_picker import db
-
+from price_picker.common.database import CRUDMixin
 from sqlalchemy.orm import relationship
 
 PICTURE_BASE_PATH = "device_mocks/"
@@ -68,7 +68,7 @@ class Picture(db.Model):
             db.session.commit()
 
 
-class Manufacturer(db.Model):
+class Manufacturer(db.Model, CRUDMixin):
     __tablename__ = 'manufacturers'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, index=True)
@@ -80,9 +80,6 @@ class Manufacturer(db.Model):
         if self.picture is None:
             self.picture = Picture.default_picture()
             print(self.picture)
-
-    def __repr__(self):
-        return f"<Manufacturer: {self.name}>"
 
     @property
     def picture_file(self):
@@ -109,7 +106,7 @@ color_association_table = db.Table('color_association',
                                    )
 
 
-class Device(db.Model):
+class Device(db.Model, CRUDMixin):
     """
     Generic Device
     Can be a Smartphone, Tablet or anything else
@@ -163,7 +160,7 @@ class Device(db.Model):
         return True
 
 
-class Repair(db.Model):
+class Repair(db.Model, CRUDMixin):
     """ Repair e.g. display """
     __tablename__ = 'repair'
     id = db.Column(db.Integer, primary_key=True)
@@ -175,7 +172,7 @@ class Repair(db.Model):
         return f"<{self.name} : {self.price}"
 
 
-class Color(db.Model):
+class Color(db.Model, CRUDMixin):
     """ Store colors and their associated color codes """
     __tablename__ = 'color'
     name = db.Column(db.String(128), primary_key=True)

@@ -7,6 +7,7 @@ from price_picker.common.next_page import next_page
 from price_picker.common.url_for_other_page import url_for_other_page
 from config import configs
 from flask_bootstrap import Bootstrap
+from flask_talisman import Talisman
 from flask_wtf.csrf import CSRFProtect
 from celery import Celery
 import sentry_sdk
@@ -19,6 +20,7 @@ migrate = Migrate()
 bootstrap = Bootstrap()
 csrf = CSRFProtect()
 celery = Celery()
+talisman = Talisman()
 
 
 def create_app(config=None, script_info=None):
@@ -82,6 +84,10 @@ def init_flask_login(app):
         return User.query.filter(User.id == int(user_id)).first()
 
 
+def init_talisman(app):
+    talisman.init_app(app)
+
+
 def register_blueprints(app):
     """ Register all Blueprints here """
     from price_picker.views.main.views import main_blueprint
@@ -106,7 +112,6 @@ def add_jinja_vars(app):
 
 def init_sentry(app):
     if 'DSN' in app.config.keys():
-
         sentry_sdk.init(
             dsn=app.config['DSN'],
             integrations=[FlaskIntegration()]

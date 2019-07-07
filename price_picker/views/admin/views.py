@@ -24,9 +24,7 @@ def require_login():
 def add_manufacturer():
     form = NewManufacturerForm()
     if form.validate_on_submit():
-        m = Manufacturer(name=form.name.data, picture=form.picture.data)
-        db.session.add(m)
-        db.session.commit()
+        m = Manufacturer.create(name=form.name.data, picture=form.picture.data)
         flash(f"{m.name} erfolgreich hinzugefügt", "success")
         return redirect(next_page())
     return render_template('admin/manufacturer.html', form=form)
@@ -34,11 +32,8 @@ def add_manufacturer():
 
 @admin_blueprint.route('/manufacturer/<int:manufacturer_id>/delete', methods=['POST'])
 def delete_manufacturer(manufacturer_id):
-    m = Manufacturer.query.get_or_404(manufacturer_id)
-    name = m.name
-    db.session.delete(m)
-    db.session.commit()
-    flash(f"{name} erfolgreich gelöscht", "success")
+    m = Manufacturer.query.get_or_404(manufacturer_id).delete()
+    flash(f"{m.name} erfolgreich gelöscht", "success")
     return jsonify(status='ok'), 201
 
 
@@ -52,7 +47,7 @@ def edit_manufacturer(manufacturer_id):
             return render_template('admin/manufacturer.html', form=form)
         m.name = form.name.data
         m.picture = form.picture.data
-        db.session.commit()
+        m.save()
         flash(f"{m.name} erfolgreich aktualisiert", "success")
         return redirect(url_for('main.home'))
     return render_template('admin/manufacturer.html', form=form)
@@ -66,10 +61,8 @@ def add_device():
     m = request.args.get('manufacturer_id', None, int)
     form = NewDeviceForm()
     if form.validate_on_submit():
-        d = Device(name=form.name.data, manufacturer=form.manufacturer.data, picture=form.picture.data, colors=form.colors.data)
-        db.session.add(d)
-        db.session.commit()
-        flash(f"{d.name} erfolgreich hinzugefügt", "success")
+        d = Device().create(name=form.name.data, manufacturer=form.manufacturer.data, picture=form.picture.data, colors=form.colors.data)
+        flash("Gerät erfolgreich hinzugefügt", "success")
         return redirect(url_for('main.select_device', manufacturer_id=d.manufacturer_id))
     if m is not None:
         m = Manufacturer.query.get_or_404(m)
@@ -79,11 +72,8 @@ def add_device():
 
 @admin_blueprint.route('/device/<int:device_id>/delete', methods=['POST'])
 def delete_device(device_id):
-    d = Device.query.get_or_404(device_id)
-    name, m_id = d.name, d.manufacturer_id
-    db.session.delete(d)
-    db.session.commit()
-    flash(f"{name} erfolgreich gelöscht", "success")
+    d = Device.query.get_or_404(device_id).delete()
+    flash(f"{d.name} erfolgreich gelöscht", "success")
     return jsonify(status='ok'), 201
 
 
@@ -99,7 +89,7 @@ def edit_device(device_id):
         d.manufacturer = form.manufacturer.data
         d.picture = form.picture.data
         d.colors = form.colors.data
-        db.session.commit()
+        d.save()
         flash(f"{d.name} erfolgreich aktualisiert", "success")
         return redirect(url_for('main.select_device', manufacturer_id=d.manufacturer_id))
     form.colors.data = d.colors
@@ -131,11 +121,8 @@ def edit_repair(repair_id):
 
 @admin_blueprint.route('/repair/<int:repair_id>/delete', methods=['POST'])
 def delete_repair(repair_id):
-    r = Repair.query.get_or_404(repair_id)
-    name = r.name
-    db.session.delete(r)
-    db.session.commit()
-    flash(f"{name} erfolgreich gelöscht", "success")
+    r = Repair.query.get_or_404(repair_id).delete()
+    flash(f"{r.name} erfolgreich gelöscht", "success")
     return jsonify(status='ok'), 201
 
 
@@ -146,10 +133,7 @@ def delete_repair(repair_id):
 def add_color():
     form = NewColorForm()
     if form.validate_on_submit():
-        c = Color()
-        form.populate_obj(c)
-        db.session.add(c)
-        db.session.commit()
+        c = Color.create(name=form.name.data, color_code=form.color_code.data)
         flash(f"{c.name} erfolgreich hinzugefügt", "success")
         return redirect(next_page())
     return render_template('admin/color.html', form=form)
@@ -177,7 +161,7 @@ def dashboard():
 def complete_enquiry(enquiry_id):
     enquiry = Enquiry.query.get_or_404(enquiry_id)
     enquiry.done = True
-    db.session.commit()
+    enquiry.save()
     flash("Anfrage erfolgreich abgeschlossen.", 'success')
     return '', 200
 
@@ -186,9 +170,7 @@ def complete_enquiry(enquiry_id):
 def contact_form_settings():
     p = Preferences.query.first()
     if p is None:
-        p = Preferences()
-        db.session.add(p)
-        db.session.commit()
+        Preferences.create()
         current_app.logger.warning('Missing preferences. Inserting default')
 
     form = ContactSettingsForm(obj=p)
@@ -196,7 +178,6 @@ def contact_form_settings():
         form.populate_obj(p)
         db.session.commit()
         Preferences.load_settings()
-        current_app.logger.warning('Successfully updated preferences.')
         flash('Einstellungen erfolgreich angepasst', 'success')
         return redirect(url_for('.contact_form_settings'))
     return render_template('admin/panel/contactform.html',
@@ -208,9 +189,7 @@ def contact_form_settings():
 def mail_settings():
     p = Preferences.query.first()
     if p is None:
-        p = Preferences()
-        db.session.add(p)
-        db.session.commit()
+        Preferences.create()
         current_app.logger.warning('Missing preferences. Inserting default')
 
     form = MailSettingsForm(obj=p)
@@ -223,8 +202,7 @@ def mail_settings():
         p.order_copy_mail_address = form.order_copy_mail_address.data
         if form.mail_password.data and len(form.mail_password.data) > 0:
             p.encrypt_mail_password(form.mail_password.data)
-        db.session.commit()
-        current_app.logger.warning('Successfully updated mail preferences.')
+        p.save()
         flash('Einstellungen erfolgreich angepasst', 'success')
         return redirect(url_for('.mail_settings'))
     return render_template('admin/panel/mailsettings.html',
@@ -237,7 +215,7 @@ def change_password():
     form = ChangePasswordForm()
     if form.validate_on_submit():
         current_user.password = form.password.data
-        db.session.commit()
+        current_user.save()
         flash('Passwort erfolgreich geändert.', 'success')
         logout_user()
         return redirect(url_for('main.home'))
@@ -252,7 +230,7 @@ def import_csv():
     if form.validate_on_submit():
         from price_picker.common.csv_import import RepairCsvImporter
         importer = RepairCsvImporter(form.csv.data)
-        print(importer.import_csv())
+        importer.import_csv()
 
     return render_template('admin/panel/import.html',
                            form=form,

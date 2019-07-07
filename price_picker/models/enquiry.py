@@ -1,6 +1,7 @@
 from price_picker import db
 import datetime as dt
 from sqlalchemy.orm import relationship
+from price_picker.common.database import CRUDMixin
 
 repairs = db.Table('repairs',
                    db.Column('repair_id', db.Integer, db.ForeignKey('repair.id', ondelete="cascade")),
@@ -8,7 +9,7 @@ repairs = db.Table('repairs',
                    )
 
 
-class Enquiry(db.Model):
+class Enquiry(db.Model, CRUDMixin):
     __tablename__ = "enquiries"
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, default=dt.datetime.now())

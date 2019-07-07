@@ -1,9 +1,10 @@
 from price_picker import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+from price_picker.common.database import CRUDMixin
 
 
-class User(UserMixin, db.Model):
+class User(UserMixin, CRUDMixin, db.Model):
     """Basic user model
     """
     __tablename__ = 'users'
