@@ -88,19 +88,18 @@
 
 
 {% macro render_repair(repair) %}
-    <div class="col-sm-4 py-2 text-center">
-        <div class="card selectable h-100" data-id="{{ repair.id }}">
+    <div class="col-sm-4 py-2 text-center h-100">
+        <div class="card selectable" data-id="{{ repair.id }}">
             <div class="card-header">
                 <h4 class="my-0 font-weight-normal">{{ repair.name }}</h4>
             </div>
             <div class="card-body">
                 ab {{ repair.price }}&euro;
             </div>
-            {% if current_user.is_authenticated %}
-                <a class="btn btn-primary btn-block editBtn"
-                   href="{{ url_for('admin.edit_repair',repair_id=repair.id) }}">edit</a>
-            {% endif %}
         </div>
+        {% if current_user.is_authenticated %}
+            <span class="btn btn-primary btn-block editBtn" data-id="{{ repair.id }}">edit</span>
+        {% endif %}
     </div>
 {% endmacro %}
 
@@ -166,6 +165,8 @@
     <ul class="pagination pagination-sm justify-content-center" style="margin:20px 0">
         <li{% if pagination.has_prev %} class="page-item" {% else %} class="page-item disabled"{% endif %}>
             <a class="page-link" href="
+
+
                     {% if pagination.has_prev %}{{ url_for_other_page(endpoint, page=pagination.prev_num, **kwargs) }}{{ fragment }}{% else %}#{% endif %}">
                 &laquo;
             </a>
@@ -187,6 +188,8 @@
         {% endfor %}
         <li{% if pagination.has_next %} class="page-item" {% else %} class="page-item disabled"{% endif %}>
             <a class="page-link" href="
+
+
                     {% if pagination.has_next %}{{ url_for_other_page(endpoint, page=pagination.next_num, **kwargs) }}{{ fragment }}{% else %}#{% endif %}">
                 &raquo;
             </a>

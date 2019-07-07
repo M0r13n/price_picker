@@ -23,8 +23,7 @@
 
             <!-- Always include an add option if admin is logged in-->
             {% if current_user.is_authenticated %}
-                <div class="col-sm-4 py-2 text-center"
-                     onclick="location.href='{{ url_for("admin.add_repair", device_id=device.id) }}'">
+                <div class="col-sm-4 py-2 text-center" id="newRepair">
                     <div class="card bg-primary h-100">
                         <div class="card-body text-white align-items-center d-flex justify-content-center">
                             <h1>Neu</h1>
@@ -50,8 +49,61 @@
         <a class="btn btn-secondary" href="{{ url_for('main.select_device', manufacturer_id=device.manufacturer.id) }}">&laquo;
             Zurück</a>
     </div>
+
+    {% if current_user.is_authenticated %}
+        <!-- Add/Edit Modal-->
+        <div class="modal fade" id="repairModal" tabindex="-1" role="dialog" aria-labelledby="repairModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="repairModalLabel">Reparatur anpassen</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Load form from view function-->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block js %}
-    <script src="{{ url_for('static', filename='select_repair.js') }}?v=1.0.1" type="text/javascript"></script>
+    <script>
+        $(document).ready(function () {
+
+            {% if current_user.is_authenticated %}
+                /* Fill the modals body with the html returned by the view function. */
+                $('.editBtn').click(function () {
+                    let url = '/admin/repair/' + $(this).data('id') + '/edit';
+                    $.get(url, function (resp) {
+                        $('#repairModal .modal-body').html(resp);
+                        $('#repairModal').modal('show');
+                    })
+                });
+            {% endif %}
+
+            /* Toggle selected cards and store the information about by card is selected in the hidden form. */
+            $('.selectable').click(function () {
+                $(this).toggleClass('border-primary');
+                let selected_repair_ids = $('.card.border-primary').map(function () {
+                    return $(this).data('id');
+                }).get();
+                $('#repairs').val(selected_repair_ids);
+            });
+
+            /* Adds a new empty repair */
+            $('#newRepair').click(function () {
+                let url = '{{ url_for('admin.add_repair', device_id=device.id) }}';
+                $.get(url, function () {
+                    location.reload();
+                })
+            });
+        });
+    </script>
 {% endblock %}

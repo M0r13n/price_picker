@@ -14,6 +14,7 @@ A demo can be found [here](http://pricepicker.scalingo.io).
 - Cache Settings Queries
 - Redo the mail sender
 - Move steps and titles to frontend
+- handle "sonstige"
 
 # Ideas for improvements:
 - Add Search bar without disturbing the look and feel
