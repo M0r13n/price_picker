@@ -1,4 +1,4 @@
-from flask import render_template, Blueprint, flash, redirect, url_for, session, request, current_app
+from flask import render_template, Blueprint, flash, redirect, url_for, session, request, current_app, send_from_directory
 from price_picker.models import Manufacturer, Device, User, Repair, Preferences, Enquiry
 from .forms import LoginForm, SelectRepairForm, SelectColorForm, contact_form_factory, AddressContactForm
 from price_picker import db
@@ -206,3 +206,8 @@ def load_preferences():
     """ Load preferences on first start-up"""
     Preferences.load_settings()
     current_app.logger.info('Successfully loaded user preferences')
+
+
+@main_blueprint.route('/robots.txt')
+def static_from_root():
+    return send_from_directory(current_app.static_folder, request.path[1:])
