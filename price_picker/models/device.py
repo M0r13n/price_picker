@@ -79,7 +79,6 @@ class Manufacturer(db.Model, CRUDMixin):
         super(Manufacturer, self).__init__(**kwargs)
         if self.picture is None:
             self.picture = Picture.default_picture()
-            print(self.picture)
 
     @property
     def picture_file(self):

@@ -23,6 +23,8 @@ class BaseConfig(object):
     CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
     SHOW_HEADER = os.getenv("SHOW_HEADER", True)
     DSN = os.getenv("DSN")
+    SESSION_COOKIE_HTTPONLY = True
+    REMEMBER_COOKIE_HTTPONLY = True
 
 
 class DevelopmentConfig(BaseConfig):
@@ -49,6 +51,8 @@ class ProductionConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     TESTING = False
     DEBUG = False
+    SESSION_COOKIE_SECURE = True
+    REMEMBER_COOKIE_SECURE = True
 
 
 configs = {
