@@ -181,6 +181,12 @@ class ContactSettingsForm(FlaskForm):
         validators=[Length(max=128, message="128 Zeichen maximal."), Email(message="Eine gültige Email ist erforderlich.")],
         description="Diese Email wird dem Kunden in Hilfetexten angezeigt."
     )
+    privacy_statement = StringField(
+        "Link zur persönlichen Datenschutzerklärung.",
+        validators=[Length(max=256, message="256 Zeichen maximal.")],
+        description="Dieser Link wird dem Kunden bei Abgabe seiner Daten präsentiert. Ein falscher oder fehlender Link kann Grund"
+                    "für eine Abmahnung sein."
+    )
 
 
 class MailSettingsForm(FlaskForm):
