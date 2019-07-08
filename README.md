@@ -9,7 +9,6 @@ A demo can be found [here](http://pricepicker.scalingo.io).
 - Add TESTS
 - Add Orderable Mixin
 - Add a Cache
-- Cache Settings Queries
 - Redo the mail sender
 
 # Ideas for improvements:

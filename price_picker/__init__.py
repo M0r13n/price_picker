@@ -85,8 +85,8 @@ def init_flask_login(app):
 
 
 def init_talisman(app):
-    talisman.init_app(app)
-
+    #talisman.init_app(app)
+    pass
 
 def register_blueprints(app):
     """ Register all Blueprints here """
