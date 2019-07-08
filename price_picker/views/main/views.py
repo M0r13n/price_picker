@@ -1,6 +1,6 @@
 from flask import render_template, Blueprint, flash, redirect, url_for, session, request, current_app
 from price_picker.models import Manufacturer, Device, User, Repair, Preferences, Enquiry
-from .forms import LoginForm, SelectRepairForm, SelectColorForm, contact_form_factory
+from .forms import LoginForm, SelectRepairForm, SelectColorForm, contact_form_factory, AddressContactForm
 from price_picker import db
 from flask_login import login_user, logout_user, login_required
 from price_picker.tasks.mail import async_send_confirmation_mail
@@ -98,17 +98,18 @@ def estimate_of_costs(device_id):
         color = session['color'] if 'color' in session.keys() else 'default'
         repair_ids = session['repair_ids']
         repairs = db.session.query(Repair).filter(Repair.id.in_(repair_ids)).all()
-        e = Enquiry(color=color,
-                    device=device,
-                    repairs=repairs,
-                    customer_email=form.email.data,
-                    customer_first_name=form.first_name.data,
-                    customer_last_name=form.last_name.data,
-                    customer_phone=form.phone.data,
-                    imei=form.imei.data,
-                    name="Kostenvoranschlag")
-        db.session.add(e)
-        db.session.commit()
+        e = Enquiry.create(color=color,
+                           device=device,
+                           repairs=repairs,
+                           customer_email=form.email.data,
+                           customer_first_name=form.first_name.data,
+                           customer_last_name=form.last_name.data,
+                           customer_phone=form.phone.data,
+                           customer_street=form.customer_street.data if isinstance(form, AddressContactForm) else None,
+                           customer_postal_code=form.customer_postal_code.data if isinstance(form, AddressContactForm) else None,
+                           customer_city=form.customer_city.data if isinstance(form, AddressContactForm) else None,
+                           imei=form.imei.data,
+                           name="Kostenvoranschlag")
         async_send_confirmation_mail.delay(email=form.email.data, enquiry_id=e.id)
         flash(f'Wir haben ihre Anfrage erhalten!', 'success')
         return redirect(url_for('main.thank_you'))

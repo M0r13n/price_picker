@@ -18,6 +18,9 @@ class Enquiry(db.Model, CRUDMixin):
     customer_last_name = db.Column(db.String(128))
     customer_email = db.Column(db.String(128))
     customer_phone = db.Column(db.String(128))
+    customer_street = db.Column(db.String(128))
+    customer_city = db.Column(db.String(128))
+    customer_postal_code = db.Column(db.String(32))
     imei = db.Column(db.String(64))
     color = db.Column(db.String(64))
     device_id = db.Column(db.Integer, db.ForeignKey('devices.id'))
@@ -27,3 +30,7 @@ class Enquiry(db.Model, CRUDMixin):
 
     def __repr__(self):
         return f"<Enquiry ({self.name}) from {self.timestamp.strftime('%d.%m.%Y at %H:%M')}>"
+
+    @property
+    def address(self):
+        return f"{self.customer_street or '-'}, {self.customer_postal_code or '-'}, {self.customer_street or '-'}"

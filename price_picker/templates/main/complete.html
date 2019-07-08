@@ -14,6 +14,11 @@
             {{ render_formgroup(form.last_name) }}
             {{ render_formgroup(form.email) }}
             {{ render_formgroup(form.phone, placeholder="+49") }}
+            {% if form.__class__.__name__ == 'AddressContactForm' %}
+                {{ render_formgroup(form.customer_street) }}
+                {{ render_formgroup(form.customer_postal_code) }}
+                {{ render_formgroup(form.customer_city) }}
+            {% endif %}
             <h4 class="text-muted">Gerätedaten</h4>
             {{ render_formgroup(form.imei) }}
             {{ form.confirm(class="btn btn-block btn-success") }}

@@ -171,6 +171,10 @@ class ContactSettingsForm(FlaskForm):
         "Telefonnummer erforderlich",
         default=False
     )
+    address_required = BooleanField(
+        "Anschrift erforderlich",
+        default=False
+    )
     phone_number = StringField(
         "Service Telefonnummer",
         validators=[Length(max=128, message="128 Zeichen maximal.")],

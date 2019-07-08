@@ -19,6 +19,7 @@ class Preferences(db.Model, CRUDMixin):
     last_name_required = db.Column(db.Boolean, default=False)
     phone_required = db.Column(db.Boolean, default=False)
     mail_required = db.Column(db.Boolean, default=True)
+    address_required = db.Column(db.Boolean, default=True)
     phone_number = db.Column(db.String(128))
     mail = db.Column(db.String(128))
     privacy_statement = db.Column(db.Text)
@@ -78,6 +79,7 @@ class Preferences(db.Model, CRUDMixin):
         current_app.config['LAST_NAME_REQUIRED'] = p.last_name_required
         current_app.config['PHONE_REQUIRED'] = p.phone_required
         current_app.config['MAIL_REQUIRED'] = p.mail_required
+        current_app.config['ADDRESS_REQUIRED'] = p.address_required
         current_app.config['USER_MAIL'] = p.mail
         current_app.config['USER_PHONE'] = p.phone_number
         current_app.config['PRIVACY_STATEMENT'] = p.privacy_statement

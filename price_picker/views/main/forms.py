@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SelectMultipleField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, Email
-
+from flask import current_app
 
 class LoginForm(FlaskForm):
     username = StringField(
@@ -72,8 +72,29 @@ class ContactForm(FlaskForm):
     )
 
 
+class AddressContactForm(ContactForm):
+    customer_street = StringField(
+        "Straße, Hausnummer",
+        validators=[
+            Length(max=128, message="Maximal 128 Zeichen.")
+        ]
+    )
+    customer_postal_code = StringField(
+        "Postleitzahl",
+        validators=[
+            Length(max=32, message="Maximal 32 Zeichen.")
+        ]
+    )
+    customer_city = StringField(
+        "Stadt",
+        validators=[
+            Length(max=128, message="Maximal 128 Zeichen.")
+        ]
+    )
+
+
 def contact_form_factory(preferences):
-    form = ContactForm()
+    form = AddressContactForm() if current_app.config.get('ADDRESS_REQUIRED') else ContactForm()
     if 'FIRST_NAME_REQUIRED' in preferences.keys() and preferences['FIRST_NAME_REQUIRED']:
         setattr(form.first_name, 'validators', [*form.imei.validators, DataRequired("Dieses Feld wird benötigt")])
     if 'LAST_NAME_REQUIRED' in preferences.keys() and preferences['LAST_NAME_REQUIRED']:
