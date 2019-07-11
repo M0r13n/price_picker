@@ -11,13 +11,6 @@
             {% endfor %}
         </div>
         <br>
-        <!-- Use a hidden form, to be able to select a color and submit it via button click -->
-        <form class="form" role="form" method="post" action="#" id="colorForm">
-            <div class="text-center">
-                {{ form.hidden_tag() }}
-                {{ form.colors(hidden=True) }}
-            </div>
-        </form>
         <a class="btn btn-secondary" href="{{ url_for('main.select_device', manufacturer_id=device.manufacturer.id) }}">&laquo;
             Zurück</a>
     </div>
@@ -27,8 +20,8 @@
     <script>
         $(document).ready(function () {
             $('.selectable').click(function () {
-                $('#colors').val($(this).data('id'));
-                $('#colorForm').submit();
+                sessionStorage.setItem('color', $(this).data('name'));
+                window.location.href = '{{ url_for("main.select_repair", device_id=device.id) }}'
             });
 
         });

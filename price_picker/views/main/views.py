@@ -45,14 +45,8 @@ def choose_color(device_id):
     Redirects to select_repair.
     """
     device = Device.query.get_or_404(device_id)
-    form = SelectColorForm()
-    form.colors.choices = [(c.name, c.name) for c in device.colors]
-    if form.validate_on_submit():
-        session['color'] = form.colors.data
-        return redirect(url_for('main.select_repair', device_id=device_id))
     return render_template('main/choose_color.html',
-                           device=device,
-                           form=form)
+                           device=device)
 
 
 @main_blueprint.route("/device/<int:device_id>", methods=['GET', 'POST'])

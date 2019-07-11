@@ -114,7 +114,7 @@
 
 {% macro render_color(color) %}
     <div class="col-sm-4 py-2 text-center">
-        <div class="card selectable h-100" data-id="{{ color.name }}">
+        <div class="card selectable h-100" data-name="{{ color.name }}">
             <div class="card-body">
                 <div class="card-title"><h4>{{ color.name }}</h4></div>
                 <span class="circle" style="background-color: {{ color.color_code }}"></span>
