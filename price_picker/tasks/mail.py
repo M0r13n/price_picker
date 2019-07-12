@@ -71,7 +71,6 @@ class TestEmail(BaseEmail):
 @celery.task(name='send_email', bind=True, max_retries=None)
 def send_email_task(task, email):
     attempt = task.request.retries + 1
-    do_send_email(email)
     try:
         do_send_email(email)
     except Exception as exc:
