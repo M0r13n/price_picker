@@ -1,6 +1,7 @@
 from flask import render_template, Blueprint, flash, redirect, url_for, session, request, current_app, send_from_directory
 from price_picker.models import Manufacturer, Device, User, Repair, Preferences, Enquiry
-from .forms import LoginForm, SelectRepairForm, contact_form_factory, AddressContactForm
+from .forms import LoginForm, SelectRepairForm, contact_form_factory
+from flask_wtf import FlaskForm
 from price_picker import db
 from flask_login import login_user, logout_user, login_required
 from price_picker.tasks.mail import async_send_confirmation_mail
@@ -64,37 +65,13 @@ def select_repair(device_id):
     if form.validate_on_submit():
         session['repair_ids'] = form.repairs.data
         session['color'] = form.color.data or 'default'
-        if request.form.get('estimate') is not None:
-            return redirect(url_for('.estimate_of_costs', device_id=device_id))
+        if request.form.get('estimation') is not None:
+            return redirect(url_for('.complete', device_id=device_id))
         return redirect(url_for('.summary', device_id=device_id))
     return render_template('main/select_repair.html',
                            device=device,
                            form=form,
                            repairs=repairs)
-
-
-@main_blueprint.route("/costs/<int:device_id>", methods=['GET', 'POST'])
-def estimate_of_costs(device_id):
-    """
-    5th Step - Alternative.
-
-    Instead of placing an order, the user can also request an estimate of costs.
-    This will be sent via mail to the customer.
-    """
-
-    device = Device.query.get_or_404(device_id)
-    form = contact_form_factory(current_app.config)
-    if form.validate_on_submit():
-        if not _complete(device, form):
-            flash('Da ist etwas schief gelaufen. Bitte wähle deine Reparatur erneut.', 'danger')
-            return redirect(url_for('main.select_repair', device_id=device.id))
-
-        flash('Wir haben Ihre Anfrage erhalten!', 'success')
-        return redirect(url_for('main.thank_you'))
-
-    return render_template('main/complete.html',
-                           form=form,
-                           device_id=device_id)
 
 
 @main_blueprint.route("/summary/<int:device_id>")
@@ -125,10 +102,11 @@ def complete(device_id):
     After that the order is processed and both (the customer and the shop-owner) will receive an confirmation mail.
     Redirect to the 1st page and closes the circle.
     """
+    order = request.args.get('order', False, bool)
     device = Device.query.get_or_404(device_id)
-    form = contact_form_factory(current_app.config)
+    form = contact_form_factory(current_app.config, order)
     if form.validate_on_submit():
-        if not _complete(device, form):
+        if not _complete(order, device, form):
             flash('Da ist etwas schief gelaufen. Bitte wähle deine Reparatur erneut.', 'danger')
             return redirect(url_for('main.select_repair', device_id=device.id))
 
@@ -177,7 +155,7 @@ def static_from_root():
     return send_from_directory(current_app.static_folder, request.path[1:])
 
 
-def _complete(device, form) -> bool:
+def _complete(order: bool, device: Device, form: FlaskForm) -> bool:
     if 'repair_ids' not in session.keys() or not isinstance(session['repair_ids'], list):
         return False
 
@@ -191,6 +169,6 @@ def _complete(device, form) -> bool:
                        customer_last_name=form.last_name.data,
                        customer_phone=form.phone.data,
                        imei=form.imei.data,
-                       name="Reparatur")
+                       name="Reparaturauftrag" if order else "Kostenvoranschlag")
     async_send_confirmation_mail.delay(email=form.email.data, enquiry_id=e.id)
     return True

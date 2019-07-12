@@ -48,7 +48,7 @@
         <div class="col-sm-6 col-lg-8">
             <br>
             <div class="text-center">
-                <button class=" btn btn-success" onclick="location.href='{{ url_for("main.complete", device_id=device.id) }}'">
+                <button class=" btn btn-success" onclick="location.href='{{ url_for("main.complete", device_id=device.id, order=True) }}'">
                     Zahlungspflichtig bestellen
                 </button>
             </div>

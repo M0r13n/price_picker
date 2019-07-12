@@ -88,7 +88,7 @@ class AddressContactForm(ContactForm):
     )
 
 
-def contact_form_factory(preferences):
+def contact_form_factory(preferences, order=True):
     form = AddressContactForm() if current_app.config.get('ADDRESS_REQUIRED') else ContactForm()
     if 'FIRST_NAME_REQUIRED' in preferences.keys() and preferences['FIRST_NAME_REQUIRED']:
         setattr(form.first_name, 'validators', [*form.imei.validators, DataRequired("Dieses Feld wird benötigt")])
@@ -100,4 +100,6 @@ def contact_form_factory(preferences):
         setattr(form.phone, 'validators', [*form.imei.validators, DataRequired("Dieses Feld wird benötigt")])
     if 'IMEI_REQUIRED' in preferences.keys() and preferences['IMEI_REQUIRED']:
         setattr(form.imei, 'validators', [*form.imei.validators, DataRequired("Dieses Feld wird benötigt")])
+    if not order:
+        form.confirm.label.text = "Kostenvoranschlag anfordern"
     return form
