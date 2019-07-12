@@ -1,10 +1,9 @@
 from flask import render_template, Blueprint, flash, redirect, url_for, session, request, current_app, send_from_directory
 from price_picker.models import Manufacturer, Device, User, Repair, Preferences, Enquiry
-from .forms import LoginForm, SelectRepairForm, contact_form_factory
-from flask_wtf import FlaskForm
+from .forms import LoginForm, SelectRepairForm, contact_form_factory, ContactForm
 from price_picker import db
 from flask_login import login_user, logout_user, login_required
-from price_picker.tasks.mail import async_send_confirmation_mail
+from price_picker.tasks.mail import CustomerConfirmationEmail, send_email_task, EnquiryReceivedEmail, configured_confirmation_recipient
 
 main_blueprint = Blueprint("main", __name__)
 
@@ -16,7 +15,6 @@ def home():
 
     Entry Point for choosing a repair.
     The customer selects the desired manufacturer, e.g. Apple.
-    Redirects to select_device.
     """
     manufacturers = Manufacturer.query.order_by(Manufacturer.name).all()
     return render_template("main/home.html",
@@ -29,7 +27,6 @@ def select_device(manufacturer_id):
     2nd Step.
 
     The customer selects the desired device, e.g. iPhone X.
-    Redirects to select_color.s
     """
     devices = Device.query.filter(Device.manufacturer_id == manufacturer_id).order_by(Device.name).all()
     return render_template("main/select_device.html",
@@ -43,7 +40,6 @@ def choose_color(device_id):
     3rd Step.
 
     The customer selects the desired color, e.g. black.
-    Redirects to select_repair.
     """
     device = Device.query.get_or_404(device_id)
     return render_template('main/choose_color.html',
@@ -56,7 +52,6 @@ def select_repair(device_id):
     4th Step.
 
     The customer selects the desired repair, e.g. display.
-    Redirects to summary or to estimate_of_costs depending on the customer choice.
     """
     device = Device.query.get_or_404(device_id)
     repairs = device.repairs.order_by(Repair.name)
@@ -80,7 +75,6 @@ def summary(device_id):
     5th Step - Default.
 
     The customer confirms the summary which includes a list of selected repairs and an estimated price.
-    Redirects to final completion.
     """
     color = session['color'] if 'color' in session.keys() else 'default'
     device = Device.query.get_or_404(device_id)
@@ -100,7 +94,6 @@ def complete(device_id):
 
     The customer enters it´s personal data.
     After that the order is processed and both (the customer and the shop-owner) will receive an confirmation mail.
-    Redirect to the 1st page and closes the circle.
     """
     order = request.args.get('order', False, bool)
     device = Device.query.get_or_404(device_id)
@@ -156,8 +149,15 @@ def static_from_root():
 
 
 # NO VIEW FUNCTIONS
+def _send_mails(form, enquiry):
+    if form.email.data:
+        send_email_task.delay(CustomerConfirmationEmail(recipients=form.email.data).__dict__)
+    rp = configured_confirmation_recipient()
+    if rp:
+        send_email_task.delay(EnquiryReceivedEmail(recipients=rp, enquiry=enquiry).__dict__)
 
-def _complete(order: bool, device: Device, form: FlaskForm) -> bool:
+
+def _complete(order: bool, device: Device, form: ContactForm) -> bool:
     if 'repair_ids' not in session.keys() or not isinstance(session['repair_ids'], list):
         return False
 
@@ -172,5 +172,5 @@ def _complete(order: bool, device: Device, form: FlaskForm) -> bool:
                        customer_phone=form.phone.data,
                        imei=form.imei.data,
                        name="Reparaturauftrag" if order else "Kostenvoranschlag")
-    async_send_confirmation_mail.delay(email=form.email.data, enquiry_id=e.id)
+    _send_mails(form, e)
     return True

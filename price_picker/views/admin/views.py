@@ -1,11 +1,11 @@
-from flask import Blueprint, redirect, url_for, flash, request, render_template, current_app, jsonify, abort
+from flask import Blueprint, redirect, url_for, flash, request, render_template, current_app, jsonify
 from flask_login import current_user, logout_user
-from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, DeleteForm, NewRepairForm, NewColorForm, \
+from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, NewRepairForm, NewColorForm, \
     ContactSettingsForm, MailSettingsForm, ChangePasswordForm, CsvUploadForm
 from price_picker.models import Device, Manufacturer, Repair, Color, Preferences, Enquiry
 from price_picker import db
 from price_picker.common.next_page import next_page
-from price_picker.tasks.mail import async_test_email
+from price_picker.tasks.mail import TestEmail, send_email_task, default_mail_sender
 
 admin_blueprint = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -240,5 +240,5 @@ def import_csv():
 @admin_blueprint.route('/mail/test', methods=['GET'])
 def send_test_mail():
     current_app.logger.info("Sending Test Mail.")
-    async_test_email.delay()
+    send_email_task.delay(TestEmail(recipients=default_mail_sender()).__dict__)
     return "", 200
