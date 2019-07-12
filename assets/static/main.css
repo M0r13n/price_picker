@@ -1,13 +1,23 @@
 /* General Style */
+html, body {
+    height: 100%;
+}
+
 .footer {
-    position: absolute;
-    bottom:0;
-    width:100%;
-    margin-top: 75px;
-    margin-bottom: 10px;
+    position: relative;
+    margin-top: -75px; /* negative value of footer height */
     height: 75px;
     clear: both;
     padding-top: 20px;
+}
+
+.site-content {
+    min-height: 100%;
+}
+
+#main {
+    overflow: auto;
+    padding-bottom: 75px;
 }
 
 .editBtn {
@@ -21,7 +31,7 @@
     list-style-type: none;
 }
 
-.headerMargin{
+.headerMargin {
     margin-bottom: 10px;
 }
 
