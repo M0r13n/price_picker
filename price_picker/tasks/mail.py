@@ -2,6 +2,11 @@ from price_picker import celery
 from price_picker.models import Preferences
 from flask import current_app, render_template
 from flask_mail import Mail, Message
+from celery.exceptions import MaxRetriesExceededError, Retry
+from sentry_sdk import client
+
+MAX_TRIES = 10
+DELAYS = [30, 60, 120, 300, 600, 1800, 3600, 3600, 7200]
 
 
 def single_to_list(recipients):
@@ -63,9 +68,24 @@ class TestEmail(BaseEmail):
         self.text_body = "Dies ist eine Testmail! :-)"
 
 
-@celery.task
-def send_email_task(email):
+@celery.task(name='send_email', bind=True, max_retries=None)
+def send_email_task(task, email):
+    attempt = task.request.retries + 1
     do_send_email(email)
+    try:
+        do_send_email(email)
+    except Exception as exc:
+        delay = (DELAYS + [0])[task.request.retries]
+        try:
+            task.retry(countdown=delay, max_retries=(MAX_TRIES - 1))
+        except MaxRetriesExceededError:
+            # push error to sentry
+            client.logger.warning(f'Could not send email {email["subject"]}. Tried it {MAX_TRIES} times. Giving up now.')
+        except Retry:
+            current_app.logger.warning(f'Could not send email. Tried it {attempt} times. Retrying it in {delay} seconds.')
+            raise
+    else:
+        current_app.logger.info('Email sent successfully')
 
 
 def do_send_email(email):
