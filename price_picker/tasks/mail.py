@@ -6,7 +6,7 @@ from celery.exceptions import MaxRetriesExceededError, Retry
 from sentry_sdk import client
 
 MAX_TRIES = 10
-DELAYS = [30, 60, 120, 300, 600, 1800, 3600, 3600, 7200]
+DELAYS = [0, 30, 60, 120, 300, 600, 1800, 3600, 3600, 7200]
 
 
 def single_to_list(recipients):
@@ -75,7 +75,7 @@ def send_email_task(task, email):
     try:
         do_send_email(email)
     except Exception as exc:
-        delay = (DELAYS + [0])[task.request.retries]
+        delay = DELAYS[task.request.retries]
         try:
             task.retry(countdown=delay, max_retries=(MAX_TRIES - 1))
         except MaxRetriesExceededError:
