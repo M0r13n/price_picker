@@ -91,13 +91,13 @@ class AddressContactForm(ContactForm):
 def contact_form_factory(preferences, order=True):
     form = AddressContactForm() if current_app.config.get('ADDRESS_REQUIRED') else ContactForm()
     if 'FIRST_NAME_REQUIRED' in preferences.keys() and preferences['FIRST_NAME_REQUIRED']:
-        setattr(form.first_name, 'validators', [*form.imei.validators, DataRequired("Dieses Feld wird benötigt")])
+        setattr(form.first_name, 'validators', [*form.first_name.validators, DataRequired("Dieses Feld wird benötigt")])
     if 'LAST_NAME_REQUIRED' in preferences.keys() and preferences['LAST_NAME_REQUIRED']:
-        setattr(form.last_name, 'validators', [*form.imei.validators, DataRequired("Dieses Feld wird benötigt")])
+        setattr(form.last_name, 'validators', [*form.last_name.validators, DataRequired("Dieses Feld wird benötigt")])
     if 'MAIL_REQUIRED' in preferences.keys() and preferences['MAIL_REQUIRED']:
-        setattr(form.email, 'validators', [*form.imei.validators, DataRequired("Dieses Feld wird benötigt")])
+        setattr(form.email, 'validators', [*form.email.validators, DataRequired("Dieses Feld wird benötigt")])
     if 'PHONE_REQUIRED' in preferences.keys() and preferences['PHONE_REQUIRED']:
-        setattr(form.phone, 'validators', [*form.imei.validators, DataRequired("Dieses Feld wird benötigt")])
+        setattr(form.phone, 'validators', [*form.phone.validators, DataRequired("Dieses Feld wird benötigt")])
     if 'IMEI_REQUIRED' in preferences.keys() and preferences['IMEI_REQUIRED']:
         setattr(form.imei, 'validators', [*form.imei.validators, DataRequired("Dieses Feld wird benötigt")])
     if not order:

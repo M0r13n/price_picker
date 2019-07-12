@@ -155,6 +155,8 @@ def static_from_root():
     return send_from_directory(current_app.static_folder, request.path[1:])
 
 
+# NO VIEW FUNCTIONS
+
 def _complete(order: bool, device: Device, form: FlaskForm) -> bool:
     if 'repair_ids' not in session.keys() or not isinstance(session['repair_ids'], list):
         return False
