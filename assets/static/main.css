@@ -1,8 +1,11 @@
 /* General Style */
 .footer {
-    position: relative;
-    margin-top: -150px; /* negative value of footer height */
-    height: 150px;
+    position: absolute;
+    bottom:0;
+    width:100%;
+    margin-top: 75px;
+    margin-bottom: 10px;
+    height: 75px;
     clear: both;
     padding-top: 20px;
 }

@@ -11,7 +11,7 @@ if os.path.exists(dotenv_path):
 class BaseConfig(object):
     """Base configuration."""
 
-    APP_NAME = os.getenv("APP_NAME", "Price Picker")
+    APP_NAME = os.getenv("APP_NAME")
     BRAND_NAME = os.getenv("BRAND_NAME", "")
     DEBUG_TB_ENABLED = False
     SECRET_KEY = os.getenv("SECRET_KEY", "supersecret")
