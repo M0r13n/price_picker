@@ -1,6 +1,6 @@
 from flask import render_template, Blueprint, flash, redirect, url_for, session, request, current_app, send_from_directory
 from price_picker.models import Manufacturer, Device, User, Repair, Preferences, Enquiry
-from .forms import LoginForm, SelectRepairForm, SelectColorForm, contact_form_factory, AddressContactForm
+from .forms import LoginForm, SelectRepairForm, contact_form_factory, AddressContactForm
 from price_picker import db
 from flask_login import login_user, logout_user, login_required
 from price_picker.tasks.mail import async_send_confirmation_mail
@@ -63,6 +63,7 @@ def select_repair(device_id):
     form.repairs.choices = [(r.id, r.name) for r in repairs]
     if form.validate_on_submit():
         session['repair_ids'] = form.repairs.data
+        session['color'] = form.color.data or 'default'
         if request.form.get('estimate') is not None:
             return redirect(url_for('.estimate_of_costs', device_id=device_id))
         return redirect(url_for('.summary', device_id=device_id))
@@ -80,32 +81,15 @@ def estimate_of_costs(device_id):
     Instead of placing an order, the user can also request an estimate of costs.
     This will be sent via mail to the customer.
     """
+
     device = Device.query.get_or_404(device_id)
     form = contact_form_factory(current_app.config)
-    form.confirm.label.text = "Kostenvoranschlag anfordern!"
-
     if form.validate_on_submit():
-        if 'repair_ids' not in session.keys() or not isinstance(session['repair_ids'], list):
-            flash('Da ist etwas schief gelaufen. Es tut uns Leid. Wähle deine Reparatur erneut.', 'danger')
-            return redirect(url_for('main.select_repair', device_id=device_id))
+        if not _complete(device, form):
+            flash('Da ist etwas schief gelaufen. Bitte wähle deine Reparatur erneut.', 'danger')
+            return redirect(url_for('main.select_repair', device_id=device.id))
 
-        color = session['color'] if 'color' in session.keys() else 'default'
-        repair_ids = session['repair_ids']
-        repairs = db.session.query(Repair).filter(Repair.id.in_(repair_ids)).all()
-        e = Enquiry.create(color=color,
-                           device=device,
-                           repairs=repairs,
-                           customer_email=form.email.data,
-                           customer_first_name=form.first_name.data,
-                           customer_last_name=form.last_name.data,
-                           customer_phone=form.phone.data,
-                           customer_street=form.customer_street.data if isinstance(form, AddressContactForm) else None,
-                           customer_postal_code=form.customer_postal_code.data if isinstance(form, AddressContactForm) else None,
-                           customer_city=form.customer_city.data if isinstance(form, AddressContactForm) else None,
-                           imei=form.imei.data,
-                           name="Kostenvoranschlag")
-        async_send_confirmation_mail.delay(email=form.email.data, enquiry_id=e.id)
-        flash(f'Wir haben ihre Anfrage erhalten!', 'success')
+        flash('Wir haben Ihre Anfrage erhalten!', 'success')
         return redirect(url_for('main.thank_you'))
 
     return render_template('main/complete.html',
@@ -144,24 +128,10 @@ def complete(device_id):
     device = Device.query.get_or_404(device_id)
     form = contact_form_factory(current_app.config)
     if form.validate_on_submit():
-        if 'repair_ids' not in session.keys() or not isinstance(session['repair_ids'], list):
-            flash('Da ist etwas schief gelaufen. Es tut uns Leid. Wähle deine Reparatur erneut.', 'danger')
-            return redirect(url_for('main.select_repair', device_id=device_id))
+        if not _complete(device, form):
+            flash('Da ist etwas schief gelaufen. Bitte wähle deine Reparatur erneut.', 'danger')
+            return redirect(url_for('main.select_repair', device_id=device.id))
 
-        repairs = db.session.query(Repair).filter(Repair.id.in_(session['repair_ids'])).all()
-        color = session['color'] if 'color' in session.keys() else 'default'
-        e = Enquiry(color=color,
-                    device=device,
-                    repairs=repairs,
-                    customer_email=form.email.data,
-                    customer_first_name=form.first_name.data,
-                    customer_last_name=form.last_name.data,
-                    customer_phone=form.phone.data,
-                    imei=form.imei.data,
-                    name="Reparatur")
-        db.session.add(e)
-        db.session.commit()
-        async_send_confirmation_mail.delay(email=form.email.data, enquiry_id=e.id)
         flash('Wir haben Ihre Anfrage erhalten!', 'success')
         return redirect(url_for('main.thank_you'))
     return render_template('main/complete.html',
@@ -205,3 +175,22 @@ def load_preferences():
 @main_blueprint.route('/robots.txt')
 def static_from_root():
     return send_from_directory(current_app.static_folder, request.path[1:])
+
+
+def _complete(device, form) -> bool:
+    if 'repair_ids' not in session.keys() or not isinstance(session['repair_ids'], list):
+        return False
+
+    repairs = db.session.query(Repair).filter(Repair.id.in_(session['repair_ids'])).all()
+    color = session['color'] if 'color' in session.keys() else 'default'
+    e = Enquiry.create(color=color,
+                       device=device,
+                       repairs=repairs,
+                       customer_email=form.email.data,
+                       customer_first_name=form.first_name.data,
+                       customer_last_name=form.last_name.data,
+                       customer_phone=form.phone.data,
+                       imei=form.imei.data,
+                       name="Reparatur")
+    async_send_confirmation_mail.delay(email=form.email.data, enquiry_id=e.id)
+    return True

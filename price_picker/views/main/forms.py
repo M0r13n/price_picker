@@ -3,6 +3,7 @@ from wtforms import StringField, PasswordField, BooleanField, SelectMultipleFiel
 from wtforms.validators import DataRequired, Length, Email
 from flask import current_app
 
+
 class LoginForm(FlaskForm):
     username = StringField(
         "Nutzername",
@@ -24,13 +25,7 @@ class SelectRepairForm(FlaskForm):
         coerce=int,
         choices=[]
     )
-
-
-class SelectColorForm(FlaskForm):
-    colors = SelectField(
-        coerce=str,
-        choices=[]
-    )
+    color = StringField()
 
 
 class ContactForm(FlaskForm):
