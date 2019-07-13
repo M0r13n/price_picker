@@ -8,7 +8,6 @@ A demo can be found [here](http://pricepicker.scalingo.io).
 # What todo next:
 - Add TESTS
 - Add a Cache
-- Redo the mail sender
 
 # Ideas for improvements:
 - Add Search bar without disturbing the look and feel

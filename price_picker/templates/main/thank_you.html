@@ -3,7 +3,13 @@
     <div class="jumbotron">
         <div class="text-center">
             <h1>Vielen Dank!</h1>
-            <p>Wir haben deine Anfrage erhalten und werden diese schnellst möglich bearbeiten.</p>
+            <p>
+                Wir haben Ihre Anfrage erhalten und werden diese schnellst möglich bearbeiten.
+                Ein Mitarbeiter wird Ihre Anfrage abschließend prüfen und sich bei Ihnen melden.
+                Bei dringlichen Fragen erreichen Sie uns während unserer Öffnungszeiten.
+                Die Kontaktdaten entnehmen Sie unserer
+                <a {% if config['HOMEPAGE'] %}href="{{ config['HOMEPAGE'] }}" {% endif %}>Homepage</a>.
+            </p>
             <button class="btn btn-primary"
                     onclick="location.href='{{ url_for(request.args.get('next') or 'main.home') }}'">
                 Weiter

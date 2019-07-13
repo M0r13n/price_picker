@@ -1,6 +1,6 @@
-from flask import render_template, Blueprint, flash, redirect, url_for, session, request, current_app, send_from_directory
+from flask import render_template, Blueprint, flash, redirect, url_for, session, request, current_app, send_from_directory, abort
 from price_picker.models import Manufacturer, Device, User, Repair, Preferences, Enquiry
-from .forms import LoginForm, SelectRepairForm, contact_form_factory, ContactForm
+from .forms import LoginForm, SelectRepairForm, contact_form_factory, ContactForm, AddressContactForm
 from price_picker import db
 from flask_login import login_user, logout_user, login_required
 from price_picker.tasks.mail import CustomerConfirmationEmail, send_email_task, EnquiryReceivedEmail, configured_confirmation_recipient
@@ -29,6 +29,8 @@ def select_device(manufacturer_id):
     The customer selects the desired device, e.g. iPhone X.
     """
     devices = Device.query.filter(Device.manufacturer_id == manufacturer_id).order_by(Device.name).all()
+    if len(devices) == 0:
+        abort(404)
     return render_template("main/select_device.html",
                            devices=devices,
                            manufacturer_id=manufacturer_id)
@@ -163,14 +165,28 @@ def _complete(order: bool, device: Device, form: ContactForm) -> bool:
 
     repairs = db.session.query(Repair).filter(Repair.id.in_(session['repair_ids'])).all()
     color = session['color'] if 'color' in session.keys() else 'default'
-    e = Enquiry.create(color=color,
-                       device=device,
-                       repairs=repairs,
-                       customer_email=form.email.data,
-                       customer_first_name=form.first_name.data,
-                       customer_last_name=form.last_name.data,
-                       customer_phone=form.phone.data,
-                       imei=form.imei.data,
-                       name="Reparaturauftrag" if order else "Kostenvoranschlag")
+    if isinstance(form, AddressContactForm):
+        e = Enquiry.create(color=color,
+                           device=device,
+                           repairs=repairs,
+                           customer_email=form.email.data,
+                           customer_first_name=form.first_name.data,
+                           customer_last_name=form.last_name.data,
+                           customer_phone=form.phone.data,
+                           customer_street=form.customer_street.data,
+                           customer_city=form.customer_city.data,
+                           customer_postal_code=form.customer_postal_code.data,
+                           imei=form.imei.data,
+                           name="Reparaturauftrag" if order else "Kostenvoranschlag")
+    else:
+        e = Enquiry.create(color=color,
+                           device=device,
+                           repairs=repairs,
+                           customer_email=form.email.data,
+                           customer_first_name=form.first_name.data,
+                           customer_last_name=form.last_name.data,
+                           customer_phone=form.phone.data,
+                           imei=form.imei.data,
+                           name="Reparaturauftrag" if order else "Kostenvoranschlag")
     _send_mails(form, e)
     return True

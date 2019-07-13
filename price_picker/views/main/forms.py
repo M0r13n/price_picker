@@ -53,12 +53,14 @@ class ContactForm(FlaskForm):
         validators=[
             Length(max=40, message="Die IMEI kann maximal 40 Zeichen enthalten.")
         ],
-        description="Die IMEI dient der eindeutigen Identifizierung Ihres Geräts und ist bei Versicherungsschäden zwingend erforderlich."
+        description="Die IMEI ist eine 15 stellige Numemr und dient der eindeutigen Identifizierung Ihres Geräts. "
+                    "Diese können Sie in der Regel durch die Eingabe von *#06# in Ihrer Telefonapp herausfinden. "
     )
     email = StringField(
         "Email Adresse",
         validators=[
             Email(message='Gib eine gültige Mail Adresse an'),
+            Length(max=120, message="Max 120 Zeichen")
         ],
         description="Bitte achten Sie auf die Korrektheit der Email. Wir können uns sonst ggf. nicht bei Ihnen melden."
     )
@@ -71,19 +73,19 @@ class AddressContactForm(ContactForm):
     customer_street = StringField(
         "Straße, Hausnummer",
         validators=[
-            Length(max=128, message="Maximal 128 Zeichen.")
+            Length(max=128, message="Max 128 Zeichen.")
         ]
     )
     customer_postal_code = StringField(
         "Postleitzahl",
         validators=[
-            Length(max=32, message="Maximal 32 Zeichen.")
+            Length(max=32, message="Max 32 Zeichen.")
         ]
     )
     customer_city = StringField(
         "Stadt",
         validators=[
-            Length(max=128, message="Maximal 128 Zeichen.")
+            Length(max=128, message="Max 128 Zeichen.")
         ]
     )
 
