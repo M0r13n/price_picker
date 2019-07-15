@@ -85,8 +85,8 @@ def summary(device_id):
     return render_template('main/summary.html',
                            repairs=repairs,
                            device=device,
-                           total=sum([r.price for r in repairs]) - int(current_app.config['ACTIVE_SALE']) * current_app.config[
-                               'SALE_AMOUNT'],
+                           total=max(sum([r.price for r in repairs]) - int(current_app.config['ACTIVE_SALE']) * current_app.config[
+                               'SALE_AMOUNT'], 0),
                            color=color)
 
 
