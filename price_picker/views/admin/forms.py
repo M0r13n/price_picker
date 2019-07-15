@@ -264,3 +264,16 @@ class CsvUploadForm(FlaskForm):
             FileAllowed(['csv'], 'Nur .csv Datein werden unterstützt.')
         ]
     )
+
+
+class SaleForm(FlaskForm):
+    active_sale = BooleanField(
+        "Aktiver Sale",
+        description="Soll eine Rabatt Aktion laufen?"
+    )
+    sale_amount = IntegerField(
+        "Rabattwert",
+        validators=[NumberRange(max=50, message="Der Sale kann maximal 50€ betragen")],
+        description="Dieser Rabattwert wird auf alle Reparaturen angerechnet, die über den PricePicker abgeschlossen werden"
+
+    )

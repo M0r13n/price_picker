@@ -1,0 +1,15 @@
+{% extends "admin/panel/_base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% from "_macros.html" import render_checkbox,render_formgroup, warn_message %}
+{% set active_page='sale' %}
+{% block sub_page %}
+    <h2>Laufende Aktion</h2>
+    <form class="form" role="form" method="post" action="">
+        {{ form.hidden_tag() }}
+        {{ warn_message(form) }}
+        {{ render_checkbox(form.active_sale) }}
+        {{ render_formgroup(form.sale_amount) }}
+        <br>
+        <button class="btn btn-success" type="submit">Speichern</button>
+    </form>
+{% endblock %}

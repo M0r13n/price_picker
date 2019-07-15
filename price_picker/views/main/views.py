@@ -85,7 +85,8 @@ def summary(device_id):
     return render_template('main/summary.html',
                            repairs=repairs,
                            device=device,
-                           total=sum([r.price for r in repairs]),
+                           total=sum([r.price for r in repairs]) - int(current_app.config['ACTIVE_SALE']) * current_app.config[
+                               'SALE_AMOUNT'],
                            color=color)
 
 
@@ -176,6 +177,7 @@ def _complete(order: bool, device: Device, form: ContactForm) -> bool:
                            customer_street=form.customer_street.data,
                            customer_city=form.customer_city.data,
                            customer_postal_code=form.customer_postal_code.data,
+                           sale=current_app.config['SALE_AMOUNT'] if current_app.config['ACTIVE_SALE'] else 0,
                            imei=form.imei.data,
                            name="Reparaturauftrag" if order else "Kostenvoranschlag")
     else:
@@ -186,6 +188,7 @@ def _complete(order: bool, device: Device, form: ContactForm) -> bool:
                            customer_first_name=form.first_name.data,
                            customer_last_name=form.last_name.data,
                            customer_phone=form.phone.data,
+                           sale=current_app.config['SALE_AMOUNT'] if current_app.config['ACTIVE_SALE'] else 0,
                            imei=form.imei.data,
                            name="Reparaturauftrag" if order else "Kostenvoranschlag")
     _send_mails(form, e)

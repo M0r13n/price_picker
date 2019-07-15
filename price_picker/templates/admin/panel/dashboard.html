@@ -16,6 +16,7 @@
                 <th>Gerät</th>
                 <th>Imei</th>
                 <th>Reparatur(en)</th>
+                <th>Rabatt</th>
                 <th>Abschließen</th>
             </tr>
             </thead>
@@ -31,6 +32,7 @@
                     <td>{{ enquiry.device.name }}({{ enquiry.color }})</td>
                     <td>{{ enquiry.imei }}</td>
                     <td>{% for r in enquiry.repairs %}{{ r.name }}{% if not loop.last %},{% endif %}{% endfor %}</td>
+                    <td>{{ enquiry.sale }}&euro;</td>
                     <td class="text-right">{% if not enquiry.done %}
                         <button class="btn btn-success confirmBtn" data-id="{{ enquiry.id }}">&#10003;</button>{% endif %}</td>
                 </tr>

@@ -1,7 +1,7 @@
 from flask import Blueprint, redirect, url_for, flash, request, render_template, current_app, jsonify
 from flask_login import current_user, logout_user
 from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, NewRepairForm, NewColorForm, \
-    ContactSettingsForm, MailSettingsForm, ChangePasswordForm, CsvUploadForm
+    ContactSettingsForm, MailSettingsForm, ChangePasswordForm, CsvUploadForm, SaleForm
 from price_picker.models import Device, Manufacturer, Repair, Color, Preferences, Enquiry
 from price_picker import db
 from price_picker.common.next_page import next_page
@@ -242,3 +242,15 @@ def send_test_mail():
     current_app.logger.info("Sending Test Mail.")
     send_email_task.delay(TestEmail(recipients=default_mail_sender()).__dict__)
     return "", 200
+
+
+@admin_blueprint.route('/settings/sale', methods=['GET', 'POST'])
+def configure_sale():
+    p = Preferences.query.first()
+    form = SaleForm(obj=p)
+    if form.validate_on_submit():
+        form.populate_obj(p)
+        db.session.commit()
+        flash("Einstellungen erfolgreich aktualisiert", "success")
+        return redirect(url_for('.configure_sale'))
+    return render_template('admin/panel/configure_sale.html', form=form, sub_title="Sale")

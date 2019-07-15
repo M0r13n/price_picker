@@ -21,6 +21,7 @@ class Enquiry(db.Model, CRUDMixin):
     customer_street = db.Column(db.String(128))
     customer_city = db.Column(db.String(128))
     customer_postal_code = db.Column(db.String(32))
+    sale = db.Column(db.Integer, default=0)
     imei = db.Column(db.String(64))
     color = db.Column(db.String(64))
     device_id = db.Column(db.Integer, db.ForeignKey('devices.id'))

@@ -16,3 +16,4 @@ Gerät:              {{enquiry.device.name}}
 Farbe:              {{enquiry.color}}
 IMEI:               {{enquiry.imei}}
 Defekte:            {% for r in enquiry.repairs %}{{ r.name }}{% if not loop.last %},{% endif %}{% endfor %}
+RABATT:             {{ enquiry.sale}}

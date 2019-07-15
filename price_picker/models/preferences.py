@@ -1,6 +1,7 @@
 from price_picker import db
 from price_picker.common.database import CRUDMixin
 from flask import current_app, has_app_context
+from sqlalchemy import event
 import rncryptor
 
 
@@ -23,6 +24,8 @@ class Preferences(db.Model, CRUDMixin):
     phone_number = db.Column(db.String(128))
     mail = db.Column(db.String(128))
     privacy_statement = db.Column(db.Text)
+    active_sale = db.Column(db.Boolean, default=False)
+    sale_amount = db.Column(db.Integer, default=0)
 
     # Mail Settings
     mail_port = db.Column(db.Integer, default=587)
@@ -83,6 +86,8 @@ class Preferences(db.Model, CRUDMixin):
         current_app.config['USER_MAIL'] = p.mail
         current_app.config['USER_PHONE'] = p.phone_number
         current_app.config['PRIVACY_STATEMENT'] = p.privacy_statement
+        current_app.config['ACTIVE_SALE'] = p.active_sale
+        current_app.config['SALE_AMOUNT'] = p.sale_amount
 
     @property
     def mail_config(self):
@@ -99,3 +104,8 @@ class Preferences(db.Model, CRUDMixin):
             'MAIL_PORT': self.mail_port
         }
         return config
+
+
+@event.listens_for(Preferences, 'after_update')
+def receive_after_update(mapper, connection, target):
+    Preferences.load_settings()

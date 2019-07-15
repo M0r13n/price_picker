@@ -31,6 +31,10 @@
                         <div class="col-8 text-center"><span>{{ repair.name }}</span></div>
                         <div class="col-4 text-right"><span>{{ repair.price }}&euro;</span></div>
                     {% endfor %}
+                    {% if config['ACTIVE_SALE'] %}
+                        <div class="col-8 text-center"><span>Sonderrabatt</span></div>
+                        <div class="col-4 text-right"><span>-{{ config['SALE_AMOUNT'] }}&euro;</span></div>
+                    {% endif %}
                 </div>
                 <hr>
                 <div class="row">
