@@ -8,6 +8,7 @@
             {% for device in devices %}
                 {{ render_device(device) }}
             {% endfor %}
+
             {% if current_user.is_authenticated %}
                 <!-- Always include an add option if admin is logged in-->
                 <div class="col-sm-4 py-2 text-center">

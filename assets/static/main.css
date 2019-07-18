@@ -11,6 +11,15 @@ html, body {
     padding-top: 20px;
 }
 
+
+.footer p.float-left {
+    margin-left: 20px;
+}
+
+.footer p.float-right {
+    margin-right: 20px;
+}
+
 .site-content {
     min-height: 100%;
 }

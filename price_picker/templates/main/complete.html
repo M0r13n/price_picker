@@ -4,27 +4,32 @@
 {% set step_count = 5 %}
 {% set sub_title = "Auftragsdaten" %}
 {% block sub_page %}
-    <div class="col-lg-8 col-sm-8 offset-lg-2">
-        <h2 class="text-center">Persönliche Daten</h2>
-        <hr>
-        <form class="form" role="form" method="post" action="">
-            {{ form.hidden_tag() }}
-            {{ warn_message(form) }}
-            {{ render_formgroup(form.first_name) }}
-            {{ render_formgroup(form.last_name) }}
-            {{ render_formgroup(form.email) }}
-            {{ render_formgroup(form.phone, placeholder="+49") }}
-            {% if form.__class__.__name__ == 'AddressContactForm' %}
-                {{ render_formgroup(form.customer_street) }}
-                {{ render_formgroup(form.customer_postal_code) }}
-                {{ render_formgroup(form.customer_city) }}
-            {% endif %}
-            <h4 class="text-muted">Gerätedaten</h4>
-            {{ render_formgroup(form.imei) }}
-            {{ form.confirm(class="btn btn-block btn-success") }}
-        </form>
-        <br>
-        <p class="text-center text-muted"> <b>&#x2139;</b> Die abgesendeten Daten werden nur zum Zweck der Bearbeitung Ihres Anliegens verarbeitet.
-            Weitere Informationen finden Sie in unserer <a target="_blank" rel="noopener noreferrer" href="{{ config.PRIVACY_STATEMENT }}">Datenschutzerklärung</a>. </p>
+    <div class="container">
+        <div class="col-lg-8 col-sm-8 offset-lg-2">
+            <h2 class="text-center">Persönliche Daten</h2>
+            <hr>
+            <form class="form" role="form" method="post" action="">
+                {{ form.hidden_tag() }}
+                {{ warn_message(form) }}
+                {{ render_formgroup(form.first_name) }}
+                {{ render_formgroup(form.last_name) }}
+                {{ render_formgroup(form.email) }}
+                {{ render_formgroup(form.phone, placeholder="+49") }}
+                {% if form.__class__.__name__ == 'AddressContactForm' %}
+                    {{ render_formgroup(form.customer_street) }}
+                    {{ render_formgroup(form.customer_postal_code) }}
+                    {{ render_formgroup(form.customer_city) }}
+                {% endif %}
+                <h4 class="text-muted">Gerätedaten</h4>
+                {{ render_formgroup(form.imei) }}
+                {{ form.confirm(class="btn btn-block btn-success") }}
+            </form>
+            <br>
+            <p class="text-center text-muted"><b>&#x2139;</b> Die abgesendeten Daten werden nur zum Zweck der Bearbeitung Ihres Anliegens
+                verarbeitet.
+                Weitere Informationen finden Sie in unserer <a target="_blank" rel="noopener noreferrer"
+                                                               href="{{ config.PRIVACY_STATEMENT }}">Datenschutzerklärung</a>. </p>
+        </div>
+     <a class="btn btn-secondary" href="{{ url_for('main.select_repair', device_id=device_id) }}">&laquo; Zurück</a>
     </div>
 {% endblock %}

@@ -1,15 +1,9 @@
 # price_picker
-This project aims to provide a simple yet good-looking price overiew for repairshops that offer various kinds of services around Smartphones and Tablets.
+This project aims to provide a simple yet good-looking price overview for repairshops that offer various kinds of services around Smartphones and Tablets.
 
 # live demo
 A demo can be found [here](http://pricepicker.scalingo.io).
 
-
-# What todo next:
-- Add TESTS
-- Add a Cache
-
-# Ideas for improvements:
-- Add Search bar without disturbing the look and feel
-- Add additional images
-- Bundle static resources with webpack
+# Credit
+All 'pictures' of smartphones are 100% pure CSS and taken from 
+[this repo.](https://github.com/marvelapp/devices.css) All credit goes to them.
