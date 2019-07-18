@@ -80,6 +80,9 @@ def summary(device_id):
     """
     color = session['color'] if 'color' in session.keys() else 'default'
     device = Device.query.get_or_404(device_id)
+    if not 'repair_ids' in session.keys():
+        flash('Keine Reparatur ausgewählt. Bitte wählen Sie Ihren Defekt.', 'danger')
+        return redirect(url_for('main.select_repair', device_id=device.id))
     repair_ids = session['repair_ids']
     repairs = db.session.query(Repair).filter(Repair.id.in_(repair_ids)).all()
     return render_template('main/summary.html',

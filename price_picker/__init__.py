@@ -12,6 +12,7 @@ from flask_wtf.csrf import CSRFProtect
 from celery import Celery
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
+from sentry_sdk.integrations.celery import CeleryIntegration
 
 # instantiate the extensions
 login_manager = LoginManager()
@@ -114,7 +115,7 @@ def init_sentry(app):
     if 'DSN' in app.config.keys():
         sentry_sdk.init(
             dsn=app.config['DSN'],
-            integrations=[FlaskIntegration()]
+            integrations=[FlaskIntegration(), CeleryIntegration()]
         )
 
 
