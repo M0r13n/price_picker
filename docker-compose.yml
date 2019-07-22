@@ -1,0 +1,54 @@
+version: '3.5'
+
+services:
+
+  web:
+    image: web
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - '.:/usr/src/pricepicker'
+    ports:
+      - 5000:5000
+    environment:
+      - APP_NAME=Smartphoniker
+      - FLASK_DEBUG=0
+      - PYTHONUNBUFFERED=0
+      - APP_CONFIG=PROD
+      - DATABASE_URL=postgres://postgres:postgres@web-db:5432/users_dev
+      - DATABASE_TEST_URL=postgres://postgres:postgres@web-db:5432/users_test
+      - SECRET_KEY=change_me_in_prod
+      - HOMEPAGE=https://www.smartphoniker.de
+      - SHOW_HEADER=1
+      - SERVER_NAME=0.0.0.0:5000
+
+    depends_on:
+      - web-db
+
+  web-db:
+    container_name: web-db
+    build:
+      context: ./price_picker/db
+      dockerfile: Dockerfile
+    ports:
+      - 5435:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  redis:
+    image: redis
+    command: redis-server
+    volumes:
+      - 'redis:/data'
+    ports:
+      - '6379:6379'
+  celery:
+    build: .
+    command: celery worker -A pricepicker.celery_app:app --loglevel=info
+    volumes:
+      - '.:/usr/src/pricepicker'
+
+volumes:
+  redis:
