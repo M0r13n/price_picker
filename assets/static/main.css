@@ -11,13 +11,9 @@ html, body {
     padding-top: 20px;
 }
 
-
-.footer p.float-left {
-    margin-left: 20px;
-}
-
-.footer p.float-right {
+.footer p {
     margin-right: 20px;
+    margin-left: 20px;
 }
 
 .site-content {
