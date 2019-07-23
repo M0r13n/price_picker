@@ -81,7 +81,8 @@ def summary(device_id):
     color = session['color'] if 'color' in session.keys() else 'default'
     device = Device.query.get_or_404(device_id)
     if not 'repair_ids' in session.keys():
-        flash('Keine Reparatur ausgewählt. Bitte wählen Sie Ihren Defekt.', 'danger')
+        flash('Es wurde keine Reparatur ausgwählt.', 'danger')
+        current_app.logger.warning('Missing key \"repair_ids\" in current session.')
         return redirect(url_for('main.select_repair', device_id=device.id))
     repair_ids = session['repair_ids']
     repairs = db.session.query(Repair).filter(Repair.id.in_(repair_ids)).all()
@@ -106,7 +107,7 @@ def complete(device_id):
     form = contact_form_factory(current_app.config, order)
     if form.validate_on_submit():
         if not _complete(order, device, form):
-            flash('Da ist etwas schief gelaufen. Bitte wähle deine Reparatur erneut.', 'danger')
+            flash('Es wurde keine Reparatur ausgwählt.', 'danger')
             return redirect(url_for('main.select_repair', device_id=device.id))
 
         flash('Wir haben Ihre Anfrage erhalten!', 'success')
@@ -165,6 +166,7 @@ def _send_mails(form, enquiry):
 
 def _complete(order: bool, device: Device, form: ContactForm) -> bool:
     if 'repair_ids' not in session.keys() or not isinstance(session['repair_ids'], list):
+        current_app.logger.warning('Missing key \"repair_ids\" in current session.')
         return False
 
     repairs = db.session.query(Repair).filter(Repair.id.in_(session['repair_ids'])).all()

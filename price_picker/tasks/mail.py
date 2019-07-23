@@ -70,6 +70,7 @@ class TestEmail(BaseEmail):
 
 @celery.task(name='send_email', bind=True, max_retries=None)
 def send_email_task(task, email):
+    current_app.logger.info(f'Sending email with {task.request.retries} retries')
     attempt = task.request.retries + 1
     try:
         do_send_email(email)
