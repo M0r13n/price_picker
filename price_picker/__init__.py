@@ -107,7 +107,7 @@ def init_extensions(app):
     bootstrap.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
-    analytics.init_app(app, db)
+    analytics.init_app(app, db, blueprints=['main', ])
 
 
 def add_jinja_vars(app):

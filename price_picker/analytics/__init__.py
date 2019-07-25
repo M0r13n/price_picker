@@ -37,21 +37,24 @@ class AnalyticsRecord(object):
 
 
 class Analytics(object):
-    def __init__(self, app=None, db=None):
+    def __init__(self, app=None, db=None, blueprints=None):
         self.app = None
         self.db = None
         self.table = None
         self.metadata = None
         self.table_name = 'analytics_data'
         self.engine = None
+        self.blueprints = None
         if app and db:
-            self.init_app(app, db)
+            self.init_app(app, db, blueprints)
 
-    def init_app(self, app, db):
+    def init_app(self, app, db, blueprints=None):
         if not app or not db:
             raise ValueError("Flask App instance and sqlalchemy db object are required")
         self.app = app
         self.db = db
+
+        self.blueprints = blueprints
 
         with self.app.app_context():
             self.engine = db.engine
@@ -110,7 +113,8 @@ class Analytics(object):
         if until is None:
             until = dt.datetime(1970, 1, 1)
 
-        return self.db.session.query(self.table).filter(self.table.c.timestamp.between(until, from_))
+        return self.db.session.query(self.table).filter(self.table.c.timestamp.between(until, from_)).order_by(
+            self.table.c.timestamp.desc())
 
     def _drop_db(self):
         self.table.drop(checkfirst=True)
@@ -120,8 +124,14 @@ class Analytics(object):
         g.start_time = dt.datetime.utcnow()
 
     def after_request(self, response):
-        t_0 = getattr(g, 'start_time', dt.datetime.utcnow())
         ctx = _request_ctx_stack.top
+
+        if self.blueprints:
+            print(ctx.request.blueprint)
+            if ctx.request.blueprint not in self.blueprints:
+                return response
+
+        t_0 = getattr(g, 'start_time', dt.datetime.utcnow())
         record = AnalyticsRecord(url=ctx.request.url,
                                  user_agent=ctx.request.user_agent,
                                  view_args=ctx.request.view_args,
