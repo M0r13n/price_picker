@@ -1,0 +1,45 @@
+{% extends "admin/panel/_base.html" %}
+{% set active_page='stats' %}
+{% from "_macros.html" import pagination_widget %}
+{% block sub_page %}
+    <div class="container">
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Zeitstempel</th>
+                <th>Status</th>
+                <th>Pfad</th>
+                <th>Latenz (sec)</th>
+                <th>Browser</th>
+                <th>Sprache</th>
+                <th>Platform</th>
+                <th>Version</th>
+                <th>Referer</th>
+                <th>Request</th>
+                <th>Useragent</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for record in pagination.items %}
+                <tr style="white-space: nowrap;">
+                    <td>{{ record.timestamp.strftime('%Y-%m-%d, %H:%M:%S Uhr') }}</td>
+                    <td>{{ record.status_code }}</td>
+                    <td>{{ record.path }}</td>
+                    <td>{{ record.latency }}</td>
+                    <td>{{ record.ua_browser }}</td>
+                    <td>{{ record.ua_language }}</td>
+                    <td>{{ record.ua_platform }}</td>
+                    <td>{{ record.ua_version }}</td>
+                    <td>{{ record.referer }}</td>
+                    <td>{{ record.request }}</td>
+                    <td>{{ record.user_agent }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% if pagination %}
+            {{ pagination_widget(pagination, '.stats') }}
+
+        {% endif %}
+    </div>
+{% endblock %}

@@ -9,6 +9,7 @@ from config import configs
 from flask_bootstrap import Bootstrap
 from flask_talisman import Talisman
 from flask_wtf.csrf import CSRFProtect
+from price_picker.analytics import Analytics
 from celery import Celery
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
@@ -22,6 +23,7 @@ bootstrap = Bootstrap()
 csrf = CSRFProtect()
 celery = Celery()
 talisman = Talisman()
+analytics = Analytics()
 
 
 def create_app(config=None, script_info=None):
@@ -105,6 +107,7 @@ def init_extensions(app):
     bootstrap.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
+    analytics.init_app(app, db)
 
 
 def add_jinja_vars(app):

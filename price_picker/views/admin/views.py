@@ -3,7 +3,7 @@ from flask_login import current_user, logout_user
 from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, NewRepairForm, NewColorForm, \
     ContactSettingsForm, MailSettingsForm, ChangePasswordForm, CsvUploadForm, SaleForm
 from price_picker.models import Device, Manufacturer, Repair, Color, Preferences, Enquiry
-from price_picker import db
+from price_picker import db, analytics
 from price_picker.common.next_page import next_page
 from price_picker.tasks.mail import TestEmail, send_email_task, default_mail_sender
 
@@ -254,3 +254,11 @@ def configure_sale():
         flash("Einstellungen erfolgreich aktualisiert", "success")
         return redirect(url_for('.configure_sale'))
     return render_template('admin/panel/configure_sale.html', form=form, sub_title="Sale")
+
+
+# Stats
+@admin_blueprint.route('/stats', methods=['GET', 'POST'])
+def stats():
+    page = request.args.get('page', 1, int)
+    pagination = analytics.query().paginate(page, per_page=10, error_out=False)
+    return render_template('admin/panel/stats.html', sub_title='Stats', pagination=pagination)
