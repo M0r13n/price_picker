@@ -1,5 +1,5 @@
 """
-Simple Analytics extension to track basic user interactions inside a Flask app.
+Super simple Analytics extension to track basic user interactions inside a Flask app.
 
 This extension is biased and expects you to use Sqlalchemy to store records.
 
@@ -13,6 +13,10 @@ from sqlalchemy import Table, Column, Integer, String, Float, DateTime, MetaData
 
 
 class AnalyticsRecord(object):
+    """
+    Class to store all data
+    """
+
     def __init__(self, url='/', user_agent=None, view_args='', status_code=200, path='/', latency=0,
                  timestamp=dt.datetime.utcnow(), content_length=0, request=None, url_args=None, ua_browser=None,
                  ua_platform=None, ua_language=None, ua_version=None, referer='-'):
@@ -37,7 +41,20 @@ class AnalyticsRecord(object):
 
 
 class Analytics(object):
+    """
+    Analytics App
+    """
+
     def __init__(self, app=None, db=None, blueprints=None):
+        """
+        Create a new instance of the analyzer.
+        :param app: The Flask App instance
+        :param db: A Sqlalchemy instance, e.g. db = Sqlalchemy(app)
+        :param blueprints:  A whitelist for blueprints that should be tracked.
+                            If this attribute is set only views whose blueprint name matches any of the names inside the
+                            blueprints list will be tracked. To track all requests set this attribute to None.
+                            Example whitelist could be: blueprints = ['main', 'admin'].
+        """
         self.app = None
         self.db = None
         self.table = None
@@ -49,12 +66,26 @@ class Analytics(object):
             self.init_app(app, db, blueprints)
 
     def init_app(self, app, db, blueprints=None):
+        """
+        Initializes an existing instance. Useful when using the application factory pattern.
+        :param app: The Flask App instance
+        :param db: A Sqlalchemy instance, e.g. db = Sqlalchemy(app)
+        :param blueprints:  A whitelist for blueprints that should be tracked.
+                            If this attribute is set only views whose blueprint name matches any of the names inside the
+                            blueprints list will be tracked. To track all requests set this attribute to None.
+                            Example whitelist could be: blueprints = ['main', 'admin'].
+        """
         if not app or not db:
             raise ValueError("Flask App instance and sqlalchemy db object are required")
         self.app = app
         self.db = db
 
         self.blueprints = blueprints
+
+        # check if table exists on first startup
+        # NOTE: The table cannot be altered yet.
+        # So when you change the table layout it might be incompatible with an existing table.
+        # TODO come up with a nice idea on how make the table changeable
 
         with self.app.app_context():
             self.engine = db.engine
@@ -85,10 +116,14 @@ class Analytics(object):
                 self.metadata.reflect(bind=self.engine)
                 self.table = self.metadata.tables[self.table_name]
 
+        # register event hooks
         app.before_request(self.before_request)
         app.after_request(self.after_request)
 
     def store_record(self, record: AnalyticsRecord):
+        """
+        Store a record to the database.
+        """
         with self.engine.begin() as conn:
             stmt = self.table.insert().values(
                 url=str(record.url)[:128],
@@ -108,6 +143,12 @@ class Analytics(object):
             conn.execute(stmt)
 
     def query(self, from_=None, until=None):
+        """
+        Query the analytics table. By using db.session.query(...) it is possible to use the built in pagination!
+        :param from_: datetime.datetime object specifying the earliest date that should be included
+        :param until: datetime.datetime object specifying the latest date that should be included
+        :return: BaseQuery
+        """
         if from_ is None:
             from_ = dt.datetime.utcnow()
         if until is None:
@@ -117,13 +158,22 @@ class Analytics(object):
             self.table.c.timestamp.desc())
 
     def _drop_db(self):
+        """
+        Drops the database
+        :return:
+        """
         self.table.drop(checkfirst=True)
 
     def before_request(self):
-        """ Only used to store the time when a request is first issued"""
+        """ Only used to store the time when a request is first issued to be able to measure latency"""
         g.start_time = dt.datetime.utcnow()
 
     def after_request(self, response):
+        """
+        Store all information about the request
+        :param response: pass the response object without touching it
+        :return: original Flask response
+        """
         ctx = _request_ctx_stack.top
 
         if self.blueprints:
@@ -137,7 +187,7 @@ class Analytics(object):
                                  view_args=ctx.request.view_args,
                                  status_code=response.status_code,
                                  path=ctx.request.path,
-                                 latency=(dt.datetime.utcnow() - t_0).seconds,
+                                 latency=(dt.datetime.utcnow() - t_0).microseconds // 100000,
                                  timestamp=t_0,
                                  content_length=response.content_length,
                                  request=f"{ctx.request.method}{ctx.request.url}{ctx.request.environ.get('SERVER_PROTOCOL')}",
