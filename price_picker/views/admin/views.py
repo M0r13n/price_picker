@@ -260,5 +260,5 @@ def configure_sale():
 @admin_blueprint.route('/stats', methods=['GET', 'POST'])
 def stats():
     page = request.args.get('page', 1, int)
-    pagination = analytics.query().paginate(page, per_page=10, error_out=False)
+    pagination = analytics.query_between().paginate(page, per_page=10, error_out=False)
     return render_template('admin/panel/stats.html', sub_title='Stats', pagination=pagination)

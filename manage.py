@@ -6,7 +6,7 @@ import unittest
 import coverage
 
 from flask.cli import FlaskGroup
-from price_picker import create_app, db
+from price_picker import create_app, db, analytics
 from price_picker.models import User
 from price_picker.common.create_sample_data import create_sample_data
 import subprocess
@@ -55,6 +55,11 @@ def create_admin():
 @cli.command()
 def create_data():
     create_sample_data()
+
+
+@cli.command()
+def reinitialize_analytics():
+    analytics.reinitialize_db()
 
 
 @cli.command()

@@ -8,8 +8,9 @@ not ideal for larger applications with lots of page visits.
 """
 import datetime as dt
 import json
-from flask import _request_ctx_stack, g, request
-from sqlalchemy import Table, Column, Integer, String, Float, DateTime, MetaData, select, desc
+import uuid
+from flask import _request_ctx_stack, g, request, session
+from sqlalchemy import Table, Column, Integer, String, Float, DateTime, MetaData, func, distinct
 
 
 class AnalyticsRecord(object):
@@ -17,10 +18,11 @@ class AnalyticsRecord(object):
     Class to store all data
     """
 
-    def __init__(self, url='/', user_agent=None, view_args='', status_code=200, path='/', latency=0,
+    def __init__(self, url='/', user_agent=None, view_args='', status_code=200, path='/', latency=0.0,
                  timestamp=dt.datetime.utcnow(), content_length=0, request=None, url_args=None, ua_browser=None,
-                 ua_platform=None, ua_language=None, ua_version=None, referer='-'):
+                 ua_platform=None, ua_language=None, ua_version=None, referer='-', uid=0):
         self.url = url
+        self.uid = uid
         self.user_agent = user_agent
         self.view_args = view_args
         self.status_code = status_code
@@ -82,36 +84,15 @@ class Analytics(object):
 
         self.blueprints = blueprints
 
-        # check if table exists on first startup
+        # check if table exists on first startup or create it
         # NOTE: The table cannot be altered yet.
-        # So when you change the table layout it might be incompatible with an existing table.
-        # TODO come up with a nice idea on how make the table changeable
+        # So when you change the table layout changes it is necessary to write a custom migration
 
         with self.app.app_context():
             self.engine = db.engine
             self.metadata = MetaData(db.engine)
             if not self.engine.dialect.has_table(self.engine, self.table_name):
-                self.table = Table(
-                    self.table_name,
-                    self.metadata,
-                    Column('id', Integer, primary_key=True),
-                    Column('url', String(128)),
-                    Column('user_agent', String(256)),
-                    Column('view_args', String(128)),
-                    Column('status_code', Integer),
-                    Column('path', String(64)),
-                    Column('latency', Float),
-                    Column('timestamp', DateTime),
-                    Column('request', String(64)),
-                    Column('url_args', String(64)),
-                    Column('ua_browser', String(16)),
-                    Column('ua_language', String(16)),
-                    Column('ua_platform', String(16)),
-                    Column('ua_version', String(16)),
-                    Column('referer', String(64))
-                )
-                # Create the table if it does not exist
-                self.table.create(bind=self.engine)
+                self._create_table()
             else:
                 self.metadata.reflect(bind=self.engine)
                 self.table = self.metadata.tables[self.table_name]
@@ -120,6 +101,41 @@ class Analytics(object):
         app.before_request(self.before_request)
         app.after_request(self.after_request)
 
+    def _drop_table(self):
+        """
+        Drops the database
+        :return:
+        """
+        self.table.drop(checkfirst=True)
+
+    def _create_table(self):
+        self.table = Table(
+            self.table_name,
+            self.metadata,
+            Column('id', Integer, primary_key=True),
+            Column('url', String(128)),
+            Column('user_agent', String(256)),
+            Column('view_args', String(128)),
+            Column('status_code', Integer),
+            Column('path', String(64)),
+            Column('latency', Float),
+            Column('timestamp', DateTime),
+            Column('request', String(64)),
+            Column('url_args', String(64)),
+            Column('ua_browser', String(16)),
+            Column('ua_language', String(16)),
+            Column('ua_platform', String(16)),
+            Column('ua_version', String(16)),
+            Column('referer', String(64)),
+            Column('uuid', String, default=0)
+        )
+        self.table.create(bind=self.engine)
+
+    def reinitialize_db(self):
+        self._drop_table()
+        self.metadata.clear()
+        self._create_table()
+
     def store_record(self, record: AnalyticsRecord):
         """
         Store a record to the database.
@@ -127,6 +143,7 @@ class Analytics(object):
         with self.engine.begin() as conn:
             stmt = self.table.insert().values(
                 url=str(record.url)[:128],
+                uuid=record.uid,
                 ua_browser=str(getattr(record.user_agent, 'browser', '-'))[:16],
                 ua_language=str(getattr(record.user_agent, 'language', '-'))[:16],
                 ua_platform=str(getattr(record.user_agent, 'platform', '-'))[:16],
@@ -142,7 +159,56 @@ class Analytics(object):
             )
             conn.execute(stmt)
 
-    def query(self, from_=None, until=None):
+    @property
+    def query(self):
+        """
+        Query the analytics database table
+        :return: A Sqlalchemy.BaseQuery instance that can be used just a like a normal sqlalchemy query
+        """
+        return self.db.session.query(self.table)
+
+    def before_request(self):
+        """ Only used to store the time when a request is first issued to be able to measure latency"""
+        g.start_time = dt.datetime.utcnow()
+
+        # create a uuid to identify a client during it´s session
+        # this is way faster than hashing the user_agent
+        if 'UUID' not in session.keys():
+            session['UUID'] = str(uuid.uuid4())
+
+    def after_request(self, response):
+        """
+        Store all information about the request
+        :param response: pass the response object without touching it
+        :return: original Flask response
+        """
+        ctx = _request_ctx_stack.top
+
+        if self.blueprints:
+            if ctx.request.blueprint not in self.blueprints:
+                return response
+
+        t_0 = getattr(g, 'start_time', dt.datetime.utcnow())
+        record = AnalyticsRecord(uid=session.get('UUID', default=0),
+                                 url=ctx.request.url,
+                                 user_agent=ctx.request.user_agent,
+                                 view_args=ctx.request.view_args,
+                                 status_code=response.status_code,
+                                 path=ctx.request.path,
+                                 latency=(dt.datetime.utcnow() - t_0).microseconds / 100000,
+                                 timestamp=t_0,
+                                 content_length=response.content_length,
+                                 request=f"{ctx.request.method}{ctx.request.url}{ctx.request.environ.get('SERVER_PROTOCOL')}",
+                                 url_args=dict([(k, ctx.request.args[k]) for k in ctx.request.args]),
+                                 referer=request.headers.get("Referer")
+                                 )
+
+        self.store_record(record)
+        return response
+
+    # SOME USEFUL PREDEFINED QUERIES
+
+    def query_between(self, from_=None, until=None):
         """
         Query the analytics table. By using db.session.query(...) it is possible to use the built in pagination!
         :param from_: datetime.datetime object specifying the earliest date that should be included
@@ -154,46 +220,25 @@ class Analytics(object):
         if until is None:
             until = dt.datetime(1970, 1, 1)
 
-        return self.db.session.query(self.table).filter(self.table.c.timestamp.between(until, from_)).order_by(
-            self.table.c.timestamp.desc())
+        return self.query.filter(self.table.c.timestamp.between(until, from_)) \
+            .order_by(self.table.c.timestamp.desc())
 
-    def _drop_db(self):
-        """
-        Drops the database
-        :return:
-        """
-        self.table.drop(checkfirst=True)
+    def total_unique_visits(self):
+        return self.db.session.query(func.count(distinct(self.table.c.uuid))).scalar()
 
-    def before_request(self):
-        """ Only used to store the time when a request is first issued to be able to measure latency"""
-        g.start_time = dt.datetime.utcnow()
+    def total_unique_visits_during(self, from_=None, until=None):
+        if from_ is None:
+            from_ = dt.datetime.utcnow()
+        if until is None:
+            until = dt.datetime(1970, 1, 1)
 
-    def after_request(self, response):
-        """
-        Store all information about the request
-        :param response: pass the response object without touching it
-        :return: original Flask response
-        """
-        ctx = _request_ctx_stack.top
+        return self.db.session.query(func.count(distinct(self.table.c.uuid))) \
+            .filter(self.table.c.timestamp.between(until, from_)) \
+            .scalar()
 
-        if self.blueprints:
-            print(ctx.request.blueprint)
-            if ctx.request.blueprint not in self.blueprints:
-                return response
-
-        t_0 = getattr(g, 'start_time', dt.datetime.utcnow())
-        record = AnalyticsRecord(url=ctx.request.url,
-                                 user_agent=ctx.request.user_agent,
-                                 view_args=ctx.request.view_args,
-                                 status_code=response.status_code,
-                                 path=ctx.request.path,
-                                 latency=(dt.datetime.utcnow() - t_0).microseconds // 100000,
-                                 timestamp=t_0,
-                                 content_length=response.content_length,
-                                 request=f"{ctx.request.method}{ctx.request.url}{ctx.request.environ.get('SERVER_PROTOCOL')}",
-                                 url_args=dict([(k, ctx.request.args[k]) for k in ctx.request.args]),
-                                 referer=request.headers.get("Referer")
-                                 )
-
-        self.store_record(record)
-        return response
+    def top_page(self):
+        from sqlalchemy import desc
+        return self.db.session.query(func.count(self.table.c.path)
+                                     .label('count'), self.table.c.path) \
+            .group_by(self.table.c.path) \
+            .order_by(desc('count')).first()
