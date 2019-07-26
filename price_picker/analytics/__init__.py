@@ -157,7 +157,11 @@ class Analytics(object):
                 timestamp=record.timestamp,
                 referer=str(record.referer)[:64]
             )
-            conn.execute(stmt)
+            # catch errors in order to prevent an app crash and pass the message to the app´s logger
+            try:
+                conn.execute(stmt)
+            except Exception as e:
+                self.app.logger.error(e)
 
     @property
     def query(self):

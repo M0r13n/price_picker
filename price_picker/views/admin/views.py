@@ -6,6 +6,7 @@ from price_picker.models import Device, Manufacturer, Repair, Color, Preferences
 from price_picker import db, analytics
 from price_picker.common.next_page import next_page
 from price_picker.tasks.mail import TestEmail, send_email_task, default_mail_sender
+import datetime as dt
 
 admin_blueprint = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -261,4 +262,9 @@ def configure_sale():
 def stats():
     page = request.args.get('page', 1, int)
     pagination = analytics.query_between().paginate(page, per_page=10, error_out=False)
-    return render_template('admin/panel/stats.html', sub_title='Stats', pagination=pagination)
+    return render_template('admin/panel/stats.html',
+                           sub_title='Stats',
+                           pagination=pagination,
+                           total=analytics.total_unique_visits(),
+                           total_24=analytics.total_unique_visits_during(dt.datetime.now(), dt.datetime.now() - dt.timedelta(hours=24)),
+                           top_page=analytics.top_page())

@@ -3,6 +3,9 @@
 {% from "_macros.html" import pagination_widget %}
 {% block sub_page %}
     <div class="container">
+        <h2>Gesamtanfragen: {{ total }}</h2>
+        <h2>Anfragen (24h): {{ total_24 }}</h2>
+        <h2>Meist besucht: {{ top_page[1] }}</h2>
         <table class="table table-bordered">
             <thead>
             <tr>
