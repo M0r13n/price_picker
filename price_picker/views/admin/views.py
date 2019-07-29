@@ -266,7 +266,7 @@ def stats():
     now = dt.datetime.now().timestamp()
     start = now - 86400
     total_24 = analytics.redis.zcount(SORTED_SESSION_LIST, int(start), int(now))
-    top_page = first_or_none(analytics.redis.zrevrange(TOP_LIST, 0, 1))
+    top_page = first_or_none(analytics.redis.zrange(TOP_LIST, 0, 0))
 
     pagination = analytics.get_visits_paginated(page, 10)
     return render_template('admin/panel/stats.html',
