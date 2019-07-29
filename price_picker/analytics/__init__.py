@@ -67,10 +67,9 @@ class Analytics(object):
         Used to add new sessions to db.
         """
         g.start_time = dt.datetime.now()
-        if 'UUID' not in session.keys():
-            _uuid = str(uuid.uuid4())
+        if 'UUID' not in session.keys() or not self.redis.zrank(SORTED_SESSION_LIST, session['UUID']):
+            _uuid = session.get('UUID', default=uuid.uuid4())
             session['UUID'] = _uuid
-
             s = dict(
                 user_agent=request.user_agent.string,
                 ua_browser=request.user_agent.browser,
@@ -78,7 +77,6 @@ class Analytics(object):
                 ua_platform=request.user_agent.platform,
                 ua_version=request.user_agent.version,
             )
-
             self.store_session(_uuid, s)
 
     def after_request(self, response):
