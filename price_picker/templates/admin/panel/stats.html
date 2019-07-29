@@ -5,7 +5,7 @@
     <div class="container">
         <h2>Gesamtanfragen: {{ total }}</h2>
         <h2>Anfragen (24h): {{ total_24 }}</h2>
-        <h2>Meist besucht: {{ top_page[1] }}</h2>
+        <h2>Meist besucht: {{ top_page }}</h2>
         <table class="table table-bordered">
             <thead>
             <tr>
@@ -23,26 +23,26 @@
             </tr>
             </thead>
             <tbody>
-            {% for record in pagination.items %}
+            {% for item in pagination.items %}
                 <tr style="white-space: nowrap;">
-                    <td>{{ record.timestamp.strftime('%Y-%m-%d, %H:%M:%S Uhr') }}</td>
-                    <td>{{ record.status_code }}</td>
-                    <td>{{ record.path }}</td>
-                    <td>{{ record.latency }}</td>
-                    <td>{{ record.ua_browser }}</td>
-                    <td>{{ record.ua_language }}</td>
-                    <td>{{ record.ua_platform }}</td>
-                    <td>{{ record.ua_version }}</td>
-                    <td>{{ record.referer }}</td>
-                    <td>{{ record.request }}</td>
-                    <td>{{ record.user_agent }}</td>
+                    <td>{{ item['timestamp'] | unix2date }}</td>
+                    <td>{{ item['status_code'] }}</td>
+                    <td>{{ item['path'] }}</td>
+                    <td>{{ item['latency'] }}</td>
+                    <td>{{ item['ua_browser'] }}</td>
+                    <td>{{ item['ua_language'] }}</td>
+                    <td>{{ item['ua_platform'] }}</td>
+                    <td>{{ item['ua_version'] }}</td>
+                    <td>{{ item['referer'] }}</td>
+                    <td>{{ item['request'] }}</td>
+                    <td>{{ item['user_agent'] }}</td>
+
                 </tr>
             {% endfor %}
             </tbody>
         </table>
         {% if pagination %}
             {{ pagination_widget(pagination, '.stats') }}
-
         {% endif %}
     </div>
 {% endblock %}

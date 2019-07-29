@@ -261,10 +261,17 @@ def configure_sale():
 @admin_blueprint.route('/stats', methods=['GET', 'POST'])
 def stats():
     page = request.args.get('page', 1, int)
-    pagination = analytics.query_between().paginate(page, per_page=10, error_out=False)
+    from price_picker.analytics import SORTED_SESSION_LIST, TOP_LIST, first_or_none
+    total = analytics.redis.zcard(SORTED_SESSION_LIST)
+    now = dt.datetime.now().timestamp()
+    start = now - 86400
+    total_24 = analytics.redis.zcount(SORTED_SESSION_LIST, int(start), int(now))
+    top_page = first_or_none(analytics.redis.zrevrange(TOP_LIST, 0, 1))
+
+    pagination = analytics.get_visits_paginated(page, 10)
     return render_template('admin/panel/stats.html',
                            sub_title='Stats',
-                           pagination=pagination,
-                           total=analytics.total_unique_visits(),
-                           total_24=analytics.total_unique_visits_during(dt.datetime.now(), dt.datetime.now() - dt.timedelta(hours=24)),
-                           top_page=analytics.top_page())
+                           total=total,
+                           total_24=total_24,
+                           top_page=top_page.decode('utf-8') if top_page else '-',
+                           pagination=pagination)

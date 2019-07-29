@@ -1,45 +1,23 @@
-"""
-Super simple Analytics extension to track basic user interactions inside a Flask app.
-
-This extension is biased and expects you to use Sqlalchemy to store records.
-
-NOTE: This extension stores every interaction in a separate database column. This is
-not ideal for larger applications with lots of page visits.
-"""
-import datetime as dt
-import json
 import uuid
-from flask import _request_ctx_stack, g, request, session
-from sqlalchemy import Table, Column, Integer, String, Float, DateTime, MetaData, func, distinct
+import json
+import datetime as dt
+from redis import Redis
+from flask import session, g, request
+from math import ceil
+
+SORTED_SESSION_LIST = 'sessions'
+SESSIONS = 'session:'
+
+SORTED_VISIT_LIST = 'visits'
+VISITS = 'visit:'
+
+TOP_LIST = 'top_list'
 
 
-class AnalyticsRecord(object):
-    """
-    Class to store all data
-    """
-
-    def __init__(self, url='/', user_agent=None, view_args='', status_code=200, path='/', latency=0.0,
-                 timestamp=dt.datetime.utcnow(), content_length=0, request=None, url_args=None, ua_browser=None,
-                 ua_platform=None, ua_language=None, ua_version=None, referer='-', uid=0):
-        self.url = url
-        self.uid = uid
-        self.user_agent = user_agent
-        self.view_args = view_args
-        self.status_code = status_code
-        self.path = path
-        self.latency = latency
-        self.timestamp = timestamp
-        self.content_length = content_length
-        self.request = request
-        self.url_args = url_args
-        self.ua_browser = ua_browser
-        self.ua_platform = ua_platform
-        self.ua_language = ua_language
-        self.ua_version = ua_version
-        self.referer = referer
-
-    def __repr__(self):
-        return f"<RequestRecord:: Timestamp:{self.timestamp} | Path:{self.path} | Status:{self.status_code} | User_Agent:{self.user_agent}>"
+def first_or_none(result):
+    if result and len(result) > 0:
+        return result[0]
+    return None
 
 
 class Analytics(object):
@@ -47,202 +25,209 @@ class Analytics(object):
     Analytics App
     """
 
-    def __init__(self, app=None, db=None, blueprints=None):
+    def __init__(self, app=None, redis_url=None, blueprints=None, max_entries=1e6):
         """
-        Create a new instance of the analyzer.
-        :param app: The Flask App instance
-        :param db: A Sqlalchemy instance, e.g. db = Sqlalchemy(app)
-        :param blueprints:  A whitelist for blueprints that should be tracked.
-                            If this attribute is set only views whose blueprint name matches any of the names inside the
-                            blueprints list will be tracked. To track all requests set this attribute to None.
-                            Example whitelist could be: blueprints = ['main', 'admin'].
+        Create a new instance
+        :param app: Flask App instance
+        :param redis_url: Connection to redis server (e.g. redis://localhost:6379/0/)
+        :param blueprints: If provided only requests whose blueprint name matches any of the names inside this list are tracked
         """
         self.app = None
-        self.db = None
-        self.table = None
-        self.metadata = None
-        self.table_name = 'analytics_data'
-        self.engine = None
+        self.redis = Redis()
         self.blueprints = None
-        if app and db:
-            self.init_app(app, db, blueprints)
+        self.max_entries = max_entries
+        self.last_clean_up = 0
 
-    def init_app(self, app, db, blueprints=None):
+        if app:
+            self.init_app(app, redis_url, blueprints, max_entries)
+
+    def init_app(self, app, redis_url, blueprints=None, max_entries=1e6):
         """
-        Initializes an existing instance. Useful when using the application factory pattern.
-        :param app: The Flask App instance
-        :param db: A Sqlalchemy instance, e.g. db = Sqlalchemy(app)
-        :param blueprints:  A whitelist for blueprints that should be tracked.
-                            If this attribute is set only views whose blueprint name matches any of the names inside the
-                            blueprints list will be tracked. To track all requests set this attribute to None.
-                            Example whitelist could be: blueprints = ['main', 'admin'].
+        Actual initialization of the instance.
+        :param app: Flask App instance
+        :param redis_url: Connection to redis server (e.g. redis://localhost:6379/0/)
+        :param blueprints: If provided only requests whose blueprint name matches any of the names inside this list are tracked
+        :return:
         """
-        if not app or not db:
-            raise ValueError("Flask App instance and sqlalchemy db object are required")
+        if not app:
+            raise ValueError("Flask App instance required")
+
         self.app = app
-        self.db = db
-
         self.blueprints = blueprints
-
-        # check if table exists on first startup or create it
-        # NOTE: The table cannot be altered yet.
-        # So when you change the table layout changes it is necessary to write a custom migration
-
-        with self.app.app_context():
-            self.engine = db.engine
-            self.metadata = MetaData(db.engine)
-            if not self.engine.dialect.has_table(self.engine, self.table_name):
-                self._create_table()
-            else:
-                self.metadata.reflect(bind=self.engine)
-                self.table = self.metadata.tables[self.table_name]
+        self.redis = Redis.from_url(redis_url)
+        self.max_entries = max_entries
 
         # register event hooks
         app.before_request(self.before_request)
         app.after_request(self.after_request)
 
-    def _drop_table(self):
-        """
-        Drops the database
-        :return:
-        """
-        self.table.drop(checkfirst=True)
-
-    def _create_table(self):
-        self.table = Table(
-            self.table_name,
-            self.metadata,
-            Column('id', Integer, primary_key=True),
-            Column('url', String(128)),
-            Column('user_agent', String(256)),
-            Column('view_args', String(128)),
-            Column('status_code', Integer),
-            Column('path', String(64)),
-            Column('latency', Float),
-            Column('timestamp', DateTime),
-            Column('request', String(64)),
-            Column('url_args', String(64)),
-            Column('ua_browser', String(16)),
-            Column('ua_language', String(16)),
-            Column('ua_platform', String(16)),
-            Column('ua_version', String(16)),
-            Column('referer', String(64)),
-            Column('uuid', String, default=0)
-        )
-        self.table.create(bind=self.engine)
-
-    def reinitialize_db(self):
-        self._drop_table()
-        self.metadata.clear()
-        self._create_table()
-
-    def store_record(self, record: AnalyticsRecord):
-        """
-        Store a record to the database.
-        """
-        with self.engine.begin() as conn:
-            stmt = self.table.insert().values(
-                url=str(record.url)[:128],
-                uuid=record.uid,
-                ua_browser=str(getattr(record.user_agent, 'browser', '-'))[:16],
-                ua_language=str(getattr(record.user_agent, 'language', '-'))[:16],
-                ua_platform=str(getattr(record.user_agent, 'platform', '-'))[:16],
-                ua_version=str(getattr(record.user_agent, 'version', '-'))[:16],
-                user_agent=str(record.user_agent),
-                view_args=json.dumps(record.view_args)[:64],
-                status_code=record.status_code,
-                path=str(record.path)[:64],
-                latency=record.latency,
-                request=str(record.request)[:64],
-                timestamp=record.timestamp,
-                referer=str(record.referer)[:64]
-            )
-            # catch errors in order to prevent an app crash and pass the message to the app´s logger
-            try:
-                conn.execute(stmt)
-            except Exception as e:
-                self.app.logger.error(e)
-
-    @property
-    def query(self):
-        """
-        Query the analytics database table
-        :return: A Sqlalchemy.BaseQuery instance that can be used just a like a normal sqlalchemy query
-        """
-        return self.db.session.query(self.table)
-
     def before_request(self):
-        """ Only used to store the time when a request is first issued to be able to measure latency"""
-        g.start_time = dt.datetime.utcnow()
-
-        # create a uuid to identify a client during it´s session
-        # this is way faster than hashing the user_agent
+        """
+        Executed before a request is processed.
+        Used to add new sessions to db.
+        """
+        g.start_time = dt.datetime.now()
         if 'UUID' not in session.keys():
-            session['UUID'] = str(uuid.uuid4())
+            _uuid = str(uuid.uuid4())
+            session['UUID'] = _uuid
+
+            s = dict(
+                user_agent=request.user_agent.string,
+                ua_browser=request.user_agent.browser,
+                ua_language=request.user_agent.language,
+                ua_platform=request.user_agent.platform,
+                ua_version=request.user_agent.version,
+            )
+
+            self.store_session(_uuid, s)
 
     def after_request(self, response):
         """
-        Store all information about the request
-        :param response: pass the response object without touching it
-        :return: original Flask response
+        Executed after a request is processed.
+        Used to store page visits
         """
-        ctx = _request_ctx_stack.top
-
+        # only track data for specified blueprints
         if self.blueprints:
-            if ctx.request.blueprint not in self.blueprints:
+            if request.blueprint not in self.blueprints:
                 return response
 
-        t_0 = getattr(g, 'start_time', dt.datetime.utcnow())
-        record = AnalyticsRecord(uid=session.get('UUID', default=0),
-                                 url=ctx.request.url,
-                                 user_agent=ctx.request.user_agent,
-                                 view_args=ctx.request.view_args,
-                                 status_code=response.status_code,
-                                 path=ctx.request.path,
-                                 latency=(dt.datetime.utcnow() - t_0).microseconds / 100000,
-                                 timestamp=t_0,
-                                 content_length=response.content_length,
-                                 request=f"{ctx.request.method}{ctx.request.url}{ctx.request.environ.get('SERVER_PROTOCOL')}",
-                                 url_args=dict([(k, ctx.request.args[k]) for k in ctx.request.args]),
-                                 referer=request.headers.get("Referer")
-                                 )
+        t_0 = getattr(g, 'start_time', dt.datetime.now())
 
-        self.store_record(record)
+        visit = dict(
+            session_id=session.get('UUID', 0),
+            timestamp=dt.datetime.now().timestamp(),
+            url=request.url,
+            view_args=request.view_args,
+            status_code=response.status_code,
+            path=request.path,
+            latency=(dt.datetime.now() - t_0).microseconds / 100000,
+            content_length=response.content_length,
+            referer=request.referrer,
+            values=request.values
+        )
+        self.store_visit(visit)
+        self.update_top_list(request.path)
         return response
 
-    # SOME USEFUL PREDEFINED QUERIES
+    def clean_up(self):
+        # limit session cleaning to every 5 secs
+        if dt.datetime.now().timestamp() - 5 <= self.last_clean_up:
+            # Redis is able to delete 10,000 tokens per second across a network, and over 60,000 tokens per second locally.
+            # Let´s say we have 500k users per day, then after two days the limit of 1m unique session records is reached.
+            # Which means from there on we will delete sessions periodically.
+            # A day has 86.400 seconds, so we have ~6 users per second (500.000 / 86.400)
+            # So there is a total of ~30 tokens every 5 seconds to be deleted. Which es waaay beyond 10.000 tokens / second.
+            return
 
-    def query_between(self, from_=None, until=None):
-        """
-        Query the analytics table. By using db.session.query(...) it is possible to use the built in pagination!
-        :param from_: datetime.datetime object specifying the earliest date that should be included
-        :param until: datetime.datetime object specifying the latest date that should be included
-        :return: BaseQuery
-        """
-        if from_ is None:
-            from_ = dt.datetime.utcnow()
-        if until is None:
-            until = dt.datetime(1970, 1, 1)
+        for i, j in [(SORTED_SESSION_LIST, SESSIONS), (SORTED_VISIT_LIST, VISITS)]:
+            size = self.redis.zcard(i)
+            if size > self.max_entries:
+                last = size - self.max_entries
+                tokens = self.redis.zrange(i, 0, last - 1)
+                # remove tokens
+                self.redis.zrem(i, *tokens)
+                self.redis.hdel(j, *tokens)
 
-        return self.query.filter(self.table.c.timestamp.between(until, from_)) \
-            .order_by(self.table.c.timestamp.desc())
+        self.last_clean_up = dt.datetime.now().timestamp()
 
-    def total_unique_visits(self):
-        return self.db.session.query(func.count(distinct(self.table.c.uuid))).scalar()
+    def update_top_list(self, path):
+        score = self.redis.zscore(TOP_LIST, path) or 0
+        self.redis.zadd(TOP_LIST, {path: score - 1})
 
-    def total_unique_visits_during(self, from_=None, until=None):
-        if from_ is None:
-            from_ = dt.datetime.utcnow()
-        if until is None:
-            until = dt.datetime(1970, 1, 1)
+    def store_session(self, _uuid, s):
+        # store session id in list
+        self.redis.zadd(SORTED_SESSION_LIST, {_uuid: dt.datetime.now().timestamp()})
+        # store full session
+        self.redis.hset(SESSIONS, _uuid, json.dumps(s))
+        # cleanup
+        self.clean_up()
 
-        return self.db.session.query(func.count(distinct(self.table.c.uuid))) \
-            .filter(self.table.c.timestamp.between(until, from_)) \
-            .scalar()
+    def store_visit(self, visit):
+        # increment event id
+        _id = self.redis.incr('visit_counter')
+        # store event in sorted list
+        self.redis.zadd(SORTED_VISIT_LIST, {_id: dt.datetime.now().timestamp()})
+        # store full event
+        self.redis.hset(VISITS, _id, json.dumps(visit))
+        # cleanup
+        self.clean_up()
 
-    def top_page(self):
-        from sqlalchemy import desc
-        return self.db.session.query(func.count(self.table.c.path)
-                                     .label('count'), self.table.c.path) \
-            .group_by(self.table.c.path) \
-            .order_by(desc('count')).first()
+    def get_visits_paginated(self, page=1, limit=15):
+        page = max(page, 1)
+        keys = self.redis.zrevrange(SORTED_VISIT_LIST, (page - 1) * limit, page * limit - 1)
+        results = []
+        total = self.redis.zcard(SORTED_VISIT_LIST)
+        try:
+            if keys:
+                visits = [json.loads(x) for x in self.redis.hmget(VISITS, keys)]
+                for visit in visits:
+                    session_key = visit.get('session_id', '')
+                    sess = self.redis.hget(SESSIONS, session_key)
+
+                    # skip results without corresponding session
+                    if sess:
+                        results.append({**visit, **json.loads(sess)})
+        except Exception as e:
+            self.app.logger.error(e)
+        return FakePagination(self.get_visits_paginated, page, limit, total, results)
+
+
+class FakePagination(object):
+    """
+    1-to-1 of Pagination from sqlalchemy
+    So its possible to use existing pagination macros without ANY changes etc.
+    """
+
+    def __init__(self, method, page, per_page, total, items):
+        self.method = method
+        self.page = page
+        self.per_page = per_page
+        self.total = total
+        self.items = items
+
+    @property
+    def pages(self):
+        if self.per_page == 0:
+            pages = 0
+        else:
+            pages = int(ceil(self.total / float(self.per_page)))
+        return pages
+
+    def prev(self, error_out=False):
+        return self.method(self.page - 1, self.per_page)
+
+    @property
+    def prev_num(self):
+        if not self.has_prev:
+            return None
+        return self.page - 1
+
+    @property
+    def has_prev(self):
+        return self.page > 1
+
+    def next(self, error_out=False):
+        return self.method(self.page + 1, self.per_page)
+
+    @property
+    def has_next(self):
+        return self.page < self.pages
+
+    @property
+    def next_num(self):
+        if not self.has_next:
+            return None
+        return self.page + 1
+
+    def iter_pages(self, left_edge=2, left_current=2, right_current=5, right_edge=2):
+
+        last = 0
+        for num in range(1, self.pages + 1):
+            if num <= left_edge or \
+                    (num > self.page - left_current - 1 and
+                     num < self.page + right_current) or \
+                    num > self.pages - right_edge:
+                if last + 1 != num:
+                    yield None
+                yield num
+                last = num

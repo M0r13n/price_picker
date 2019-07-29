@@ -1,4 +1,6 @@
 import os
+import sentry_sdk
+import datetime as dt
 from flask import Flask, render_template
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
@@ -11,7 +13,6 @@ from flask_talisman import Talisman
 from flask_wtf.csrf import CSRFProtect
 from price_picker.analytics import Analytics
 from celery import Celery
-import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
 
@@ -107,10 +108,20 @@ def init_extensions(app):
     bootstrap.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
-    analytics.init_app(app, db, blueprints=['main', ])
+    analytics.init_app(app, blueprints=['main', ], redis_url=app.config['REDIS_URL'])
 
 
 def add_jinja_vars(app):
+    def unix2date(value, format='%H:%M / %d-%m-%Y'):
+        """
+        convert a unix timestamp to datetime
+        """
+        try:
+            return dt.datetime.utcfromtimestamp(value).strftime(format)
+        except Exception:
+            pass
+
+    app.jinja_env.filters['unix2date'] = unix2date
     app.jinja_env.globals['url_for_other_page'] = url_for_other_page
 
 
