@@ -20,6 +20,10 @@ def first_or_none(result):
     return None
 
 
+def timestamp():
+    return dt.datetime.now().timestamp()
+
+
 class Analytics(object):
     """
     Analytics App
@@ -68,7 +72,7 @@ class Analytics(object):
         """
         g.start_time = dt.datetime.now()
         if 'UUID' not in session.keys() or not self.redis.zrank(SORTED_SESSION_LIST, session['UUID']):
-            _uuid = session.get('UUID', default=uuid.uuid4())
+            _uuid = session.get('UUID', default=str(uuid.uuid4()))
             session['UUID'] = _uuid
             s = dict(
                 user_agent=request.user_agent.string,
@@ -93,7 +97,7 @@ class Analytics(object):
 
         visit = dict(
             session_id=session.get('UUID', 0),
-            timestamp=dt.datetime.now().timestamp(),
+            timestamp=timestamp(),
             url=request.url,
             view_args=request.view_args,
             status_code=response.status_code,
@@ -109,7 +113,7 @@ class Analytics(object):
 
     def clean_up(self):
         # limit session cleaning to every 5 secs
-        if dt.datetime.now().timestamp() - 5 <= self.last_clean_up:
+        if timestamp() - 5 <= self.last_clean_up:
             # Redis is able to delete 10,000 tokens per second across a network, and over 60,000 tokens per second locally.
             # Let´s say we have 500k users per day, then after two days the limit of 1m unique session records is reached.
             # Which means from there on we will delete sessions periodically.
@@ -126,7 +130,7 @@ class Analytics(object):
                 self.redis.zrem(i, *tokens)
                 self.redis.hdel(j, *tokens)
 
-        self.last_clean_up = dt.datetime.now().timestamp()
+        self.last_clean_up = timestamp()
 
     def update_top_list(self, path):
         score = self.redis.zscore(TOP_LIST, path) or 0
@@ -134,7 +138,7 @@ class Analytics(object):
 
     def store_session(self, _uuid, s):
         # store session id in list
-        self.redis.zadd(SORTED_SESSION_LIST, {_uuid: dt.datetime.now().timestamp()})
+        self.redis.zadd(SORTED_SESSION_LIST, {_uuid: timestamp()})
         # store full session
         self.redis.hset(SESSIONS, _uuid, json.dumps(s))
         # cleanup
@@ -144,7 +148,7 @@ class Analytics(object):
         # increment event id
         _id = self.redis.incr('visit_counter')
         # store event in sorted list
-        self.redis.zadd(SORTED_VISIT_LIST, {_id: dt.datetime.now().timestamp()})
+        self.redis.zadd(SORTED_VISIT_LIST, {_id: timestamp()})
         # store full event
         self.redis.hset(VISITS, _id, json.dumps(visit))
         # cleanup
