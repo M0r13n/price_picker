@@ -18,17 +18,33 @@
         <button class="btn btn-success col-4" type="submit">Speichern</button>
     </form>
     <br>
-    <button class="btn btn-primary col-4" id="mailTestBtn">Sende Test Mail</button>
+    <hr>
+    <br>
+    <div class="" id="testMailForm">
+        <form class="form" role="form" id="mailTestForm">
+            {{ email_test_form.hidden_tag() }}
+            {{ warn_message(email_test_form) }}
+            {{ render_formgroup(email_test_form.recipient) }}
+            <br>
+            <button class="btn btn-primary col-4" type="submit">Test Mail senden</button>
+        </form>
+    </div>
 {% endblock %}
 
 {% block js %}
     <script>
         $(document).ready(function () {
-            $('#mailTestBtn').click(function () {
-                $.ajax({
-                    url: '/admin/mail/test',
-                    type: 'GET'
-                })
+            var form = $('#mailTestForm');
+            var url = '{{ url_for('admin.send_test_mail') }}';
+            form.submit(function (event) {
+                event.preventDefault();
+                $.post(url, $(this).serialize(), function (data) {
+                    if (data.status === "success") {
+                        location.reload();
+                    } else {
+                        form.html(data); // render response
+                    }
+                });
             });
         });
     </script>

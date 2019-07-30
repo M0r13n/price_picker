@@ -1,0 +1,9 @@
+{% from "_macros.html" import  render_formgroup, warn_message %}
+
+<form class="form" role="form" id="mailTestForm">
+    {{ email_test_form.hidden_tag() }}
+    {{ warn_message(email_test_form) }}
+    {{ render_formgroup(email_test_form.recipient) }}
+    <br>
+    <button class="btn btn-success col-4" type="submit">Test Mail senden</button>
+</form>

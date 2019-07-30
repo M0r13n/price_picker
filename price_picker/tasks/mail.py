@@ -3,10 +3,8 @@ from price_picker.models import Preferences
 from flask import current_app, render_template
 from flask_mail import Mail, Message
 from celery.exceptions import MaxRetriesExceededError, Retry
-from sentry_sdk import capture_exception, push_scope
-
-MAX_TRIES = 10
-DELAYS = [0, 30, 60, 120, 300, 600, 1800, 3600, 3600, 7200]
+from price_picker.common.constants import CELERY_TASK_ZSET, MAX_TRIES, DELAYS
+from price_picker.common.util import now
 
 
 def single_to_list(recipients):
@@ -72,6 +70,11 @@ class TestEmail(BaseEmail):
 def send_email_task(task, email):
     current_app.logger.info(f'Sending email with {task.request.retries} retries')
     attempt = task.request.retries + 1
+
+    # update state
+    task.update_state(state='PROGRESS', meta={'retries': attempt, 'max_retries': MAX_TRIES})
+
+    # send mail and retry with exponential retries timeouts
     try:
         do_send_email(email)
     except Exception as exc:
@@ -79,11 +82,9 @@ def send_email_task(task, email):
         try:
             task.retry(countdown=delay, max_retries=(MAX_TRIES - 1))
         except MaxRetriesExceededError:
-            current_app.logger.warning(f'Could not send email {email["subject"]}. Tried it {MAX_TRIES} times. Giving up now.')
-            # push error to sentry
-            with push_scope() as scope:
-                scope.set_tag('mail', 'sent-failed')
-                capture_exception(exc)
+            current_app.logger.error(f'Could not send email {email["subject"]} to {email["recipients"]}. '
+                                     f'Tried it {MAX_TRIES} times. Giving up now. Reason was : {str(exc)}')
+            task.update_state(state='FAILED', meta={'retries': attempt, 'max_retries': MAX_TRIES})
         except Retry:
             current_app.logger.warning(f'Could not send email. Tried it {attempt} times. Retrying it in {delay} seconds.')
             raise

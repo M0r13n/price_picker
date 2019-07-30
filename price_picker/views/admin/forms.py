@@ -277,3 +277,15 @@ class SaleForm(FlaskForm):
         description="Dieser Rabattwert wird auf alle Reparaturen angerechnet, die über den PricePicker abgeschlossen werden"
 
     )
+
+
+class EmailTestForm(FlaskForm):
+    recipient = StringField(
+        "Empfänger",
+        validators=[
+            Email(message="Keine gültige Mail"),
+            Length(max=128, message="Maximal 128 Zeichen")
+        ],
+        description="Sende eine Mail an diese Zieladresse"
+
+    )

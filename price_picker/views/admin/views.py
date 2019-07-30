@@ -1,11 +1,11 @@
 from flask import Blueprint, redirect, url_for, flash, request, render_template, current_app, jsonify
 from flask_login import current_user, logout_user
 from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, NewRepairForm, NewColorForm, \
-    ContactSettingsForm, MailSettingsForm, ChangePasswordForm, CsvUploadForm, SaleForm
+    ContactSettingsForm, MailSettingsForm, ChangePasswordForm, CsvUploadForm, SaleForm, EmailTestForm
 from price_picker.models import Device, Manufacturer, Repair, Color, Preferences, Enquiry
 from price_picker import db, analytics
 from price_picker.common.next_page import next_page
-from price_picker.tasks.mail import TestEmail, send_email_task, default_mail_sender
+from price_picker.tasks.mail import TestEmail, send_email_task
 import datetime as dt
 
 admin_blueprint = Blueprint("admin", __name__, url_prefix="/admin")
@@ -193,22 +193,26 @@ def mail_settings():
         Preferences.create()
         current_app.logger.warning('Missing preferences. Inserting default')
 
-    form = MailSettingsForm(obj=p)
-    if form.validate_on_submit():
-        p.mail_port = form.mail_port.data
-        p.mail_server = form.mail_server.data
-        p.mail_default_sender = form.mail_default_sender.data
-        p.mail_encryption = form.mail_encryption.data
-        p.mail_username = form.mail_username.data
-        p.order_copy_mail_address = form.order_copy_mail_address.data
-        if form.mail_password.data and len(form.mail_password.data) > 0:
-            p.encrypt_mail_password(form.mail_password.data)
+    # Only the email form is validated in this function
+    # The Test Form is validated in a separate function
+    email_form = MailSettingsForm(obj=p)
+    email_test_form = EmailTestForm()
+    if email_form.validate_on_submit():
+        p.mail_port = email_form.mail_port.data
+        p.mail_server = email_form.mail_server.data
+        p.mail_default_sender = email_form.mail_default_sender.data
+        p.mail_encryption = email_form.mail_encryption.data
+        p.mail_username = email_form.mail_username.data
+        p.order_copy_mail_address = email_form.order_copy_mail_address.data
+        if email_form.mail_password.data and len(email_form.mail_password.data) > 0:
+            p.encrypt_mail_password(email_form.mail_password.data)
         p.save()
         flash('Einstellungen erfolgreich angepasst', 'success')
         return redirect(url_for('.mail_settings'))
     return render_template('admin/panel/mailsettings.html',
-                           form=form,
-                           sub_title="Mail Einstellungen")
+                           form=email_form,
+                           sub_title="Mail Einstellungen",
+                           email_test_form=email_test_form)
 
 
 @admin_blueprint.route('/settings/password', methods=['GET', 'POST'])
@@ -238,11 +242,17 @@ def import_csv():
                            sub_title="Reparaturdaten importieren")
 
 
-@admin_blueprint.route('/mail/test', methods=['GET'])
+@admin_blueprint.route('/mail/test', methods=['POST'])
 def send_test_mail():
-    current_app.logger.info("Sending Test Mail.")
-    send_email_task.delay(TestEmail(recipients=default_mail_sender()).__dict__)
-    return "", 200
+    email_test_form = EmailTestForm()
+    if email_test_form.validate_on_submit():
+        current_app.logger.debug(f"Sending Test Mail to {email_test_form.recipient.data}.")
+        send_email_task.apply_async((TestEmail(recipients=email_test_form.recipient.data).__dict__,))
+        flash("Email wurde erfolgreich versandt.", "success")
+        return jsonify({"status": "success"}), 201
+    return render_template('admin/panel/test_mail_form.html',
+                           email_test_form=email_test_form
+                           )
 
 
 @admin_blueprint.route('/settings/sale', methods=['GET', 'POST'])

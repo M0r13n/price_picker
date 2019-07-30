@@ -1,0 +1,3 @@
+CELERY_TASK_ZSET = 'celery_tasks'
+MAX_TRIES = 10
+DELAYS = [0, 30, 60, 120, 300, 600, 1800, 3600, 3600, 7200]

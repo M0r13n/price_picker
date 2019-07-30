@@ -13,6 +13,7 @@ from flask_talisman import Talisman
 from flask_wtf.csrf import CSRFProtect
 from price_picker.analytics import Analytics
 from celery import Celery
+from redis import Redis
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
 
@@ -25,6 +26,7 @@ csrf = CSRFProtect()
 celery = Celery()
 talisman = Talisman()
 analytics = Analytics()
+r = Redis()
 
 
 def create_app(config=None, script_info=None):
@@ -109,6 +111,7 @@ def init_extensions(app):
     migrate.init_app(app, db)
     csrf.init_app(app)
     analytics.init_app(app, blueprints=['main', ], redis_url=app.config['REDIS_URL'])
+    r = Redis.from_url(app.config['REDIS_URL'])
 
 
 def add_jinja_vars(app):
