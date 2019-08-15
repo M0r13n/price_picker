@@ -12,7 +12,7 @@ repairs = db.Table('repairs',
 class Enquiry(db.Model, CRUDMixin):
     __tablename__ = "enquiries"
     id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime, default=dt.datetime.now())
+    timestamp = db.Column(db.DateTime, default=dt.datetime.now)
     name = db.Column(db.String(128))
     customer_first_name = db.Column(db.String(128))
     customer_last_name = db.Column(db.String(128))
