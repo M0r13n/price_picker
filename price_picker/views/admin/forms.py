@@ -289,3 +289,13 @@ class EmailTestForm(FlaskForm):
         description="Sende eine Mail an diese Zieladresse"
 
     )
+
+
+class AddShopForm(FlaskForm):
+    name = StringField(
+        "Shopname",
+        validators=[
+            Length(min=1, max=128, message="Zwischen 1 und 128 Zeichen benötigt!")
+        ],
+        description="Füge einen neuen Shop hinzu."
+    )

@@ -1,8 +1,8 @@
 from flask import Blueprint, redirect, url_for, flash, request, render_template, current_app, jsonify
 from flask_login import current_user, logout_user
 from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, NewRepairForm, NewColorForm, \
-    ContactSettingsForm, MailSettingsForm, ChangePasswordForm, CsvUploadForm, SaleForm, EmailTestForm
-from price_picker.models import Device, Manufacturer, Repair, Color, Preferences, Enquiry
+    ContactSettingsForm, MailSettingsForm, ChangePasswordForm, CsvUploadForm, SaleForm, EmailTestForm, AddShopForm
+from price_picker.models import Device, Manufacturer, Repair, Color, Preferences, Enquiry, Shop
 from price_picker import db, analytics
 from price_picker.common.next_page import next_page
 from price_picker.tasks.mail import TestEmail, send_email_task
@@ -143,6 +143,26 @@ def add_color():
 @admin_blueprint.route('/color/<int:color_id>/delete', methods=['POST'])
 def delete_color(color_id):
     pass
+
+
+# SHOPS
+
+
+@admin_blueprint.route('/shop/add', methods=['GET', 'POST'])
+def add_shop():
+    form = AddShopForm()
+    if form.validate_on_submit():
+        s = Shop.create(name=form.name.data)
+        flash(f"{s.name} erfolgreich hinzugefügt", "success")
+        return redirect(url_for('.add_shop'))
+    return render_template('admin/panel/shops.html', form=form, shops=Shop.query.all())
+
+
+@admin_blueprint.route('/shop/<string:shop_id>/delete', methods=['POST'])
+def delete_shop(shop_id):
+    s = Shop.query.get_or_404(shop_id).delete()
+    flash(f"{s.name} erfolgreich gelöscht", "success")
+    return jsonify(status='ok'), 201
 
 
 # SETTINGS

@@ -15,6 +15,7 @@
                 <th>Telefon</th>
                 <th>Gerät</th>
                 <th>Imei</th>
+                <th>Shop</th>
                 <th>Reparatur(en)</th>
                 <th>Rabatt</th>
                 <th>Abschließen</th>
@@ -31,6 +32,7 @@
                     <td>{{ enquiry.customer_phone }}</td>
                     <td>{{ enquiry.device.name }}({{ enquiry.color }})</td>
                     <td>{{ enquiry.imei }}</td>
+                    <td>{{ enquiry.shop or '---' }}</td>
                     <td>{% for r in enquiry.repairs %}{{ r.name }}{% if not loop.last %},{% endif %}{% endfor %}</td>
                     <td>{{ enquiry.sale }}&euro;</td>
                     <td class="text-right">{% if not enquiry.done %}

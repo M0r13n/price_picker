@@ -20,6 +20,7 @@
                     {{ render_formgroup(form.customer_postal_code) }}
                     {{ render_formgroup(form.customer_city) }}
                 {% endif %}
+                {{ render_formgroup(form.shop) }}
                 <h4 class="text-muted">Gerätedaten</h4>
                 {{ render_formgroup(form.imei) }}
                 {{ form.confirm(class="btn btn-block btn-success") }}

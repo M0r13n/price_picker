@@ -1,0 +1,73 @@
+{% extends "admin/panel/_base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% from "_macros.html" import  warn_message, render_field %}
+{% set active_page='shops' %}
+{% set sub_title='Shopverwaltung' %}
+{% block sub_page %}
+    <h2>{{ sub_title }}</h2>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Shop</th>
+            <th>Löschen</th>
+        <tr>
+        </thead>
+        <tbody>
+        {% for shop in shops %}
+            <tr>
+                <td>{{ shop.name }}</td>
+                <td>
+                    <button class="btn btn-danger" id="deleteBtn" data-toggle="modal" data-target="#deleteModal"
+                            data-action="{{ url_for('admin.delete_shop',shop_id=shop.name) }}">&times;
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        {% endfor %}
+    </table>
+    <br>
+    <div class="col-6">
+        <form class="form" role="form" enctype="multipart/form-data" method="post" action="">
+            {{ form.hidden_tag() }}
+            {{ warn_message(form) }}
+            {{ render_field(form.name) }}
+            <button class="btn btn-success col-4" type="submit">Hinzufügen</button>
+        </form>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog text-center" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Bist du sicher?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Soll der Shop wirklich entfernt werden?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
+                    <button class="btn btn-danger" id="deleteConfirmBtn">Ja</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        let confirmation = $('#deleteConfirmBtn');
+        $('#deleteBtn').click(function () {
+            confirmation.data('action', $(this).data('action'));
+        });
+        confirmation.click(function () {
+            $.post($(this).data('action')).done(function () {
+                location.reload();
+            });
+        });
+    </script>
+{% endblock %}

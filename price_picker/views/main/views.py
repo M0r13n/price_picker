@@ -1,5 +1,5 @@
 from flask import render_template, Blueprint, flash, redirect, url_for, session, request, current_app, send_from_directory, abort
-from price_picker.models import Manufacturer, Device, User, Repair, Preferences, Enquiry
+from price_picker.models import Manufacturer, Device, User, Repair, Preferences, Enquiry, Shop
 from .forms import LoginForm, SelectRepairForm, contact_form_factory, ContactForm, AddressContactForm
 from price_picker import db
 from flask_login import login_user, logout_user, login_required
@@ -166,7 +166,7 @@ def _send_mails(form, enquiry):
 
 def _complete(order: bool, device: Device, form: ContactForm) -> bool:
     if 'repair_ids' not in session.keys() or not isinstance(session['repair_ids'], list):
-        current_app.logger.warning('Missing key \"repair_ids\" in current session.')
+        current_app.logger.error('Missing key \"repair_ids\" in current session.')
         return False
 
     repairs = db.session.query(Repair).filter(Repair.id.in_(session['repair_ids'])).all()
@@ -184,6 +184,7 @@ def _complete(order: bool, device: Device, form: ContactForm) -> bool:
                            customer_postal_code=form.customer_postal_code.data,
                            sale=current_app.config['SALE_AMOUNT'] if current_app.config['ACTIVE_SALE'] else 0,
                            imei=form.imei.data,
+                           shop=form.shop.data.name,
                            name="Reparaturauftrag" if order else "Kostenvoranschlag")
     else:
         e = Enquiry.create(color=color,
@@ -195,6 +196,7 @@ def _complete(order: bool, device: Device, form: ContactForm) -> bool:
                            customer_phone=form.phone.data,
                            sale=current_app.config['SALE_AMOUNT'] if current_app.config['ACTIVE_SALE'] else 0,
                            imei=form.imei.data,
+                           shop=form.shop.data.name,
                            name="Reparaturauftrag" if order else "Kostenvoranschlag")
     _send_mails(form, e)
     return True

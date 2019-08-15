@@ -1,7 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SelectMultipleField, SubmitField, SelectField
+from wtforms import StringField, PasswordField, BooleanField, SelectMultipleField, SubmitField
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, Length, Email
 from flask import current_app
+from price_picker.models import Shop
 
 
 class LoginForm(FlaskForm):
@@ -66,6 +68,14 @@ class ContactForm(FlaskForm):
     )
     confirm = SubmitField(
         "Zahlungspflichtig bestellen"
+    )
+    shop = QuerySelectField(
+        "Shop",
+        query_factory=Shop.query_factory_all,
+        validators=[
+            DataRequired(message="Bitte wähle einen Shop")
+        ],
+        description="In welchem Shop soll die Reparatur durchgeführt werden?"
     )
 
 
