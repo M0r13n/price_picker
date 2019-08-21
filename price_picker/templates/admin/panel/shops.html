@@ -59,7 +59,7 @@
 {% endblock %}
 
 {% block js %}
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         let confirmation = $('#deleteConfirmBtn');
         $('#deleteBtn').click(function () {
             confirmation.data('action', $(this).data('action'));

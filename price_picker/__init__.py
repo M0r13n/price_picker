@@ -41,6 +41,7 @@ def create_app(config=None, script_info=None):
     config = config or configs[conf]
     app.config.from_object(config)
 
+    init_talisman(app)
     init_extensions(app)
     register_blueprints(app)
     init_flask_login(app)
@@ -91,7 +92,24 @@ def init_flask_login(app):
 
 
 def init_talisman(app):
-    talisman.init_app(app)
+    csp = {
+        'default-src': [
+            '\'self\''
+        ],
+        'style-src': [
+            '\'self\'',
+            'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css'
+        ],
+        'script-src': [
+            '\'self\'',
+            'https://code.jquery.com/jquery-3.4.1.min.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js',
+            'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js'
+        ]
+    }
+    talisman.init_app(app,
+                      content_security_policy=csp,
+                      content_security_policy_nonce_in=['script-src'])
 
 
 def register_blueprints(app):

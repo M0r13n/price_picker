@@ -30,6 +30,10 @@ html, body {
     z-index: 2;
 }
 
+
+.pagination ul{
+    margin:20px 0;
+}
 /* Select Multiple Checkbox*/
 
 .form-check li {

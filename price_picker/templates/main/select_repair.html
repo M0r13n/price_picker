@@ -138,7 +138,7 @@
 {% endblock %}
 
 {% block js %}
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         $(document).ready(function () {
             /* Always store color in hidden color form field */
             $('input#colorField').val(window.sessionStorage.getItem('color'));

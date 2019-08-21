@@ -24,7 +24,7 @@
             </thead>
             <tbody>
             {% for item in pagination.items %}
-                <tr style="white-space: nowrap;">
+                <tr class="text-nowrap">
                     <td>{{ item['timestamp'] | unix2date }}</td>
                     <td>{{ item['status_code'] }}</td>
                     <td>{{ item['path'] }}</td>

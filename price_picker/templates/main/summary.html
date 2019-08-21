@@ -18,7 +18,8 @@
                     </div>
                     <div class="col-6 text-right">
                         <span><strong>Schaden</strong></span><br>
-                        <span>{% for repair in repairs %} {{ repair.name }} {% if loop.index!=loop.length %}, {% endif %}{% endfor %}</span>
+                        <span>{% for repair in repairs %} {{ repair.name }} {% if loop.index!=loop.length %},
+                        {% endif %}{% endfor %}</span>
                     </div>
                 </div>
                 <br>
@@ -52,9 +53,8 @@
         <div class="col-sm-6 col-lg-8">
             <br>
             <div class="text-center">
-                <button class=" btn btn-success" onclick="location.href='{{ url_for("main.complete", device_id=device.id, order=True) }}'">
-                    Zahlungspflichtig bestellen
-                </button>
+                <a class="btn btn-success" href="{{ url_for("main.complete", device_id=device.id, order=True) }}">Zahlungspflichtig
+                    bestellen</a>
             </div>
             <br>
         </div>

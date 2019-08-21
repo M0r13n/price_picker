@@ -29,8 +29,6 @@ def select_device(manufacturer_id):
     The customer selects the desired device, e.g. iPhone X.
     """
     devices = Device.query.filter(Device.manufacturer_id == manufacturer_id).order_by(Device.name).all()
-    if len(devices) == 0:
-        abort(404)
     return render_template("main/select_device.html",
                            devices=devices,
                            manufacturer_id=manufacturer_id)

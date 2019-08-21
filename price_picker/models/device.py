@@ -58,14 +58,13 @@ class Picture(db.Model):
             'note': '_note_8.html',
             's5': '_s5.html',
         }
+        Picture.query.delete()
         # set default picture
         default = 'nexus'
-        for k, v in basics.items():
-            p = Picture.query.filter_by(name=k).first()
-            if p is None:
-                p = Picture(name=k, filename=v, default=k == default)
-            db.session.add(p)
-            db.session.commit()
+        # bulk insert pictures
+        pictures = [Picture(name=k, filename=v, default=k == default) for k, v in basics.items()]
+        db.session.bulk_save_objects(pictures)
+        db.session.commit()
 
 
 class Manufacturer(db.Model, CRUDMixin):

@@ -17,11 +17,16 @@
 {% endblock %}
 
 {% block js %}
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         $(document).ready(function () {
+
             $('.selectable').click(function () {
                 sessionStorage.setItem('color', $(this).data('name'));
                 window.location.href = '{{ url_for("main.select_repair", device_id=device.id) }}'
+            });
+
+            $('.circle').each(function (i, obj) {
+                obj.style.backgroundColor = obj.dataset.color;
             });
 
         });

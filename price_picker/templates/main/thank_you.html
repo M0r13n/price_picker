@@ -10,10 +10,7 @@
                 Die Kontaktdaten entnehmen Sie unserer
                 <a {% if config['HOMEPAGE'] %}href="{{ config['HOMEPAGE'] }}" {% endif %}>Homepage</a>.
             </p>
-            <button class="btn btn-primary"
-                    onclick="location.href='{{ url_for(request.args.get('next') or 'main.home') }}'">
-                Weiter
-            </button>
+            <a class="btn btn-primary" href="{{ url_for(request.args.get('next') or 'main.home') }}">Weiter</a>
         </div>
     </div>
 
