@@ -3,8 +3,7 @@ from price_picker.models import Preferences
 from flask import current_app, render_template
 from flask_mail import Mail, Message
 from celery.exceptions import MaxRetriesExceededError, Retry
-from price_picker.common.constants import CELERY_TASK_ZSET, MAX_TRIES, DELAYS
-from price_picker.common.util import now
+from price_picker.common.constants import MAX_TRIES, DELAYS
 
 
 def single_to_list(recipients):
@@ -29,7 +28,8 @@ def default_mail_sender():
 
 
 class BaseEmail:
-    def __init__(self, subject: str = None, text_body: str = None, html_body: str = None, sender: str = None, recipients: [] = None):
+    def __init__(self, subject: str = None, text_body: str = None, html_body: str = None, sender: str = None,
+                 recipients: [] = None):
         self.subject = subject
         self.text_body = text_body
         self.html_body = html_body
@@ -86,7 +86,8 @@ def send_email_task(task, email):
                                      f'Tried it {MAX_TRIES} times. Giving up now. Reason was : {str(exc)}')
             task.update_state(state='FAILED', meta={'retries': attempt, 'max_retries': MAX_TRIES})
         except Retry:
-            current_app.logger.warning(f'Could not send email. Tried it {attempt} times. Retrying it in {delay} seconds.')
+            current_app.logger.warning(
+                f'Could not send email. Tried it {attempt} times. Retrying it in {delay} seconds.')
             raise
     else:
         current_app.logger.info('Email sent successfully')
@@ -100,7 +101,8 @@ def do_send_email(email):
     current_app.config.update(p.mail_config)
     mail = Mail(current_app)
     with current_app.app_context():
-        msg = Message(email['subject'], sender=email['sender'] or p.mail_config['MAIL_DEFAULT_SENDER'], recipients=email['recipients'])
+        msg = Message(email['subject'], sender=email['sender'] or p.mail_config['MAIL_DEFAULT_SENDER'],
+                      recipients=email['recipients'])
         msg.body = email['text_body']
         msg.html = email['html_body']
         mail.send(msg)
