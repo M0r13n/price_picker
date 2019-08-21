@@ -117,6 +117,7 @@ class Device(db.Model, CRUDMixin):
     repairs = relationship('Repair', secondary=repair_association_table, back_populates='devices', lazy='dynamic')
     picture_id = db.Column(db.String, db.ForeignKey('pictures.name'))
     colors = relationship("Color", secondary=color_association_table)
+    enquiries = relationship("Enquiry", back_populates="device")
 
     def __init__(self, **kwargs):
         super(Device, self).__init__(**kwargs)

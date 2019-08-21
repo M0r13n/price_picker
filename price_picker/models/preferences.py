@@ -23,7 +23,6 @@ class Preferences(db.Model, CRUDMixin):
     address_required = db.Column(db.Boolean, default=False)
     phone_number = db.Column(db.String(128))
     mail = db.Column(db.String(128))
-    privacy_statement = db.Column(db.Text)
     active_sale = db.Column(db.Boolean, default=False)
     sale_amount = db.Column(db.Integer, default=0)
 
@@ -85,7 +84,6 @@ class Preferences(db.Model, CRUDMixin):
         current_app.config['ADDRESS_REQUIRED'] = p.address_required
         current_app.config['USER_MAIL'] = p.mail
         current_app.config['USER_PHONE'] = p.phone_number
-        current_app.config['PRIVACY_STATEMENT'] = p.privacy_statement
         current_app.config['ACTIVE_SALE'] = p.active_sale
         current_app.config['SALE_AMOUNT'] = p.sale_amount
 

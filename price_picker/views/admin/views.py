@@ -6,6 +6,7 @@ from price_picker.models import Device, Manufacturer, Repair, Color, Preferences
 from price_picker import db, analytics
 from price_picker.common.next_page import next_page
 from price_picker.tasks.mail import TestEmail, send_email_task
+from price_picker.common.csv_import import RepairCsvImporter
 import datetime as dt
 
 admin_blueprint = Blueprint("admin", __name__, url_prefix="/admin")
@@ -253,7 +254,6 @@ def change_password():
 def import_csv():
     form = CsvUploadForm()
     if form.validate_on_submit():
-        from price_picker.common.csv_import import RepairCsvImporter
         importer = RepairCsvImporter(form.csv.data)
         importer.import_csv()
 

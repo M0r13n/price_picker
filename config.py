@@ -12,8 +12,6 @@ class BaseConfig(object):
     """Base configuration."""
 
     APP_NAME = os.getenv("APP_NAME")
-    BRAND_NAME = os.getenv("BRAND_NAME", "")
-    HOMEPAGE = os.getenv("HOMEPAGE")
     DEBUG_TB_ENABLED = False
     SECRET_KEY = os.getenv("SECRET_KEY", "supersecret")
     SQLALCHEMY_TRACK_MODIFICATIONS = False

@@ -26,7 +26,7 @@ class Enquiry(db.Model, CRUDMixin):
     color = db.Column(db.String(64))
     shop = db.Column(db.String(128))
     device_id = db.Column(db.Integer, db.ForeignKey('devices.id'))
-    device = relationship("Device")
+    device = relationship("Device", back_populates="enquiries")
     repairs = relationship("Repair", secondary=repairs)
     done = db.Column(db.Boolean, default=False)
 
