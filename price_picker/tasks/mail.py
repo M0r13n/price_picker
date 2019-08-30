@@ -1,9 +1,10 @@
 from price_picker import celery
 from price_picker.models import Preferences
 from flask import current_app, render_template
-from flask_mail import Mail, Message
 from celery.exceptions import MaxRetriesExceededError, Retry
 from price_picker.common.constants import MAX_TRIES, DELAYS
+from price_picker.common.mail.backend import EmailBackend
+from price_picker.common.mail.message import EmailMessage
 
 
 def single_to_list(recipients):
@@ -36,12 +37,6 @@ class BaseEmail:
         self.sender = sender
         self.recipients = single_to_list(recipients)
 
-    def to_msg(self) -> Message:
-        msg = Message(self.subject, sender=self.sender, recipients=self.recipients)
-        msg.body = self.text_body
-        msg.html = self.html_body
-        return msg
-
 
 class CustomerConfirmationEmail(BaseEmail):
     def __init__(self, **kwargs):
@@ -49,6 +44,7 @@ class CustomerConfirmationEmail(BaseEmail):
         self.subject = "Bestätigung Kundenanfrage"
         tpl = 'email/confirmation'
         self.text_body = render_template(tpl + '.txt')
+        self.html_body = render_template(tpl + '.html')
 
 
 class EnquiryReceivedEmail(BaseEmail):
@@ -78,6 +74,7 @@ def send_email_task(task, email):
     try:
         do_send_email(email)
     except Exception as exc:
+        print(exc)
         delay = DELAYS[task.request.retries]
         try:
             task.retry(countdown=delay, max_retries=(MAX_TRIES - 1))
@@ -94,15 +91,33 @@ def send_email_task(task, email):
 
 
 def do_send_email(email):
+    # TODO: This could be replaced, so that preferences are cached (e.g. stored in Redis).
+    #       So the password does not need be decrypted every time.
+    #       Each decryption takes up to 1 sec.
+
     p = Preferences.query.first()
     if p is None:
-        current_app.logger.warning('No Preferences could be found. Abort.')
+        current_app.logger.error('No Preferences could be found. Abort.')
         return
-    current_app.config.update(p.mail_config)
-    mail = Mail(current_app)
-    with current_app.app_context():
-        msg = Message(email['subject'], sender=email['sender'] or p.mail_config['MAIL_DEFAULT_SENDER'],
-                      recipients=email['recipients'])
+    config = p.mail_config
+
+    with EmailBackend(timeout=30,
+                      host=config['MAIL_SERVER'],
+                      port=config['MAIL_PORT'],
+                      username=config['MAIL_USERNAME'],
+                      password=config['MAIL_PASSWORD'],
+                      use_tls=config['MAIL_USE_TLS'],
+                      use_ssl=config['MAIL_USE_SSL']) \
+            as conn:
+        msg = EmailMessage(subject=email['subject'],
+                           body="Inhalt",
+                           from_email=email['sender'] or p.mail_config['MAIL_DEFAULT_SENDER'],
+                           to=email['recipients'], connection=conn)
+
         msg.body = email['text_body']
-        msg.html = email['html_body']
-        mail.send(msg)
+
+        if email['html_body']:
+            msg.content_subtype = 'html'
+            msg.body = email['html_body']
+
+        msg.send()

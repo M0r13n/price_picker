@@ -3,6 +3,7 @@ from price_picker.common.database import CRUDMixin
 from flask import current_app, has_app_context
 from sqlalchemy import event
 import rncryptor
+import datetime as dt
 
 
 class Encryption:
@@ -104,6 +105,7 @@ class Preferences(db.Model, CRUDMixin):
         return config
 
 
+# update loaded preferences after change
 @event.listens_for(Preferences, 'after_update')
 def receive_after_update(mapper, connection, target):
     Preferences.load_settings()
