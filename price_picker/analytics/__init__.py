@@ -114,11 +114,6 @@ class Analytics(object):
     def clean_up(self):
         # limit session cleaning to every 5 secs
         if timestamp() - 5 <= self.last_clean_up:
-            # Redis is able to delete 10,000 tokens per second across a network, and over 60,000 tokens per second locally.
-            # Let´s say we have 500k users per day, then after two days the limit of 1m unique session records is reached.
-            # Which means from there on we will delete sessions periodically.
-            # A day has 86.400 seconds, so we have ~6 users per second (500.000 / 86.400)
-            # So there is a total of ~30 tokens every 5 seconds to be deleted. Which es waaay beyond 10.000 tokens / second.
             return
 
         for i, j in [(SORTED_SESSION_LIST, SESSIONS), (SORTED_VISIT_LIST, VISITS)]:

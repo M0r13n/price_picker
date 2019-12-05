@@ -1,0 +1,83 @@
+.grid-wrapper {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+}
+
+#chart svg {
+    transform: translateX(-65%);
+}
+
+#bonusTitle{
+    color:orange;
+}
+
+#question h1 {
+    font-size: 20px;
+    padding-top: 20px;
+    padding-bottom: 20px
+}
+
+.modal.left .modal-dialog {
+    position: fixed;
+    margin: auto;
+    width: 50%;
+    min-width: 500px;
+    height: 100%;
+    -webkit-transform: translate3d(0%, 0, 0);
+    -ms-transform: translate3d(0%, 0, 0);
+    -o-transform: translate3d(0%, 0, 0);
+    transform: translate3d(0%, 0, 0);
+}
+
+.modal.left .modal-content {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.modal.left .modal-body {
+    padding: 15px 15px 80px;
+}
+
+.modal.left.fade .modal-dialog {
+    left: -320px;
+    -webkit-transition: opacity 0.3s linear, left 0.3s ease-out;
+    -moz-transition: opacity 0.3s linear, left 0.3s ease-out;
+    -o-transition: opacity 0.3s linear, left 0.3s ease-out;
+    transition: opacity 0.3s linear, left 0.3s ease-out;
+}
+
+.modal.left.fade.show .modal-dialog {
+    left: 0;
+}
+
+/* ----- MODAL STYLE ----- */
+.modal-content {
+    border-radius: 0;
+    border: none;
+}
+
+.modal-header {
+    border-bottom-color: #eeeeee;
+    background-color: #fafafa;
+}
+
+@media (max-width: 800px) {
+    .modal.left .modal-dialog {
+        width: 100vw;
+        max-width: 100vw;
+    }
+
+    .grid-wrapper {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: 1fr;
+    }
+
+    .chart-wrapper {
+        order: 2;
+    }
+
+    #chart svg {
+        transform: translateX(-45%);
+    }
+}

@@ -4,6 +4,8 @@ from .feedback import Feedback
 from .preferences import Preferences, Encryption
 from .enquiry import Enquiry
 from .shop import Shop
+from .mail import Mail
+from .coupon_code import CouponCode
 
 __all__ = [
     'User',
@@ -16,5 +18,7 @@ __all__ = [
     'Preferences',
     'Enquiry',
     'Encryption',
-    'Shop'
+    'Shop',
+    'Mail',
+    'CouponCode'
 ]

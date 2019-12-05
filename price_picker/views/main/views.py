@@ -1,9 +1,14 @@
-from flask import render_template, Blueprint, flash, redirect, url_for, session, request, current_app, send_from_directory, abort
-from price_picker.models import Manufacturer, Device, User, Repair, Preferences, Enquiry, Shop
+import re
+import random
+
+from flask import render_template, Blueprint, flash, redirect, url_for, session, request, current_app, \
+    send_from_directory, jsonify
+from price_picker.models import Manufacturer, Device, User, Repair, Preferences, Enquiry, Mail, CouponCode
 from .forms import LoginForm, SelectRepairForm, contact_form_factory, ContactForm, AddressContactForm
 from price_picker import db
 from flask_login import login_user, logout_user, login_required
-from price_picker.tasks.mail import CustomerConfirmationEmail, send_email_task, EnquiryReceivedEmail, configured_confirmation_recipient
+from price_picker.tasks.mail import CustomerConfirmationEmail, send_email_task, EnquiryReceivedEmail, \
+    configured_confirmation_recipient
 
 main_blueprint = Blueprint("main", __name__)
 
@@ -87,8 +92,9 @@ def summary(device_id):
     return render_template('main/summary.html',
                            repairs=repairs,
                            device=device,
-                           total=max(sum([r.price for r in repairs]) - int(current_app.config['ACTIVE_SALE']) * current_app.config[
-                               'SALE_AMOUNT'], 0),
+                           total=max(sum([r.price for r in repairs]) - int(current_app.config['ACTIVE_SALE']) *
+                                     current_app.config[
+                                         'SALE_AMOUNT'], 0),
                            color=color)
 
 
@@ -153,6 +159,43 @@ def static_from_root():
     return send_from_directory(current_app.static_folder, request.path[1:])
 
 
+# API
+@main_blueprint.route('/wof/submit', methods=["POST"])
+def wheel_of_fortune_submit():
+    mail_check = re.compile('[^@]+@[^@]+\.[^@]+')
+    submitted_email = request.form.get('email', default=None)
+
+    if not submitted_email or not mail_check.match(submitted_email):
+        return jsonify(dict(status='invalid-mail')), 400
+
+    if Mail.query.filter_by(mail=submitted_email.lower()).first():
+        return jsonify(dict(status='invalid-mail')), 400
+
+    Mail.create(mail=submitted_email.lower())
+
+    code_chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    code = ''
+    for i in range(0, 6):
+        slice_start = random.randint(0, len(code_chars) - 1)
+        code += code_chars[slice_start: slice_start + 1]
+    CouponCode.create(code=code)
+
+    return jsonify(dict(status='ok', code=code)), 201
+
+
+@main_blueprint.route('/code/verify', methods=["GET", "POST"])
+def verify_code():
+    if request.json:
+        code = request.json.get('code')
+    else:
+        code = request.args.get('code')
+    code = CouponCode.query.filter_by(code=code).first()
+    if not code:
+        return jsonify(dict(status='invalid-code')), 404
+
+    return jsonify(dict(status='ok', code=code.code)), 200
+
+
 # NO VIEW FUNCTIONS
 def _send_mails(form, enquiry):
     if form.email.data:
@@ -180,7 +223,7 @@ def _complete(order: bool, device: Device, form: ContactForm) -> bool:
                            customer_street=form.customer_street.data,
                            customer_city=form.customer_city.data,
                            customer_postal_code=form.customer_postal_code.data,
-                           sale=current_app.config['SALE_AMOUNT'] if current_app.config['ACTIVE_SALE'] else 0,
+                           sale=current_app.config['SALE_AMOUNT'] if current_app.config['ACTIVE_SALE'] else (5 if form.coupon.data else 0),
                            imei=form.imei.data,
                            shop=form.shop.data.name,
                            name="Reparaturauftrag" if order else "Kostenvoranschlag")
@@ -192,7 +235,7 @@ def _complete(order: bool, device: Device, form: ContactForm) -> bool:
                            customer_first_name=form.first_name.data,
                            customer_last_name=form.last_name.data,
                            customer_phone=form.phone.data,
-                           sale=current_app.config['SALE_AMOUNT'] if current_app.config['ACTIVE_SALE'] else 0,
+                           sale=current_app.config['SALE_AMOUNT'] if current_app.config['ACTIVE_SALE'] else (5 if form.coupon.data else 0),
                            imei=form.imei.data,
                            shop=form.shop.data.name,
                            name="Reparaturauftrag" if order else "Kostenvoranschlag")

@@ -9,4 +9,5 @@ def url_for_other_page(endpoint, page, **kwargs):
     for key, value in list(args.items()):
         if value == '__None':
             del args[key]
-    return url_for(endpoint, **args, **kwargs)
+
+    return url_for(endpoint, **kwargs)

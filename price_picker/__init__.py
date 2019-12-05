@@ -102,6 +102,7 @@ def init_talisman(app):
         ],
         'script-src': [
             '\'self\'',
+            'https://d3js.org/d3.v3.min.js',
             'https://code.jquery.com/jquery-3.4.1.min.js',
             'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js',
             'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js'

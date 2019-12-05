@@ -1,9 +1,10 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SelectMultipleField, SubmitField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms.validators import DataRequired, Length, Email
+from wtforms.validators import DataRequired, Length, Email, Optional
 from flask import current_app
 from price_picker.models import Shop
+from .validators import CouponCodeValidator
 
 
 class LoginForm(FlaskForm):
@@ -65,6 +66,14 @@ class ContactForm(FlaskForm):
             Length(max=120, message="Max 120 Zeichen")
         ],
         description="Bitte achten Sie auf die Korrektheit der Email. Wir können uns sonst ggf. nicht bei Ihnen melden."
+    )
+    coupon = StringField(
+        "Coupon Code",
+        validators=[
+            Optional(),
+            CouponCodeValidator()
+        ],
+        description="Falls du einen Rabattcode hast, kannst du ihn hier eingeben."
     )
     confirm = SubmitField(
         "Zahlungspflichtig bestellen"
