@@ -182,7 +182,6 @@ function getCookie(name) {
 
 // decide whether to show the wheel or not
 function displayWheel() {
-    $('#wofModal').modal('show');
     if (getCookie('showWheel') === null) {
         setCookie('showWheel', true, 10000);
         $('#wofModal').modal('show');
