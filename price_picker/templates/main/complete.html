@@ -23,15 +23,56 @@
                 {{ render_formgroup(form.shop) }}
                 <h4 class="text-muted">Gerätedaten</h4>
                 {{ render_formgroup(form.imei) }}
-                {{ render_formgroup(form.coupon) }}
+                {{ render_formgroup(form.coupon, id="coupon") }}
                 {{ form.confirm(class="btn btn-block btn-success") }}
             </form>
             <br>
-            <p class="text-center text-muted"><b>&#x2139;</b> Die abgesendeten Daten werden nur zum Zweck der Bearbeitung Ihres Anliegens
+            <p class="text-center text-muted"><b>&#x2139;</b> Die abgesendeten Daten werden nur zum Zweck der
+                Bearbeitung Ihres Anliegens
                 verarbeitet.
                 Weitere Informationen finden Sie in unserer <a target="_blank" rel="noopener noreferrer"
-                                                               href="https://www.smartphoniker.de/datenschutz/">Datenschutzerklärung</a>. </p>
+                                                               href="https://www.smartphoniker.de/datenschutz/">Datenschutzerklärung</a>.
+            </p>
         </div>
-     <a class="btn btn-secondary" href="{{ url_for('main.select_repair', device_id=device_id) }}">&laquo; Zurück</a>
+        <a class="btn btn-secondary" href="{{ url_for('main.select_repair', device_id=device_id) }}">&laquo; Zurück</a>
     </div>
+{% endblock %}
+
+{% block js %}
+    <script nonce="{{ csp_nonce() }}">
+        function isValid(obj, bool) {
+            if (bool) {
+                $(obj).addClass("is-valid").removeClass('is-invalid');
+            } else {
+                $(obj).addClass("is-invalid").removeClass('is-valid');
+            }
+        }
+
+        function verifyCode(code) {
+            var url = "{{ url_for('main.verify_code') }}";
+            $.ajax({
+                url: url,
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify({'code': code}),
+                success: function (result) {
+                    isValid('#coupon', true);
+                },
+                error: function (xhr, resp, text) {
+                    isValid('#coupon', false);
+                }
+            });
+        }
+
+        $('#coupon').keyup(delay(function () {
+                var v = $(this).val();
+                if (v.length >= 1) {
+                    verifyCode(v);
+                } else {
+                    $(this).removeClass('is-valid').removeClass('is-invalid');
+                }
+            }, 500)
+        ).keyup();
+    </script>
 {% endblock %}

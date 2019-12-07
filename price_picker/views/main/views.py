@@ -164,6 +164,7 @@ def static_from_root():
 def wheel_of_fortune_submit():
     mail_check = re.compile('[^@]+@[^@]+\.[^@]+')
     submitted_email = request.form.get('email', default=None)
+    code = ''
 
     if not submitted_email or not mail_check.match(submitted_email):
         return jsonify(dict(status='invalid-mail')), 400
@@ -173,14 +174,15 @@ def wheel_of_fortune_submit():
 
     Mail.create(mail=submitted_email.lower())
 
-    code_chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    code = ''
-    for i in range(0, 6):
-        slice_start = random.randint(0, len(code_chars) - 1)
-        code += code_chars[slice_start: slice_start + 1]
-    CouponCode.create(code=code)
+    value = random.choice(CouponCode.VALUES + [0])
+    if value:
+        code_chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        for i in range(0, 6):
+            slice_start = random.randint(0, len(code_chars) - 1)
+            code += code_chars[slice_start: slice_start + 1]
+        CouponCode.create(code=code, value=value)
 
-    return jsonify(dict(status='ok', code=code)), 201
+    return jsonify(dict(status='ok', code=code, value=value)), 201
 
 
 @main_blueprint.route('/code/verify', methods=["GET", "POST"])
@@ -189,11 +191,15 @@ def verify_code():
         code = request.json.get('code')
     else:
         code = request.args.get('code')
+
+    if not code:
+        return jsonify(dict(status='invalid-code')), 404
+
     code = CouponCode.query.filter_by(code=code).first()
     if not code:
         return jsonify(dict(status='invalid-code')), 404
 
-    return jsonify(dict(status='ok', code=code.code)), 200
+    return jsonify(dict(status='ok', code=code.code, value=code.value)), 200
 
 
 # NO VIEW FUNCTIONS
@@ -212,6 +218,13 @@ def _complete(order: bool, device: Device, form: ContactForm) -> bool:
 
     repairs = db.session.query(Repair).filter(Repair.id.in_(session['repair_ids'])).all()
     color = session['color'] if 'color' in session.keys() else 'default'
+
+    discount = 0
+    if form.coupon.data:
+        code = CouponCode.query.filter_by(code=form.coupon.data).first()
+        if code:
+            discount = code.value
+
     if isinstance(form, AddressContactForm):
         e = Enquiry.create(color=color,
                            device=device,
@@ -223,7 +236,7 @@ def _complete(order: bool, device: Device, form: ContactForm) -> bool:
                            customer_street=form.customer_street.data,
                            customer_city=form.customer_city.data,
                            customer_postal_code=form.customer_postal_code.data,
-                           sale=current_app.config['SALE_AMOUNT'] if current_app.config['ACTIVE_SALE'] else (5 if form.coupon.data else 0),
+                           sale=current_app.config['SALE_AMOUNT'] if current_app.config['ACTIVE_SALE'] else discount,
                            imei=form.imei.data,
                            shop=form.shop.data.name,
                            name="Reparaturauftrag" if order else "Kostenvoranschlag")
@@ -235,7 +248,7 @@ def _complete(order: bool, device: Device, form: ContactForm) -> bool:
                            customer_first_name=form.first_name.data,
                            customer_last_name=form.last_name.data,
                            customer_phone=form.phone.data,
-                           sale=current_app.config['SALE_AMOUNT'] if current_app.config['ACTIVE_SALE'] else (5 if form.coupon.data else 0),
+                           sale=current_app.config['SALE_AMOUNT'] if current_app.config['ACTIVE_SALE'] else discount,
                            imei=form.imei.data,
                            shop=form.shop.data.name,
                            name="Reparaturauftrag" if order else "Kostenvoranschlag")

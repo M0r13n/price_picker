@@ -4,11 +4,11 @@
 }
 
 #chart svg {
-    transform: translateX(-65%);
+    transform: translateX(-60%);
 }
 
 #bonusTitle{
-    color:orange;
+    color:darkorange;
 }
 
 #question h1 {

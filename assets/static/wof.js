@@ -7,17 +7,19 @@ var padding = {top: 20, right: 40, bottom: 0, left: 0},
     picked = 100000,
     firstSpin = true,
     url = '/wof/submit',
-    color = d3.scale.category20();
+    color = d3.scale.category10();
 
 var data = [
-    {label: "5€ Rabatt", value: 1, question: "Hurraa! Dein Rabattcode: "},
-    {label: "Leider nichts", value: 0, question: "Leider Pech gehabt."},
-    {label: "Pech gehabt", value: 0, question: "Leider Pech gehabt."},
-    {label: "5€ Rabatt", value: 1, question: "Hurraa! Dein Rabattcode: "},
-    {label: "5€ Rabatt", value: 1, question: "Hurraa! Dein Rabattcode: "},
-    {label: "Knapp daneben", value: 0, question: "Leider Pech gehabt."},
-    {label: "Ooops", value: 0, question: "Leider Pech gehabt."},
-    {label: "5€ Rabatt", value: 1, question: "Hurraa! Dein Rabattcode: "}
+    {label: "5€ Rabatt", value: 5, question: "Dein Rabattcode: "},
+    {label: "5€ Rabatt", value: 5, question: "Dein Rabattcode: "},
+    {label: "Heute leider kein Glück", value: 0, question: ""},
+    {label: "10€ Rabatt", value: 10, question: "Dein Rabattcode: "},
+    {label: "5€ Rabatt", value: 5, question: "Dein Rabattcode: "},
+    {label: "Oh nein, nichts gewonnen", value: 0, question: ""},
+    {label: "Beim nächsten Mal", value: 0, question: ""},
+    {label: "5€ Rabatt", value: 5, question: "Dein Rabattcode: "},
+    {label: "10€ Rabatt", value: 10, question: "Dein Rabattcode: "},
+    {label: "Oh nein, nichts gewonnen", value: 0, question: ""},
 ];
 
 var svg = d3
@@ -88,25 +90,23 @@ arcs
         return data[i].label;
     });
 
-//container.on("click", spin);
-
-function spin(code) {
+function spin(value, code) {
     if (!firstSpin) {
         return;
     }
-    container.on("click", null);
 
     var ps = 360 / data.length,
-        pieslice = Math.round(1440 / data.length),
         rng = Math.floor(Math.random() * 1440 + 360);
 
     rotation = Math.round(rng / ps) * ps;
-
     picked = Math.round(data.length - (rotation % 360) / ps);
     picked = picked >= data.length ? picked % data.length : picked;
+    if (data[picked].value !== value) {
+        spin(value, code);
+        return;
+    }
 
     rotation += 90 - Math.round(ps / 2);
-
     vis
         .transition()
         .duration(3000)
@@ -117,7 +117,7 @@ function spin(code) {
 
             var text = result.question;
 
-            if (result.value === 1) {
+            if (result.value !== 0) {
                 text += code;
             }
             d3.select("#question h1").text(text)
@@ -158,6 +158,7 @@ function rotTween(to) {
     };
 }
 
+// Cookie stuff
 function setCookie(name, value, days) {
     var expires = "";
     if (days) {
@@ -173,41 +174,43 @@ function getCookie(name) {
     var ca = document.cookie.split(';');
     for (var i = 0; i < ca.length; i++) {
         var c = ca[i];
-        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
     }
     return null;
 }
 
-
+// decide whether to show the wheel or not
 function displayWheel() {
+    $('#wofModal').modal('show');
     if (getCookie('showWheel') === null) {
         setCookie('showWheel', true, 10000);
         $('#wofModal').modal('show');
     }
 }
 
-document.querySelector("#mailForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var form = $(this);
-    $.ajax({
-        url: url,
-        type: "POST",
-        dataType: 'json',
-        data: form.serialize(),
-        success: function (result) {
-            $('#email').addClass("is-valid").removeClass('is-invalid');
-            spin(result.code);
-        },
-        error: function (xhr, resp, text) {
-            if (xhr.responseJSON.status === 'invalid-mail') {
-                $('#email').addClass("is-invalid");
+// display wheel of fortune
+$('document').ready(function () {
+    // catch form submission
+    document.querySelector("#mailForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var form = $(this);
+        $.ajax({
+            url: url,
+            type: "POST",
+            dataType: 'json',
+            data: form.serialize(),
+            success: function (result) {
+                $('#email').addClass("is-valid").removeClass('is-invalid');
+                $('#spinBtn').prop("disabled", true);
+                spin(result.value, result.code);
+            },
+            error: function (xhr, resp, text) {
+                if (xhr.responseJSON.status === 'invalid-mail') {
+                    $('#email').addClass("is-invalid");
+                }
             }
-        }
+        });
     });
+    displayWheel();
 });
-
-setTimeout(function () {
-    console.log("Show now!");
-    displayWheel()
-}, 5000);
