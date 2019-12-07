@@ -103,7 +103,7 @@
 
     {% if current_user.is_authenticated %}
         <!-- Add/Edit Modal-->
-        <div class="modal fade" id="repairModal" tabindex="-1" role="dialog" aria-labelledby="repairModalLabel"
+        <div class="modal fade" id="repairModal" tabindex="-1" role="dialog"
              aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -145,9 +145,8 @@
             </div>
         </div>
     {% endif %}
+    {% include 'wof.html' %}
 {% endblock %}
-
-{% include 'wof.html' %}
 
 {% block js %}
     <script nonce="{{ csp_nonce() }}">

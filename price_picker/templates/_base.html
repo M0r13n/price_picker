@@ -13,7 +13,6 @@
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link href="{{ url_for('static', filename='main.css') }}?v=1.0.9" rel="stylesheet" media="screen">
     <link href="{{ url_for('static', filename='wof.css') }}?v=1.0.10" rel="stylesheet" media="screen">
-    <link href="{{ url_for('static', filename='devices.min.css') }}?v=1.0.0" rel="stylesheet" media="screen">
     {# for various custom styles #}
     {% block css %}
     {% endblock %}
@@ -70,7 +69,20 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
-<script src="{{ url_for('static', filename='main.js') }}?v=1.0.3" type="text/javascript" nonce="{{ csp_nonce() }}"></script>
+<script src="{{ url_for('static', filename='main.js') }}?v=1.0.3" type="text/javascript"
+        nonce="{{ csp_nonce() }}"></script>
+<noscript>
+    <link href="{{ url_for('static', filename='devices.min.css') }}" rel="stylesheet" media="screen">
+</noscript>
+
+<script type="text/javascript" nonce="{{ csp_nonce() }}">
+    var min_css = document.createElement('link');
+    min_css.type = 'text/css';
+    min_css.rel = 'stylesheet';
+    min_css.href = "{{ url_for('static', filename='devices.min.css') }}";
+    var s = document.getElementsByTagName('link')[0];
+    s.parentNode.insertBefore(min_css, s);
+</script>
 {% block js %}{% endblock %}
 
 </body>

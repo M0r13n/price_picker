@@ -4,7 +4,7 @@
         id="wofModal"
         tabindex="-1"
         role="dialog"
-        aria-labelledby="wofModalLabel"
+        aria-describedby="wofModalLabel"
         aria-hidden="true"
 >
     <div class="modal-dialog modal-lg" role="document">
@@ -31,6 +31,7 @@
                         </p>
                         <form id="mailForm">
                             <div class="form-group">
+                                <label for="email" hidden>Email</label>
                                 <input type="email" class="form-control" id="email" name="email"
                                        aria-describedby="emailHelp" placeholder="Deine Email">
                                 <div class="invalid-feedback">
