@@ -1,0 +1,27 @@
+{% extends "admin/panel/_base.html" %}
+{% from "_macros.html" import pagination_widget %}
+{% set active_page='mails' %}
+{% block sub_page %}
+    <h2>Gesammelte Mails</h2>
+    <div class="table-responsive">
+        <table class="table table-striped table-sm">
+            <thead>
+            <tr>
+                <th>Email</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for mail in pagination.items %}
+                <tr>
+                    <td>{{ mail.mail }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="text-center">
+        {% if pagination %}
+            {{ pagination_widget(pagination, '.wof_list_mails') }}
+        {% endif %}
+    </div>
+{% endblock %}

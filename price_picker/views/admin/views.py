@@ -1,8 +1,9 @@
 from flask import Blueprint, redirect, url_for, flash, request, render_template, current_app, jsonify
 from flask_login import current_user, logout_user
-from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, NewRepairForm, NewColorForm, \
+from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, NewRepairForm, \
+    NewColorForm, \
     ContactSettingsForm, MailSettingsForm, ChangePasswordForm, CsvUploadForm, SaleForm, EmailTestForm, AddShopForm
-from price_picker.models import Device, Manufacturer, Repair, Color, Preferences, Enquiry, Shop
+from price_picker.models import Device, Manufacturer, Repair, Color, Preferences, Enquiry, Shop, Mail
 from price_picker import db, analytics
 from price_picker.common.next_page import next_page
 from price_picker.tasks.mail import TestEmail, send_email_task
@@ -63,7 +64,8 @@ def add_device():
     m = request.args.get('manufacturer_id', None, int)
     form = NewDeviceForm()
     if form.validate_on_submit():
-        d = Device().create(name=form.name.data, manufacturer=form.manufacturer.data, picture=form.picture.data, colors=form.colors.data)
+        d = Device().create(name=form.name.data, manufacturer=form.manufacturer.data, picture=form.picture.data,
+                            colors=form.colors.data)
         flash("Gerät erfolgreich hinzugefügt", "success")
         return redirect(url_for('main.select_device', manufacturer_id=d.manufacturer_id))
     if m is not None:
@@ -304,4 +306,16 @@ def stats():
                            total=total,
                            total_24=total_24,
                            top_page=top_page.decode('utf-8') if top_page else '-',
+                           pagination=pagination)
+
+
+# WHEEL OF FORTUNE
+
+@admin_blueprint.route('/wof/list', methods=['GET'])
+def wof_list_mails():
+    page = request.args.get('page', 1, int)
+    query = Mail.query
+    pagination = query.paginate(page, per_page=10, error_out=False)
+    return render_template('admin/panel/mails.html',
+                           sub_title="Mails",
                            pagination=pagination)

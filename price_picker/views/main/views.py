@@ -1,14 +1,48 @@
 import re
 import random
 
-from flask import render_template, Blueprint, flash, redirect, url_for, session, request, current_app, \
-    send_from_directory, jsonify
-from price_picker.models import Manufacturer, Device, User, Repair, Preferences, Enquiry, Mail, CouponCode
-from .forms import LoginForm, SelectRepairForm, contact_form_factory, ContactForm, AddressContactForm
+from flask import (
+    render_template,
+    Blueprint,
+    flash,
+    redirect,
+    url_for,
+    session,
+    request,
+    current_app,
+    send_from_directory,
+    jsonify
+)
+from flask_login import (
+    login_user,
+    logout_user,
+    login_required
+)
+
+from .forms import (
+    LoginForm,
+    SelectRepairForm,
+    contact_form_factory,
+    ContactForm,
+    AddressContactForm
+)
 from price_picker import db
-from flask_login import login_user, logout_user, login_required
-from price_picker.tasks.mail import CustomerConfirmationEmail, send_email_task, EnquiryReceivedEmail, \
+from price_picker.models import (
+    Manufacturer,
+    Device,
+    User,
+    Repair,
+    Preferences,
+    Enquiry,
+    Mail,
+    CouponCode
+)
+from price_picker.tasks.mail import (
+    CustomerConfirmationEmail,
+    send_email_task,
+    EnquiryReceivedEmail,
     configured_confirmation_recipient
+)
 
 main_blueprint = Blueprint("main", __name__)
 
@@ -162,39 +196,51 @@ def static_from_root():
 # API
 @main_blueprint.route('/wof/submit', methods=["POST"])
 def wheel_of_fortune_submit():
+    """
+    Handle a submission of a wheel-of-fortune form.
+    A code is only generated if a seemingly valid email is provided.
+    Also the server decides if the user wins to prevent cheating.
+    """
     mail_check = re.compile('[^@]+@[^@]+\.[^@]+')
     submitted_email = request.form.get('email', default=None)
     code = ''
 
+    # check if the mail matches a normal mail pattern: xx@yy.zz
     if not submitted_email or not mail_check.match(submitted_email):
         return jsonify(dict(status='invalid-mail')), 400
 
+    # prevent multiple use of the same mail
     if Mail.query.filter_by(mail=submitted_email.lower()).first():
         return jsonify(dict(status='invalid-mail')), 400
 
+    # store mail
     Mail.create(mail=submitted_email.lower())
 
+    # randomly choose a discount (or no discount)
     value = random.choice(CouponCode.VALUES + [0])
+    # generate a coupon code
     if value:
         code_chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         for i in range(0, 6):
             slice_start = random.randint(0, len(code_chars) - 1)
             code += code_chars[slice_start: slice_start + 1]
+
+        # store the coupon code in db
         CouponCode.create(code=code, value=value)
 
+    # finally return both the discount-value and the coupon code
     return jsonify(dict(status='ok', code=code, value=value)), 201
 
 
-@main_blueprint.route('/code/verify', methods=["GET", "POST"])
+@main_blueprint.route('/code/verify', methods=["POST"])
 def verify_code():
-    if request.json:
-        code = request.json.get('code')
-    else:
-        code = request.args.get('code')
+    """
+    Verify if a code is valid, aka if we have such code stored in database.
+    """
+    if not request.json or 'code' not in request.json:
+        return jsonify(dict(status='bad-request', message="Missing attribute \"code\" in request-json.")), 400
 
-    if not code:
-        return jsonify(dict(status='invalid-code')), 404
-
+    code = request.json.get('code')
     code = CouponCode.query.filter_by(code=code).first()
     if not code:
         return jsonify(dict(status='invalid-code')), 404
@@ -203,7 +249,10 @@ def verify_code():
 
 
 # NO VIEW FUNCTIONS
+
+
 def _send_mails(form, enquiry):
+    # send mails as a background task via celery
     if form.email.data:
         send_email_task.delay(CustomerConfirmationEmail(recipients=form.email.data).__dict__)
     rp = configured_confirmation_recipient()
@@ -224,7 +273,10 @@ def _complete(order: bool, device: Device, form: ContactForm) -> bool:
         code = CouponCode.query.filter_by(code=form.coupon.data).first()
         if code:
             discount = code.value
+            # delete the code to free up space and prevent reuse
+            code.delete()
 
+    # check which form was submitted
     if isinstance(form, AddressContactForm):
         e = Enquiry.create(color=color,
                            device=device,
