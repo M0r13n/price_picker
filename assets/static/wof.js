@@ -7,19 +7,24 @@ var padding = {top: 20, right: 40, bottom: 0, left: 0},
     picked = 100000,
     firstSpin = true,
     url = '/wof/submit',
-    color = d3.scale.category10();
+    //color = d3.scale.category10();
+    color = function (i) {
+    var x = [ d3.rgb("#ff8f0c"), d3.rgb("#b3151c"),d3.rgb("#800d03")];
+        return x[i%x.length];
+    };
 
 var data = [
     {label: "5€ Rabatt", value: 5, question: "Dein Rabattcode: "},
     {label: "5€ Rabatt", value: 5, question: "Dein Rabattcode: "},
-    {label: "Heute leider kein Glück", value: 0, question: ""},
+    {label: "Leider kein Glück", value: 0, question: ""},
     {label: "10€ Rabatt", value: 10, question: "Dein Rabattcode: "},
     {label: "5€ Rabatt", value: 5, question: "Dein Rabattcode: "},
-    {label: "Oh nein, nichts gewonnen", value: 0, question: ""},
+    {label: "Schade", value: 0, question: ""},
     {label: "Beim nächsten Mal", value: 0, question: ""},
     {label: "5€ Rabatt", value: 5, question: "Dein Rabattcode: "},
     {label: "10€ Rabatt", value: 10, question: "Dein Rabattcode: "},
-    {label: "Oh nein, nichts gewonnen", value: 0, question: ""},
+    {label: "Leider kein Glück", value: 0, question: ""},
+    {label: "Schade", value: 0, question: ""},
 ];
 
 var svg = d3
@@ -182,6 +187,7 @@ function getCookie(name) {
 
 // decide whether to show the wheel or not
 function displayWheel() {
+    $('#wofModal').modal('show');
     if (getCookie('showWheel') === null) {
         setCookie('showWheel', true, 10000);
         $('#wofModal').modal('show');

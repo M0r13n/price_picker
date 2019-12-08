@@ -2,7 +2,9 @@
 html, body {
     font-family: Helvetica, Arial, sans-serif;
     height: 100%;
+    overflow-x: hidden;
 }
+
 .footer {
     position: relative;
     margin-top: -75px; /* negative value of footer height */
