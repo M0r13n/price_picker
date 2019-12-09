@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, url_for, flash, request, render_template, current_app, jsonify
+from flask import Blueprint, redirect, url_for, flash, request, render_template, current_app, jsonify, make_response
 from flask_login import current_user, logout_user
 from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, NewRepairForm, \
     NewColorForm, \
@@ -9,7 +9,8 @@ from price_picker.common.next_page import next_page
 from price_picker.tasks.mail import TestEmail, send_email_task
 from price_picker.common.csv_import import RepairCsvImporter
 import datetime as dt
-
+import io
+import csv
 admin_blueprint = Blueprint("admin", __name__, url_prefix="/admin")
 
 
@@ -319,3 +320,16 @@ def wof_list_mails():
     return render_template('admin/panel/mails.html',
                            sub_title="Mails",
                            pagination=pagination)
+
+
+@admin_blueprint.route('/wof/mails/export', methods=['GET'])
+def export_mails():
+    mails = Mail.query.all()
+    si = io.StringIO()
+    cw = csv.writer(si, delimiter=';')
+    cw.writerow(['Mails'])
+    cw.writerows([mails])
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=export.csv"
+    output.headers["Content-type"] = "text/csv"
+    return output
