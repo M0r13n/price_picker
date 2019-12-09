@@ -23,21 +23,22 @@
                     <div class="container-nobs">
                         <p>
                             Nutze deine Chance auf fette Rabatte.
-                        </p>
-                        <p class="text-secondary">
-                            * Du kannst das Rad nur einmal drehen<br>
-                            * Schummler werden disqualifiziert
+                            <small class="form-text text-muted">*Du kannst das Rad nur einmal drehen.</small>
+                            <small class="form-text text-muted">*Rabattcodes sind nicht kombinierbar.</small>
                         </p>
                         <form id="mailForm">
                             <div class="form-group">
                                 <label for="email" hidden>Email</label>
-                                <input type="email" class="form-control" id="email" name="email"
-                                       aria-describedby="emailHelp" placeholder="Deine Email">
+                                <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp" placeholder="Deine Email">
                                 <div class="invalid-feedback">
                                     Email ungültig oder bereits genutzt!
                                 </div>
-                                <small id="emailHelp" class="form-text text-muted">Wir teilen deine Daten mit
-                                    niemandem!</small>
+                            </div>
+                            <div class="form-check" id="termsAndConditionsCheckBox">
+                                <input type="checkbox" required class="form-check-input" id="termsAndConditions" aria-describedby="acceptTermsAndConditions" checked>
+                                <label class="form-check-label" for="termsAndConditions" id="termsAndConditionsLabel">Ich möchte den Newsletter abbonieren, stimme den
+                                    <a href="https://www.smartphoniker.de/agb/" target="_blank">AGB's</a> zu und habe die
+                                    <a href="https://www.smartphoniker.de/datenschutz/" target="_blank">Datenschutzerklärung</a> gelesen.</label>
                             </div>
                             <button type="submit" class="btn btn-block btn-primary" id="spinBtn">Versuche dein Glück
                                 &#9994;

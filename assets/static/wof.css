@@ -15,6 +15,23 @@
     font-size: 30px;
 }
 
+.form-check-label {
+    font-size: small;
+    padding-bottom: 10px;
+}
+
+#termsAndConditionsLabel a:visited,
+#termsAndConditionsLabel a:link {
+    color: darkorange;
+}
+
+
+#termsAndConditionsLabel a:hover,
+#termsAndConditionsLabel a:active {
+    color: darkred;
+}
+
+
 .gewinne-modal {
     width: 100vw;
     max-width: 100vw;

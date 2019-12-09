@@ -197,6 +197,9 @@ function displayWheel() {
 $('document').ready(function () {
     // catch form submission
     document.querySelector("#mailForm").addEventListener("submit", function (e) {
+        if(!$('#termsAndConditions').val()){
+            return false;
+        }
         e.preventDefault();
         var form = $(this);
         $.ajax({
