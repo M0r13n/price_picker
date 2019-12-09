@@ -1,16 +1,58 @@
-from flask import Blueprint, redirect, url_for, flash, request, render_template, current_app, jsonify, make_response
-from flask_login import current_user, logout_user
-from .forms import NewDeviceForm, EditDeviceForm, NewManufacturerForm, EditManufacturerForm, NewRepairForm, \
-    NewColorForm, \
-    ContactSettingsForm, MailSettingsForm, ChangePasswordForm, CsvUploadForm, SaleForm, EmailTestForm, AddShopForm
-from price_picker.models import Device, Manufacturer, Repair, Color, Preferences, Enquiry, Shop, Mail
-from price_picker import db, analytics
-from price_picker.common.next_page import next_page
-from price_picker.tasks.mail import TestEmail, send_email_task
-from price_picker.common.csv_import import RepairCsvImporter
 import datetime as dt
 import io
 import csv
+
+from sqlalchemy import desc
+from flask import (
+    Blueprint,
+    redirect,
+    url_for,
+    flash,
+    request,
+    render_template,
+    current_app,
+    jsonify,
+    make_response
+)
+from flask_login import (
+    current_user,
+    logout_user
+)
+
+from price_picker.models import (
+    Device,
+    Manufacturer,
+    Repair,
+    Color,
+    Preferences,
+    Enquiry,
+    Shop,
+    Mail
+)
+from price_picker import (
+    db,
+    analytics
+)
+from price_picker.common.next_page import next_page
+from price_picker.tasks.mail import TestEmail, send_email_task
+from price_picker.common.csv_import import RepairCsvImporter
+
+from .forms import (
+    NewDeviceForm,
+    EditDeviceForm,
+    NewManufacturerForm,
+    EditManufacturerForm,
+    NewRepairForm,
+    NewColorForm,
+    ContactSettingsForm,
+    MailSettingsForm,
+    ChangePasswordForm,
+    CsvUploadForm,
+    SaleForm,
+    EmailTestForm,
+    AddShopForm
+)
+
 admin_blueprint = Blueprint("admin", __name__, url_prefix="/admin")
 
 
@@ -315,7 +357,7 @@ def stats():
 @admin_blueprint.route('/wof/list', methods=['GET'])
 def wof_list_mails():
     page = request.args.get('page', 1, int)
-    query = Mail.query
+    query = Mail.query.order_by(desc(Mail.id))
     pagination = query.paginate(page, per_page=10, error_out=False)
     return render_template('admin/panel/mails.html',
                            sub_title="Mails",
