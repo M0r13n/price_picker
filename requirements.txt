@@ -16,3 +16,4 @@ redis
 celery
 sentry-sdk[flask]
 speaklater
+requests

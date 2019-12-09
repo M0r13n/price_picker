@@ -43,6 +43,10 @@ from price_picker.tasks.mail import (
     EnquiryReceivedEmail,
     configured_confirmation_recipient
 )
+from price_picker.common.slack_notifications import (
+    send_cash_notification,
+    send_after
+)
 
 main_blueprint = Blueprint("main", __name__)
 
@@ -195,6 +199,7 @@ def static_from_root():
 
 # API
 @main_blueprint.route('/wof/submit', methods=["POST"])
+@send_after(send_cash_notification)
 def wheel_of_fortune_submit():
     """
     Handle a submission of a wheel-of-fortune form.

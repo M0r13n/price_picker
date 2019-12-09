@@ -26,6 +26,7 @@ class BaseConfig(object):
     DSN = os.getenv("DSN")
     SESSION_COOKIE_HTTPONLY = True
     REMEMBER_COOKIE_HTTPONLY = True
+    SLACK_WEBHOOK = os.environ.get("SLACK_WEBHOOK")
 
 
 class DevelopmentConfig(BaseConfig):
