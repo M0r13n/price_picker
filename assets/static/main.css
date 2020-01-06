@@ -2,13 +2,12 @@
 html, body {
     font-family: Helvetica, Arial, sans-serif;
     height: 100%;
-    overflow-x: hidden;
 }
 
 .footer {
     position: relative;
-    margin-top: -75px; /* negative value of footer height */
-    height: 75px;
+    margin-top: -30px; /* negative value of footer height */
+    height: 30px;
     clear: both;
     padding-top: 20px;
 }

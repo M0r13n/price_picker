@@ -3,7 +3,6 @@
 {% set step_count = 1 %}
 {% set sub_title = "Geräteauswahl" %}
 {% block sub_page %}
-    <div class="container">
         <div class="row">
             {% for device in devices %}
                 {{ render_device(device) }}
@@ -24,7 +23,6 @@
         </div>
         <br>
         <a class="btn btn-secondary" href="{{ url_for('main.home') }}">&laquo; Zurück</a>
-    </div>
     <!-- Delete Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
          aria-hidden="true">

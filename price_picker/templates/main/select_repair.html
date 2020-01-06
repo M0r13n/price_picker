@@ -4,66 +4,65 @@
 {% set step_count = 3 %}
 {% set sub_title = "Reparaturauswahl" %}
 {% block sub_page %}
-    <div class="container">
-        <div class="row">
-            {% for repair in repairs %}
-                {{ render_repair(repair) }}
-            {% endfor %}
+    <div class="row">
+        {% for repair in repairs %}
+            {{ render_repair(repair) }}
+        {% endfor %}
 
-            <!-- Always include an arbitrary choice-->
-            <div class="col-sm-4 py-2 text-center">
-                <div class="card h-100" data-toggle="modal" data-target="#arbitraryModal">
-                    <div class="card-header">
-                        <h4 class="my-0 font-weight-normal">Sonstige</h4>
-                    </div>
-                    <div class="card-body">
-                        Preis auf Anfrage
+        <!-- Always include an arbitrary choice-->
+        <div class="col-sm-4 py-2 text-center">
+            <div class="card h-100" data-toggle="modal" data-target="#arbitraryModal">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">Sonstige</h4>
+                </div>
+                <div class="card-body">
+                    Preis auf Anfrage
+                </div>
+            </div>
+        </div>
+
+        <!-- Always include an add option if admin is logged in-->
+        {% if current_user.is_authenticated %}
+            <div class="col-sm-4 py-2 text-center" id="newRepair">
+                <div class="card bg-primary h-100">
+                    <div class="card-body text-white align-items-center d-flex justify-content-center">
+                        <h1>Neu</h1>
                     </div>
                 </div>
             </div>
+        {% endif %}
+    </div>
+    <br>
 
-            <!-- Always include an add option if admin is logged in-->
-            {% if current_user.is_authenticated %}
-                <div class="col-sm-4 py-2 text-center" id="newRepair">
-                    <div class="card bg-primary h-100">
-                        <div class="card-body text-white align-items-center d-flex justify-content-center">
-                            <h1>Neu</h1>
-                        </div>
-                    </div>
-                </div>
+    <!-- Store selected repairs inside a hidden form -->
+    <form class="form" role="form" method="post" id="repairSubmitForm">
+        <div class="text-center">
+            {{ form.hidden_tag() }}
+            {{ form.repairs(hidden=True) }}
+            {{ form.color(hidden=True, id='colorField') }}
+            {% if config['ACTIVE_SALE']==True %}
+                <input class="btn btn-success btn-block col-md-6 offset-md-3 enableIfSelected" type="submit"
+                       name="estimation"
+                       value="Kostenvoranschlag anfordern und {{ config['SALE_AMOUNT']}}&euro; Rabatt erhalten"
+                       disabled="disabled">
+                <input class="btn btn-success btn-block col-md-6 offset-md-3 enableIfSelected" type="submit"
+                       name="order"
+                       value="Zahlungspflichtig bestellen und {{ config['SALE_AMOUNT']}}&euro; Rabatt erhalten"
+                       disabled="disabled">
+            {% else %}
+                <input class="btn btn-success btn-block col-md-6 offset-md-3 enableIfSelected" type="submit"
+                       name="estimation"
+                       value="Kostenvoranschlag anfordern" disabled="disabled">
+                <input class="btn btn-success btn-block col-md-6 offset-md-3 enableIfSelected" type="submit"
+                       name="order"
+                       value="Zahlungspflichtig bestellen" disabled="disabled">
             {% endif %}
         </div>
-        <br>
+    </form>
+    <br>
+    <a class="btn btn-secondary" href="{{ url_for('main.select_device', manufacturer_id=device.manufacturer.id) }}">&laquo;
+        Zurück</a>
 
-        <!-- Store selected repairs inside a hidden form -->
-        <form class="form" role="form" method="post" id="repairSubmitForm">
-            <div class="text-center">
-                {{ form.hidden_tag() }}
-                {{ form.repairs(hidden=True) }}
-                {{ form.color(hidden=True, id='colorField') }}
-                {% if config['ACTIVE_SALE']==True %}
-                    <input class="btn btn-success btn-block col-md-6 offset-md-3 enableIfSelected" type="submit"
-                           name="estimation"
-                           value="Kostenvoranschlag anfordern und {{ config['SALE_AMOUNT']}}&euro; Rabatt erhalten"
-                           disabled="disabled">
-                    <input class="btn btn-success btn-block col-md-6 offset-md-3 enableIfSelected" type="submit"
-                           name="order"
-                           value="Zahlungspflichtig bestellen und {{ config['SALE_AMOUNT']}}&euro; Rabatt erhalten"
-                           disabled="disabled">
-                {% else %}
-                    <input class="btn btn-success btn-block col-md-6 offset-md-3 enableIfSelected" type="submit"
-                           name="estimation"
-                           value="Kostenvoranschlag anfordern" disabled="disabled">
-                    <input class="btn btn-success btn-block col-md-6 offset-md-3 enableIfSelected" type="submit"
-                           name="order"
-                           value="Zahlungspflichtig bestellen" disabled="disabled">
-                {% endif %}
-            </div>
-        </form>
-        <br>
-        <a class="btn btn-secondary" href="{{ url_for('main.select_device', manufacturer_id=device.manufacturer.id) }}">&laquo;
-            Zurück</a>
-    </div>
 
     <!-- 'sonstige' Modal -->
     <div class="modal fade" id="arbitraryModal" tabindex="-1" role="dialog" aria-labelledby="arbitraryModalLabel"
@@ -145,7 +144,7 @@
             </div>
         </div>
     {% endif %}
-{% include 'wof.html' %}
+    {% include 'wof.html' %}
 {% endblock %}
 
 {% block js %}

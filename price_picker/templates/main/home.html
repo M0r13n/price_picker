@@ -5,50 +5,48 @@
     <h1 class="text-center">Wie lautet der Hersteller?</h1>
     <br>
 
-    <div class="container">
-        <div class="row">
-            {% for manufacturer in manufacturers %}
-                {{ render_manufacturer(manufacturer) }}
-            {% endfor %}
+    <div class="row">
+        {% for manufacturer in manufacturers %}
+            {{ render_manufacturer(manufacturer) }}
+        {% endfor %}
 
-            {% if current_user.is_authenticated %}
-                <!-- Always include an add option if admin is logged in-->
-                <div class="col-sm-4 py-2 text-center">
-                    <a href="{{ url_for('admin.add_manufacturer') }}"
-                       class="stretched-link"></a>
-                    <div class="card bg-primary h-100">
-                        <div class="card-body text-white align-items-center d-flex justify-content-center">
-                            <h1>Neu</h1>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
-        </div>
         {% if current_user.is_authenticated %}
-            <!-- Delete Modal -->
-            <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
-                 aria-hidden="true">
-                <div class="modal-dialog text-center" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="deleteModalLabel">Bist du sicher?</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <p>Soll der Hersteller wirklich entfernt werden? Alle Geräten werden dann ebenfalls
-                                gelöscht!</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
-                            <button class="btn btn-danger" id="deleteConfirmBtn">Ja</button>
-                        </div>
+            <!-- Always include an add option if admin is logged in-->
+            <div class="col-sm-4 py-2 text-center">
+                <a href="{{ url_for('admin.add_manufacturer') }}"
+                   class="stretched-link"></a>
+                <div class="card bg-primary h-100">
+                    <div class="card-body text-white align-items-center d-flex justify-content-center">
+                        <h1>Neu</h1>
                     </div>
                 </div>
             </div>
         {% endif %}
     </div>
+    {% if current_user.is_authenticated %}
+        <!-- Delete Modal -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog text-center" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel">Bist du sicher?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Soll der Hersteller wirklich entfernt werden? Alle Geräten werden dann ebenfalls
+                            gelöscht!</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
+                        <button class="btn btn-danger" id="deleteConfirmBtn">Ja</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block js %}

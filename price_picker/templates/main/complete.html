@@ -4,7 +4,6 @@
 {% set step_count = 5 %}
 {% set sub_title = "Auftragsdaten" %}
 {% block sub_page %}
-    <div class="container">
         <div class="col-lg-8 col-sm-8 offset-lg-2">
             <h2 class="text-center">Persönliche Daten</h2>
             <hr>
@@ -35,7 +34,6 @@
             </p>
         </div>
         <a class="btn btn-secondary" href="{{ url_for('main.select_repair', device_id=device_id) }}">&laquo; Zurück</a>
-    </div>
 {% endblock %}
 
 {% block js %}

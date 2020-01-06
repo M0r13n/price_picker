@@ -4,16 +4,14 @@
 {% set step_count = 2 %}
 {% set sub_title = "Farbauswahl" %}
 {% block sub_page %}
-    <div class="container">
-        <div class="row justify-content-md-center">
-            {% for color in device.colors %}
-                {{ render_color(color) }}
-            {% endfor %}
-        </div>
-        <br>
-        <a class="btn btn-secondary" href="{{ url_for('main.select_device', manufacturer_id=device.manufacturer.id) }}">&laquo;
-            Zurück</a>
+    <div class="row justify-content-md-center">
+        {% for color in device.colors %}
+            {{ render_color(color) }}
+        {% endfor %}
     </div>
+    <br>
+    <a class="btn btn-secondary" href="{{ url_for('main.select_device', manufacturer_id=device.manufacturer.id) }}">&laquo;
+        Zurück</a>
 {% endblock %}
 
 {% block js %}

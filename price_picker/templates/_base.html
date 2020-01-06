@@ -40,36 +40,34 @@
 
 {% include 'header.html' %}
 
-<div class="site-content">
-    <div class="container" id="main">
-        <!-- messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <br>
-                <div class="row">
-                    <div class="col-md-12">
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }}">
-                                <a class="close" title="Close" href="#" data-dismiss="alert">&times;</a>
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    </div>
+<div class="site-content container">
+    <!-- messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <br>
+            <div class="row">
+                <div class="col-md-12">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <a class="close" title="Close" href="#" data-dismiss="alert">&times;</a>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
                 </div>
-            {% endif %}
-        {% endwith %}
-
-        <!-- child template -->
-        {% block content %}{% endblock %}
-
-        <br>
-
-        <!-- errors -->
-        {% if error %}
-            <p class="error"><strong>Error:</strong> {{ error }}</p>
+            </div>
         {% endif %}
+    {% endwith %}
 
-    </div>
+    <!-- child template -->
+    {% block content %}{% endblock %}
+
+    <br>
+
+    <!-- errors -->
+    {% if error %}
+        <p class="error"><strong>Error:</strong> {{ error }}</p>
+    {% endif %}
+
 </div>
 {% include 'footer.html' %}
 <!-- scripts -->
