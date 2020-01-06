@@ -11,10 +11,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-    <!-- styles -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link href="{{ url_for('static', filename='main.css') }}?v=1.0.9" rel="stylesheet" media="screen">
     <!--Favicon-->
     <link rel="apple-touch-icon" sizes="120x120"
           href="{{ url_for('static', filename='fav/apple-touch-icon.png') }}">
@@ -88,17 +84,26 @@
 
 <script type="text/javascript" nonce="{{ csp_nonce() }}">
     /* Load css after the initial page is ready */
-    function lazyLoad(element, type, rel, link) {
+    function lazyLoad(element, type, rel, link, crossOrigin = "anonymous", integrity = false) {
         var x = document.createElement(element);
         x.type = type;
         x.rel = rel;
         x.href = link;
+
+        // subresource integrity for external content from different domains
+        if (integrity) {
+            x.crossOrigin = crossOrigin;
+            x.integrity = integrity;
+        }
+
         var s = document.getElementsByTagName(element)[0];
         s.parentNode.insertBefore(x, s);
     }
 
     lazyLoad('link', 'text/css', 'stylesheet', "{{ url_for('static', filename='devices.min.css') }}");
     lazyLoad('link', 'text/css', 'stylesheet', "{{ url_for('static', filename='wof.css') }}");
+    lazyLoad('link', 'text/css', 'stylesheet', "{{ url_for('static', filename='main.css') }}");
+    lazyLoad('link', 'text/css', 'stylesheet', "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css", crossorigin = "anonymous", integrity = "sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T");
 </script>
 {% block js %}{% endblock %}
 
