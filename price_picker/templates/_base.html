@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="de">
-<head>
     <meta charset="utf-8">
     <title>Preiskalkulator{% block title %}{% endblock %}</title>
     <!-- meta -->
@@ -23,6 +22,8 @@
     <link rel="mask-icon"
           href="{{ url_for('static', filename='fav/safari-pinned-tab.svg') }}"
           color="#5bbad5">
+    {# Bootstrap #}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <meta name="msapplication-TileColor" content="#da532c">
     {# for various custom styles #}
     {% block css %}
@@ -103,7 +104,7 @@
     lazyLoad('link', 'text/css', 'stylesheet', "{{ url_for('static', filename='devices.min.css') }}");
     lazyLoad('link', 'text/css', 'stylesheet', "{{ url_for('static', filename='wof.css') }}");
     lazyLoad('link', 'text/css', 'stylesheet', "{{ url_for('static', filename='main.css') }}");
-    lazyLoad('link', 'text/css', 'stylesheet', "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css", crossorigin = "anonymous", integrity = "sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T");
+    //lazyLoad('link', 'text/css', 'stylesheet', "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css", crossorigin = "anonymous", integrity = "sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T");
 </script>
 {% block js %}{% endblock %}
 
