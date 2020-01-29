@@ -45,7 +45,9 @@ from price_picker.tasks.mail import (
 )
 from price_picker.common.slack_notifications import (
     send_cash_notification,
-    send_after
+    send_after,
+    send_login_notice,
+    send_login_failed_notice
 )
 
 main_blueprint = Blueprint("main", __name__)
@@ -171,8 +173,10 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
+            send_login_notice()
             flash('Du wurdest erfolgreich eingeloggt', 'success')
             return redirect(url_for('.home'))
+        send_login_failed_notice(form.username.data)
         flash('Falsches Passwort oder Nutzername', 'danger')
     return render_template('main/login.html', form=form)
 
